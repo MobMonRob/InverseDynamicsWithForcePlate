@@ -1,0 +1,19 @@
+1. Was sind die generalisierten Koordinaten für ur5e?
+Für nicht ur5e kann ich Beispiele aus der VL nennen: Pendel in 2D und in 3D wie in der VL RB1. 
+Diese generalisierten Koordinaten können nach Worten von T> Asfour alles sein.
+Ich möchte am konkreten Bsp. eines Roboters (idealerweise ur5e) sehen, was sie  für ihn sind.
+
+2. Ur5e hat 6 rotatorischen Gelenke.
+Die Bewegungsgleichungmatrix für alle seine Gelenke ist dann [0 0 1 0 0 0]^T (nach S.79 aus Rigid Body Dynamics Algorithms) - ist das korrekt?
+
+3. Wie sehen "Spatial Vectors" aus?
+Wie ich verstanden habe, beinhalten sie die linearen und "winkeligen" Komponenten. Ist das korrekt? Heißen sie auf Deutsch "Ortsvektoren"?
+
+4. Letzte Woche haben wir kurz über ein Modell von ur5e geredet. Ging es um die urdf Datei für ur5e? Wenn ja, dann möchte ich sie haben.
+
+5. Wie kommt dort die Festlegung der Axen zustande? http://wiki.ros.org/urdf/Tutorials/Create%20your%20own%20urdf%20file
+Ich glaube, sie haben sich dort vertan. Zumindest bei der Erklärung.
+
+==
+Nur zur Info: Das habe ich mir angeschaut: https://scaron.info/robotics/recursive-newton-euler-algorithm.html
+(und manche andere Artikel von ihm und so auf das Buch Rigid Body Dynamics Algorithms gekommen).
