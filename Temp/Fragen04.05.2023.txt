@@ -9,8 +9,9 @@ Die Bewegungsgleichungmatrix für alle seine Gelenke ist dann [0 0 1 0 0 0]^T (n
 
 3. Wie sehen "Spatial Vectors" aus?
 Wie ich verstanden habe, beinhalten sie die linearen und "winkeligen" Komponenten. Ist das korrekt? Heißen sie auf Deutsch "Ortsvektoren"?
+Eigene Antwort: Soll richtig sein, AUszug aus dem Buch, Kapitel 1.2: In spatial vector notation, we use 6D vectors that combine the linear and angular aspects of rigid-body motion. Thus, linear and angular acceleration are combined to form a spatial acceleration vector, force and moment are combined to form a spatial force vector, and so on.
 
-4. Letzte Woche haben wir kurz über ein Modell von ur5e geredet. Ging es um die urdf Datei für ur5e? Wenn ja, dann möchte ich sie haben.
+4. Wir haben kurz über irgendein Modell von ur5e geredet. Ging es um die urdf Datei für ur5e? Wenn ja, dann möchte ich sie haben.
 
 5. Wie kommt dort die Festlegung der Axen zustande? http://wiki.ros.org/urdf/Tutorials/Create%20your%20own%20urdf%20file
 Ich glaube, sie haben sich dort vertan. Zumindest bei der Erklärung.
