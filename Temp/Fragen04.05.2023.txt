@@ -1,18 +1,33 @@
 1. Was sind die generalisierten Koordinaten für ur5e?
-Für nicht ur5e kann ich Beispiele aus der VL nennen: Pendel in 2D und in 3D wie in der VL RB1. 
-Diese generalisierten Koordinaten können nach Worten von T> Asfour alles sein.
+Für nicht ur5e kann ich Beispiele aus der VL nennen: Pendel in 2D und in 3D wie in der VL RB1.
+Diese generalisierten Koordinaten können nach Worten von T. Asfour alles sein.
 Ich möchte am konkreten Bsp. eines Roboters (idealerweise ur5e) sehen, was sie  für ihn sind.
+Eigene Antwort: Da alle sechs Gelenke von ur5e rotatorisch sind und die DH-Konvention verwendet wird,
+reichen die Gelenkwinkel aus, um die Konfiguration des Roboters eindeutig zu beschreiben. Denn bei
+der DH-Konvention für rotatorische Gelenke sind Armelementlänge, Verdrehung, Gelebkabstand konstant,
+nur Gelenkwinkel ändert sich. (Siehe Tabelle auf der Folie "Denavit-Hartenberg Parameter: DH-Parameter"
+in der VL). Somit sind die generalisierten Koordinaten für ur5e sechs Gelenkwinkel (ein Winkel für jedes Gelenk).
 
 2. Ur5e hat 6 rotatorischen Gelenke.
 Die Bewegungsgleichungmatrix für alle seine Gelenke ist dann [0 0 1 0 0 0]^T (nach S.79 aus Rigid Body Dynamics Algorithms) - ist das korrekt?
+Das ist für den Newton-Euler-Algorithmus relevant, falls man ihn so verwendet, wie im Buch Rigid Body Dynamics Algorithms
+auf der Seite 96 vorgeführt, diese Matrix wird dort mit S_i bezeichnet. In der VL wird sie mit "phi" bezeichnet
+(siehe Folie mit dem Titel Vollständiger Algorithmus).
 
 3. Wie sehen "Spatial Vectors" aus?
-Wie ich verstanden habe, beinhalten sie die linearen und "winkeligen" Komponenten. Ist das korrekt? Heißen sie auf Deutsch "Ortsvektoren"?
+Wie ich verstanden habe, beinhalten sie die linearen und "winkeligen" Komponenten. Ist das korrekt? Heißen sie
+auf Deutsch "Ortsvektoren"?
+Eigene Antwort: Soll richtig sein, Auszug aus dem Buch, Kapitel 1.2: In spatial vector notation, we use 6D
+vectors that combine the linear and angular aspects of rigid-body motion. Thus, linear and angular acceleration
+are combined to form a spatial acceleration vector, force and moment are combined to form a spatial force vector, and so on.
 
-4. Letzte Woche haben wir kurz über ein Modell von ur5e geredet. Ging es um die urdf Datei für ur5e? Wenn ja, dann möchte ich sie haben.
+4. Wir haben kurz über irgendein Modell von ur5e geredet. Ging es um die urdf Datei für ur5e? Wenn ja,
+dann möchte ich sie haben.
 
 5. Wie kommt dort die Festlegung der Axen zustande? http://wiki.ros.org/urdf/Tutorials/Create%20your%20own%20urdf%20file
 Ich glaube, sie haben sich dort vertan. Zumindest bei der Erklärung.
+
+6. Welche DH-Notation wird verwendet? Aus der VL kenne ich nur die modifizierte Variante von Waldron und Paul.
 
 ==
 Nur zur Info: Das habe ich mir angeschaut: https://scaron.info/robotics/recursive-newton-euler-algorithm.html
