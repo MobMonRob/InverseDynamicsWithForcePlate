@@ -669,7 +669,7 @@ class URDFparser(object):
             "dual_quaternion_fk": dual_quaternion_fk,
             "T_fk": T_fk
         }
-    
+
     def get_inverse_dynamics_rnea_bottom_up(self, root, tip):
         """Returns the inverse dynamics as a casadi function."""
         if self.robot_desc is None:
@@ -679,7 +679,7 @@ class URDFparser(object):
         q = cs.SX.sym("q", n_joints)
         q_dot = cs.SX.sym("q_dot", n_joints)
         q_ddot = cs.SX.sym("q_ddot", n_joints)
-        p_X_i, Si = self._model_calculation(root, tip, q)
+        i_X_p, Si, _ = self._model_calculation(root, tip, q)
 
         f_root = cs.SX.sym("f", 6)
         f = []
@@ -690,9 +690,9 @@ class URDFparser(object):
         for i in range(0, n_joints):
             tau[i] = cs.mtimes(Si[i].T, f[i])
             if i != n_joints:
-                f.append(f[i] - cs.mtimes(p_X_i[i].T, f[i]))
+                f.append(f[i] - cs.mtimes(i_X_p[i].T, f[i]))
 
-        tau = cs.Function("C_bottom_up", [q, q_dot, q_ddot, f_root], [tau], self.func_opts)
+        tau = cs.Function("C", [q, q_dot, q_ddot, f_root], [tau], self.func_opts)
         return tau
 
     def _model_calculation_bottom_up(self, root, tip, q):
