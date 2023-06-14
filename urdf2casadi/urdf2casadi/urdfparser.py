@@ -670,7 +670,7 @@ class URDFparser(object):
             "T_fk": T_fk
         }
     
-    def get_inverse_dynamics_rnea_bottom_up(self, root, tip, f):
+    def get_inverse_dynamics_rnea_bottom_up(self, root, tip):
         """Returns the inverse dynamics as a casadi function."""
         if self.robot_desc is None:
             raise ValueError('Robot description not loaded from urdf')
@@ -679,16 +679,21 @@ class URDFparser(object):
         q = cs.SX.sym("q", n_joints)
         q_dot = cs.SX.sym("q_dot", n_joints)
         q_ddot = cs.SX.sym("q_ddot", n_joints)
-        p_X_i, Si = self._model_calculation_bottom_up(root, tip, q)
+        p_X_i, Si = self._model_calculation(root, tip, q)
 
-        f[0] = f
+        f_root = cs.SX.sym("f", 6)
+        f = []
+        tau = cs.SX.zeros(n_joints)
+
+        f.append(f_root)
+
         for i in range(0, n_joints):
             tau[i] = cs.mtimes(Si[i].T, f[i])
             if i != n_joints:
-                f[i+1] = f[i] - cs.mtimes(p_X_i[i].T, f[i])
+                f.append(f[i] - cs.mtimes(p_X_i[i].T, f[i]))
 
-        tau_func = cs.Function("C", [q, q_dot, q_ddot], [tau], self.func_opts)
-        return tau_func
+        tau = cs.Function("C_bottom_up", [q, q_dot, q_ddot, f_root], [tau], self.func_opts)
+        return tau
 
     def _model_calculation_bottom_up(self, root, tip, q):
         """Calculates and returns model information needed in the
