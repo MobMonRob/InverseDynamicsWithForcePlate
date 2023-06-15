@@ -16,9 +16,10 @@ print("joint information for first joint:\n", joint_list[0])
 print("\n q max:", q_max)
 print("\n q min:", q_min)
 
-tau_sym = ur5.get_inverse_dynamics_rnea_bottom_up(root, tip)
+tau_sym, force_first_joint_sym, force_base_sym = ur5.get_inverse_dynamics_rnea(root, tip)
+tau_sym_bu = ur5.get_inverse_dynamics_rnea_bottom_up(root, tip)
+# tau_sym_bu, force_first_joint_sym_bu, force_base_sym_bu = ur5.get_inverse_dynamics_rnea_bottom_up(root, tip)
 
-f_root = [.4, .8, .15, .16, .23, .42]
 q = [None]*n_joints
 q_dot = [None]*n_joints
 q_ddot = [None]*n_joints
@@ -28,5 +29,34 @@ for i in range(n_joints):
     q_dot[i] = (q_max[i] - q_min[i])*np.random.rand()-(q_max[i] - q_min[i])/2
     q_ddot[i] = (q_max[i] - q_min[i])*np.random.rand()-(q_max[i] - q_min[i])/2
 
-tau_num = tau_sym(q, q_dot, q_ddot, f_root)
-print("Numerical inverse dynamics: \n", tau_num)
+tau_num_classic = tau_sym(q, q_dot, q_ddot)
+print("RNEA numerical inverse dynamics: \n", tau_num_classic)
+
+force_first_joint = force_first_joint_sym(q, q_dot, q_ddot)
+print("Spatial force through the first joint: \n", force_first_joint)
+
+force_base = force_base_sym(q, q_dot, q_ddot)
+print("Spatial force of the base: \n", force_base)
+
+print("############################################################")
+
+tau_num_bu = tau_sym_bu(q, q_dot, q_ddot, force_base)
+print("BU numerical inverse dynamics: \n", tau_num_bu)
+
+# force_first_joint_bu = force_first_joint_sym_bu(q, q_dot, q_ddot)
+# print("Spatial force through the first joint: \n", force_first_joint_bu)
+
+# force_base_bu = force_base_sym_bu(q, q_dot, q_ddot)
+# print("Spatial force of the base: \n", force_base_bu)
+
+# iXp0_sym, iXp1_sym, iXp2_sym = ur5.get_model_calculation(root, tip)
+
+# iXp0 = iXp0_sym(q)
+# print("Model calculation: \n", iXp0)
+
+# iXp1 = iXp1_sym(q)
+# print("Model calculation: \n", iXp1)
+
+#i_X_p, Si, Ic = ur5._model_calculation(root, tip, q)
+
+#print("Transform matrices: \n", i_X_p)

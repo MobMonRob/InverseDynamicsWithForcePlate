@@ -305,7 +305,9 @@ class URDFparser(object):
                 f[i-1] = f[i-1] + cs.mtimes(i_X_p[i].T, f[i])
 
         tau = cs.Function("C", [q, q_dot, q_ddot], [tau], self.func_opts)
-        return tau
+        force_first_joint = cs.Function("f_f_j", [q, q_dot, q_ddot], [f[0]], self.func_opts)
+        force_base = cs.Function("f_b", [q, q_dot, q_ddot], [cs.mtimes(i_X_p[0].T, f[0])], self.func_opts)
+        return tau, force_first_joint, force_base
 
     def get_gravity_rnea(self, root, tip, gravity):
         """Returns the gravitational term as a casadi function."""
@@ -681,7 +683,7 @@ class URDFparser(object):
         q_ddot = cs.SX.sym("q_ddot", n_joints)
         i_X_p, Si, _ = self._model_calculation(root, tip, q)
 
-        f_root = cs.SX.sym("f", 6)
+        f_root = cs.SX.sym("f_root", 6)
         f = []
         tau = cs.SX.zeros(n_joints)
 
@@ -690,10 +692,22 @@ class URDFparser(object):
         for i in range(0, n_joints):
             tau[i] = cs.mtimes(Si[i].T, f[i])
             if i != n_joints:
-                f.append(f[i] - cs.mtimes(i_X_p[i].T, f[i]))
+                f.append(cs.mtimes(i_X_p[i], f[i]))
 
         tau = cs.Function("C", [q, q_dot, q_ddot, f_root], [tau], self.func_opts)
-        return tau
+        # force_first_joint = cs.Function("f_f_j", [q, q_dot, q_ddot], [f[0]], self.func_opts)
+        # force_base = cs.Function("f_b", [q, q_dot, q_ddot], [cs.mtimes(i_X_p[0].T, f[0])], self.func_opts)
+        return tau#, force_first_joint, force_base
+    
+    def get_model_calculation(self, root, tip):
+        n_joints = self.get_n_joints(root, tip)
+        q = cs.SX.sym("q", n_joints)
+        i_X_p, Si, Ic = self._model_calculation(root, tip, q)
+
+        i_X_p_0 = cs.Function("i_X_p", [q], [i_X_p[0]], self.func_opts)
+        i_X_p_1 = cs.Function("i_X_p", [q], [i_X_p[1]], self.func_opts)
+        i_X_p_2 = cs.Function("i_X_p", [q], [i_X_p[1]], self.func_opts)
+        return i_X_p_0, i_X_p_1, i_X_p_2   
 
     def _model_calculation_bottom_up(self, root, tip, q):
         """Calculates and returns model information needed in the
