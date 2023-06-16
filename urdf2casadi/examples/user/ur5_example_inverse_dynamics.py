@@ -17,7 +17,6 @@ print("\n q max:", q_max)
 print("\n q min:", q_min)
 
 tau_sym, force_first_joint_sym, force_base_sym = ur5.get_inverse_dynamics_rnea(root, tip)
-tau_sym_bu = ur5.get_inverse_dynamics_rnea_bottom_up(root, tip)
 # tau_sym_bu, force_first_joint_sym_bu, force_base_sym_bu = ur5.get_inverse_dynamics_rnea_bottom_up(root, tip)
 
 q = [None]*n_joints
@@ -40,8 +39,21 @@ print("Spatial force of the base: \n", force_base)
 
 print("############################################################")
 
-tau_num_bu = tau_sym_bu(q, q_dot, q_ddot, force_base)
-print("BU numerical inverse dynamics: \n", tau_num_bu)
+tau_sym_bu = ur5.get_inverse_dynamics_rnea_bottom_up(root, tip)
+
+# tau_num_bu = tau_sym_bu(q, q_dot, q_ddot, force_base)
+# print("BU numerical inverse dynamics: \n", tau_num_bu)
+
+f_sym = ur5.get_forces_bottom_up(root, tip, force_base)
+f_num = f_sym(q)
+print("BU forces: \n", f_num)
+
+# numerical_values = [np.array(dm_val.toarray()) for dm_val in f_num]
+# print("BU forces converted to numpy array: \n", numerical_values)
+
+tau_sym_bu_f = ur5.get_inverse_dynamics_rnea_bottom_up_f(root, tip, f_num)
+tau_sym_bu_f_num = tau_sym_bu_f(q)
+print("BU numerical inverse dynamics: \n", tau_sym_bu_f_num)
 
 # force_first_joint_bu = force_first_joint_sym_bu(q, q_dot, q_ddot)
 # print("Spatial force through the first joint: \n", force_first_joint_bu)

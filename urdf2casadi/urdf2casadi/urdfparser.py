@@ -671,6 +671,23 @@ class URDFparser(object):
             "dual_quaternion_fk": dual_quaternion_fk,
             "T_fk": T_fk
         }
+    
+    def get_forces_bottom_up(self, root, tip, f_root):
+        if self.robot_desc is None:
+            raise ValueError('Robot description not loaded from urdf')
+        
+        n_joints = self.get_n_joints(root, tip)
+
+        q = cs.SX.sym("q", n_joints)
+        i_X_p, _, _ = self._model_calculation(root, tip, q)
+        f = []
+        f.append(f_root)
+
+        for i in range(0, n_joints):
+            f.append(cs.mtimes(i_X_p[i], f[i]))
+
+        f = cs.Function("f_bu", [q], [f[0], f[1], f[2], f[3], f[4], f[5]], self.func_opts)
+        return f
 
     def get_inverse_dynamics_rnea_bottom_up(self, root, tip):
         """Returns the inverse dynamics as a casadi function."""
@@ -685,19 +702,40 @@ class URDFparser(object):
 
         f_root = cs.SX.sym("f_root", 6)
         f = []
-        tau = cs.SX.zeros(n_joints)
+        tau_bu = cs.SX.zeros(n_joints)
 
         f.append(f_root)
 
         for i in range(0, n_joints):
-            tau[i] = cs.mtimes(Si[i].T, f[i])
+            tau_bu[i] = cs.mtimes(Si[i].T, f[i])
             if i != n_joints:
                 f.append(cs.mtimes(i_X_p[i], f[i]))
 
-        tau = cs.Function("C", [q, q_dot, q_ddot, f_root], [tau], self.func_opts)
+        tau_bu = cs.Function("C_bu", [q, q_dot, q_ddot, f_root], [tau_bu], self.func_opts)
         # force_first_joint = cs.Function("f_f_j", [q, q_dot, q_ddot], [f[0]], self.func_opts)
         # force_base = cs.Function("f_b", [q, q_dot, q_ddot], [cs.mtimes(i_X_p[0].T, f[0])], self.func_opts)
-        return tau#, force_first_joint, force_base
+        return tau_bu#, force_first_joint, force_base
+    
+    def get_inverse_dynamics_rnea_bottom_up_f(self, root, tip, forces):
+        """Returns the inverse dynamics as a casadi function."""
+        if self.robot_desc is None:
+            raise ValueError('Robot description not loaded from urdf')
+
+        n_joints = self.get_n_joints(root, tip)
+        q = cs.SX.sym("q", n_joints)
+
+        _, Si, _ = self._model_calculation(root, tip, q)
+
+        tau_bu = cs.SX.zeros(n_joints)
+
+        for i in range(0, n_joints):
+            print("Si[{}]: {}".format(i, cs.DM(Si[i])))
+            print("The used force is: ", forces[i])
+            tau_bu[i] = cs.mtimes(Si[i].T, forces[i])
+            print("Intermediate result for tau_bu[{}]: {}\n".format(i, tau_bu[i]))
+
+        tau_bu = cs.Function("C_bu", [q], [tau_bu], self.func_opts)
+        return tau_bu
     
     def get_model_calculation(self, root, tip):
         n_joints = self.get_n_joints(root, tip)
@@ -741,30 +779,12 @@ class URDFparser(object):
                     inertia_transform = XT_prev
                     prev_inertia = spatial_inertia
 
-                elif joint.type == "prismatic":
-                    if n_actuated != 0:
-                        spatial_inertias.append(spatial_inertia)
-                    n_actuated += 1
-                    XJT = plucker.XJT_prismatic_BA(
-                        joint.origin.xyz,
-                        joint.origin.rpy,
-                        joint.axis, q[i])
-                    if prev_joint == "fixed":
-                        XJT = cs.mtimes(XJT, XT_prev)
-                    Si = cs.SX([0, 0, 0,
-                                joint.axis[0],
-                                joint.axis[1],
-                                joint.axis[2]])
-                    p_X_i.append(XJT)
-                    Sis.append(Si)
-                    i += 1
-
                 elif joint.type in ["revolute", "continuous"]:
                     if n_actuated != 0:
                         spatial_inertias.append(spatial_inertia)
                     n_actuated += 1
 
-                    XJT = plucker.XJT_revolute_BA(
+                    XJT = plucker.XJT_revolute(
                         joint.origin.xyz,
                         joint.origin.rpy,
                         joint.axis,
