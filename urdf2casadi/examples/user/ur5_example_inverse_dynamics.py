@@ -1,5 +1,6 @@
 import urdf2casadi.urdfparser as u2c
 import numpy as np
+from typing import List
 
 ur5 = u2c.URDFparser()
 import os
@@ -36,12 +37,12 @@ print("The output of the RNEA from urdf2casadi: \n", tau_num_classic)
 forces = forces_sym(q, q_dot, q_ddot)
 print("Spatial forces from this RNEA after update: \n", forces)
 
-force_before_update = forces_debug_sym(q, q_dot, q_ddot)
-print("Spatial forces from velocities and accelerations only: \n", force_before_update)
+# force_before_update = forces_debug_sym(q, q_dot, q_ddot)
+# print("Spatial forces from velocities and accelerations only: \n", force_before_update)
 
-each_force_transformed_sym = ur5.get_forces_bottom_up_from_forces(root, tip, forces)
-each_force_transformed = each_force_transformed_sym(q)
-print("Each_force_transformed: \n", each_force_transformed)
+# each_force_transformed_sym = ur5.get_forces_bottom_up_from_forces(root, tip, forces)
+# each_force_transformed = each_force_transformed_sym(q)
+# print("Each_force_transformed: \n", each_force_transformed)
 
 print("############################################################")
 
@@ -49,12 +50,11 @@ tau_sym_bu = ur5.get_inverse_dynamics_rnea_bottom_up(root, tip)
 
 f_sym = ur5.get_forces_bottom_up(root, tip, forces[0])
 f_num = f_sym(q)
-print("BU forces: \n", f_num)
+print("Bottom Up forces: \n", f_num)
 
 tau_sym_bu_f = ur5.get_inverse_dynamics_rnea_bottom_up_f(root, tip, f_num)
 tau_sym_bu_f_num = tau_sym_bu_f(q)
-print("BU numerical inverse dynamics: \n", tau_sym_bu_f_num)
-
+print("Bottom Up numerical inverse dynamics: \n", tau_sym_bu_f_num)
 
 i_X_p_sym = ur5.get_model_calculation(root, tip)
 i_X_p = i_X_p_sym(q)

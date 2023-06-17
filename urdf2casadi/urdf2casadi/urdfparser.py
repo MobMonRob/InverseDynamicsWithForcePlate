@@ -707,7 +707,7 @@ class URDFparser(object):
         f.append(f_root)
 
         for i in range(1, n_joints, +1):
-            f.append(cs.mtimes(i_X_p[i], f[i - 1]))
+            f.append(cs.mtimes(cs.inv_minor(i_X_p[i].T), f[i - 1]))
 
         f = cs.Function("f_bu", [q], [f[0], f[1], f[2], f[3], f[4], f[5]], self.func_opts)
         return f
