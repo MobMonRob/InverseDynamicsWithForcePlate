@@ -299,15 +299,20 @@ class URDFparser(object):
         if f_ext is not None:
             f = self._apply_external_forces(f_ext, f, i_X_p)
 
+        fdebug = []
+        fdebug.append(f[n_joints-1])
+
         for i in range(n_joints-1, -1, -1):
             tau[i] = cs.mtimes(Si[i].T, f[i])
             if i != 0:
+                fdebug.append(f[i - 1])
                 f[i-1] = f[i-1] + cs.mtimes(i_X_p[i].T, f[i])
 
         tau = cs.Function("C", [q, q_dot, q_ddot], [tau], self.func_opts)
-        force_first_joint = cs.Function("f_f_j", [q, q_dot, q_ddot], [f[0]], self.func_opts)
+        forces = cs.Function("f_f_j", [q, q_dot, q_ddot], [f[0], f[1], f[2], f[3], f[4], f[5]], self.func_opts)
         force_base = cs.Function("f_b", [q, q_dot, q_ddot], [cs.mtimes(i_X_p[0].T, f[0])], self.func_opts)
-        return tau, force_first_joint, force_base
+        forces_debug = cs.Function("f_dbg", [q, q_dot, q_ddot], [fdebug[0], fdebug[1], fdebug[2], fdebug[3], fdebug[4], fdebug[5]], self.func_opts)
+        return tau, forces, force_base, forces_debug
 
     def get_gravity_rnea(self, root, tip, gravity):
         """Returns the gravitational term as a casadi function."""
@@ -671,7 +676,25 @@ class URDFparser(object):
             "dual_quaternion_fk": dual_quaternion_fk,
             "T_fk": T_fk
         }
-    
+
+    # originale Kräfte nehmen und einzeln transformieren
+    def get_forces_bottom_up_from_forces(self, root, tip, forces):
+        if self.robot_desc is None:
+            raise ValueError('Robot description not loaded from urdf')
+        
+        n_joints = self.get_n_joints(root, tip)
+
+        q = cs.SX.sym("q", n_joints)
+        i_X_p, _, _ = self._model_calculation(root, tip, q)
+        f = []
+        f.append(forces[0])
+
+        for i in range(1, n_joints, +1):
+            f.append(cs.mtimes(i_X_p[i], forces[i - 1]))
+
+        f = cs.Function("f_bu", [q], [f[0], f[1], f[2], f[3], f[4], f[5]], self.func_opts)
+        return f
+
     def get_forces_bottom_up(self, root, tip, f_root):
         if self.robot_desc is None:
             raise ValueError('Robot description not loaded from urdf')
@@ -683,8 +706,8 @@ class URDFparser(object):
         f = []
         f.append(f_root)
 
-        for i in range(0, n_joints):
-            f.append(cs.mtimes(i_X_p[i], f[i]))
+        for i in range(1, n_joints, +1):
+            f.append(cs.mtimes(i_X_p[i], f[i - 1]))
 
         f = cs.Function("f_bu", [q], [f[0], f[1], f[2], f[3], f[4], f[5]], self.func_opts)
         return f
@@ -706,10 +729,9 @@ class URDFparser(object):
 
         f.append(f_root)
 
-        for i in range(0, n_joints):
+        for i in range(0, n_joints - 1):
             tau_bu[i] = cs.mtimes(Si[i].T, f[i])
-            if i != n_joints:
-                f.append(cs.mtimes(i_X_p[i], f[i]))
+            f.append(cs.mtimes(i_X_p[i], f[i]))
 
         tau_bu = cs.Function("C_bu", [q, q_dot, q_ddot, f_root], [tau_bu], self.func_opts)
         # force_first_joint = cs.Function("f_f_j", [q, q_dot, q_ddot], [f[0]], self.func_opts)
@@ -742,10 +764,8 @@ class URDFparser(object):
         q = cs.SX.sym("q", n_joints)
         i_X_p, Si, Ic = self._model_calculation(root, tip, q)
 
-        i_X_p_0 = cs.Function("i_X_p", [q], [i_X_p[0]], self.func_opts)
-        i_X_p_1 = cs.Function("i_X_p", [q], [i_X_p[1]], self.func_opts)
-        i_X_p_2 = cs.Function("i_X_p", [q], [i_X_p[1]], self.func_opts)
-        return i_X_p_0, i_X_p_1, i_X_p_2   
+        i_X_p = cs.Function("i_X_p", [q], [i_X_p[0], i_X_p[1], i_X_p[2], i_X_p[3], i_X_p[4], i_X_p[5]], self.func_opts)
+        return i_X_p
 
     def _model_calculation_bottom_up(self, root, tip, q):
         """Calculates and returns model information needed in the
