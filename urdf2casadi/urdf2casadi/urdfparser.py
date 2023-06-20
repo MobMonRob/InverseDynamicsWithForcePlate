@@ -686,7 +686,7 @@ class URDFparser(object):
             tip (string): Name of the endeffector.
 
         Returns:
-            generalized_body_forces (set of doubles): A set of generalized body forces for each body in the kinematic chain.
+            generalized_body_forces (set of doubles): A set of generalized body forces for each body in the kinematic chain as a CasADi function.
         """
         if self.robot_desc is None:
             raise ValueError('Robot description not loaded from urdf')
