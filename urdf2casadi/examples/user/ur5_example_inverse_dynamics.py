@@ -30,6 +30,10 @@ for i in range(n_joints):
     q_dot[i] = (q_max[i] - q_min[i])*np.random.rand()-(q_max[i] - q_min[i])/2
     q_ddot[i] = (q_max[i] - q_min[i])*np.random.rand()-(q_max[i] - q_min[i])/2
 
+# q = [1, 2, 3, 4, 5 ,6]
+# q_dot = [0.5, 1, 1.5, 2, 2.5, 3]
+# q_ddot = [0.25, 0.5, 0.75, 1, 1.25, 1.5]
+
 
 tau_num_classic = tau_sym(q, q_dot, q_ddot)
 print("The output of the RNEA from urdf2casadi: \n", tau_num_classic)
@@ -48,14 +52,14 @@ print("############################################################")
 
 tau_sym_bu = ur5.get_inverse_dynamics_rnea_bottom_up(root, tip)
 
-f_sym = ur5.get_forces_bottom_up(root, tip, forces[0])
-f_num = f_sym(q)
+f_sym = ur5.get_forces_bottom_up_ver1(root, tip, forces[0])
+f_num = f_sym(q, q_dot, q_ddot)
 print("Bottom Up forces: \n", f_num)
 
 tau_sym_bu_f = ur5.get_inverse_dynamics_rnea_bottom_up_f(root, tip, f_num)
 tau_sym_bu_f_num = tau_sym_bu_f(q)
 print("Bottom Up numerical inverse dynamics: \n", tau_sym_bu_f_num)
 
-i_X_p_sym = ur5.get_model_calculation(root, tip)
-i_X_p = i_X_p_sym(q)
-print("i_X_p: \n", i_X_p)
+# i_X_p_sym = ur5.get_model_calculation(root, tip)
+# i_X_p = i_X_p_sym(q)
+# print("i_X_p: \n", i_X_p)

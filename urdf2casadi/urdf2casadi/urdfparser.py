@@ -678,21 +678,47 @@ class URDFparser(object):
         }
 
     # originale Kräfte nehmen und einzeln transformieren
-    def get_forces_bottom_up_from_forces(self, root, tip, forces):
+    def get_forces_bottom_up_ver1(self, root, tip, f_root):
         if self.robot_desc is None:
             raise ValueError('Robot description not loaded from urdf')
         
         n_joints = self.get_n_joints(root, tip)
 
         q = cs.SX.sym("q", n_joints)
-        i_X_p, _, _ = self._model_calculation(root, tip, q)
+        q_dot = cs.SX.sym("q_dot", n_joints)
+        q_ddot = cs.SX.sym("q_ddot", n_joints)
+        i_X_p, Si, Ic = self._model_calculation(root, tip, q)
+        
+        v = []
+        a = []
         f = []
-        f.append(forces[0])
+        f_own = []
+
+        f.append(f_root)
+
+        vJ = cs.mtimes(Si[0], q_dot[0])
+        v.append(vJ)
+        a.append(cs.mtimes(Si[0], q_ddot[0]))
 
         for i in range(1, n_joints, +1):
-            f.append(cs.mtimes(i_X_p[i], forces[i - 1]))
+            vJ = cs.mtimes(Si[i], q_dot[i])
+            v.append(cs.mtimes(i_X_p[i], v[i-1]) + vJ)
+            a.append(
+                    cs.mtimes(i_X_p[i], a[i-1])
+                    + cs.mtimes(Si[i], q_ddot[i])
+                    + cs.mtimes(plucker.motion_cross_product(v[i]), vJ))
+        
+        for i in range(0, n_joints):
+            f_own.append(
+                cs.mtimes(Ic[i], a[i])
+                + cs.mtimes(
+                    plucker.force_cross_product(v[i]),
+                    cs.mtimes(Ic[i], v[i])))
+        
+        for i in range(1, n_joints, +1):
+            f.append(cs.mtimes(cs.inv_minor(i_X_p[i].T), (f[i - 1] - f_own[i - 1])))
 
-        f = cs.Function("f_bu", [q], [f[0], f[1], f[2], f[3], f[4], f[5]], self.func_opts)
+        f = cs.Function("f_bu", [q, q_dot, q_ddot], [f[0], f[1], f[2], f[3], f[4], f[5]], self.func_opts)
         return f
 
     def get_forces_bottom_up(self, root, tip, f_root):
