@@ -52,7 +52,7 @@ print("############################################################")
 
 tau_sym_bu = ur5.get_inverse_dynamics_rnea_bottom_up(root, tip)
 
-f_sym = ur5.get_forces_bottom_up_ver1(root, tip, forces[0])
+f_sym = ur5.get_forces_bottom_up(root, tip, forces[0])
 f_num = f_sym(q, q_dot, q_ddot)
 print("Bottom Up forces: \n", f_num)
 

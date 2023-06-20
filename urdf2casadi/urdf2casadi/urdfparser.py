@@ -677,66 +677,72 @@ class URDFparser(object):
             "T_fk": T_fk
         }
 
-    # originale Kräfte nehmen und einzeln transformieren
-    def get_forces_bottom_up_ver1(self, root, tip, f_root):
+    def get_forces_bottom_up(self, root, tip, f_root):
+        """
+        Calculates the generalized body forces in bottom up manner.
+
+        Parameters:
+            root (string): Name of the base link.
+            tip (string): Name of the endeffector.
+
+        Returns:
+            generalized_body_forces (set of doubles): A set of generalized body forces for each body in the kinematic chain.
+        """
         if self.robot_desc is None:
             raise ValueError('Robot description not loaded from urdf')
         
+        # Get joint count for the robot.
         n_joints = self.get_n_joints(root, tip)
 
+        # Declare symbolic verctor of angles q
         q = cs.SX.sym("q", n_joints)
+
+        # Declare symbolic verctor of angular accelerations q_dot
         q_dot = cs.SX.sym("q_dot", n_joints)
+
+        # Declare symbolic verctor of angular velocities q_ddot
         q_ddot = cs.SX.sym("q_ddot", n_joints)
+
+        # Get Plücker transformation matrices i_X_p, joint motion subspaces Si, inertia matrices Ic
         i_X_p, Si, Ic = self._model_calculation(root, tip, q)
         
-        v = []
-        a = []
-        f = []
-        f_own = []
+        velocities = []
+        accelerations = []
+        body_inertial_forces = []
+        generalized_body_forces = []
 
-        f.append(f_root)
+        generalized_body_forces.append(f_root)
+        velocities.append(cs.mtimes(Si[0], q_dot[0]))
+        accelerations.append(cs.mtimes(Si[0], q_ddot[0]))
+        body_inertial_forces.append(cs.mtimes(
+            Ic[0], accelerations[0])
+        + cs.mtimes(
+            plucker.force_cross_product(velocities[0]), 
+            cs.mtimes(Ic[0], velocities[0])))
 
-        vJ = cs.mtimes(Si[0], q_dot[0])
-        v.append(vJ)
-        a.append(cs.mtimes(Si[0], q_ddot[0]))
-
-        for i in range(1, n_joints, +1):
+        for i in range(1, n_joints):
             vJ = cs.mtimes(Si[i], q_dot[i])
-            v.append(cs.mtimes(i_X_p[i], v[i-1]) + vJ)
-            a.append(
-                    cs.mtimes(i_X_p[i], a[i-1])
+            velocities.append(cs.mtimes(i_X_p[i], velocities[i - 1]) + vJ)
+            accelerations.append(
+                    cs.mtimes(i_X_p[i], accelerations[i-1])
                     + cs.mtimes(Si[i], q_ddot[i])
-                    + cs.mtimes(plucker.motion_cross_product(v[i]), vJ))
-        
-        for i in range(0, n_joints):
-            f_own.append(
-                cs.mtimes(Ic[i], a[i])
+                    + cs.mtimes(plucker.motion_cross_product(velocities[i]), vJ))
+            
+            body_inertial_forces.append(
+                cs.mtimes(Ic[i], accelerations[i])
                 + cs.mtimes(
-                    plucker.force_cross_product(v[i]),
-                    cs.mtimes(Ic[i], v[i])))
-        
-        for i in range(1, n_joints, +1):
-            f.append(cs.mtimes(cs.inv_minor(i_X_p[i].T), (f[i - 1] - f_own[i - 1])))
+                    plucker.force_cross_product(velocities[i]),
+                    cs.mtimes(Ic[i], velocities[i])))
+            
+            generalized_body_forces.append(
+                cs.mtimes(
+                    cs.inv_minor(i_X_p[i].T),
+                    generalized_body_forces[i - 1] - body_inertial_forces[i - 1]))
 
-        f = cs.Function("f_bu", [q, q_dot, q_ddot], [f[0], f[1], f[2], f[3], f[4], f[5]], self.func_opts)
-        return f
+        # Declare the symbolic function with input [q, q_dot, q_ddot] and the output generalized_body_forces.
+        generalized_body_forces = cs.Function("forces_bottom_up", [q, q_dot, q_ddot], generalized_body_forces, self.func_opts)
 
-    def get_forces_bottom_up(self, root, tip, f_root):
-        if self.robot_desc is None:
-            raise ValueError('Robot description not loaded from urdf')
-        
-        n_joints = self.get_n_joints(root, tip)
-
-        q = cs.SX.sym("q", n_joints)
-        i_X_p, _, _ = self._model_calculation(root, tip, q)
-        f = []
-        f.append(f_root)
-
-        for i in range(1, n_joints, +1):
-            f.append(cs.mtimes(cs.inv_minor(i_X_p[i].T), f[i - 1]))
-
-        f = cs.Function("f_bu", [q], [f[0], f[1], f[2], f[3], f[4], f[5]], self.func_opts)
-        return f
+        return generalized_body_forces
 
     def get_inverse_dynamics_rnea_bottom_up(self, root, tip):
         """Returns the inverse dynamics as a casadi function."""
