@@ -23,10 +23,18 @@ void ForcePlateDataAcquisition::waitForFrame(ViconDataStreamClient::DataStreamCl
     }
 }
 
+// int prevNum = 0;
+
 void ForcePlateDataAcquisition::grabDirect()
 {
     waitForFrame(client);
     long frameNumber = client.getFrameNumber();
+
+    // if (frameNumber - prevNum > 1) {
+    //     std::cout << prevNum << "::" << frameNumber << std::endl;
+    // }
+    // prevNum = frameNumber;
+
     for (unsigned int subsample = 0; subsample < subsampleCount; ++subsample)
     {
         for (const auto &amti : amtis)

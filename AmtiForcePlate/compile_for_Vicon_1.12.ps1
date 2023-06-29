@@ -1,5 +1,5 @@
 param(
-    [string]$Path = "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/AmtiForcePlate/compile_for_Vicon_1.13.sh"
+    [string]$Path = "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/AmtiForcePlate/compile_for_Vicon_1.12.sh"
 )
 
 # Check if the script file exists
