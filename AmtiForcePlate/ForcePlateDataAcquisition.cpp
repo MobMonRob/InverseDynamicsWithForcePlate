@@ -3,14 +3,17 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <vector>
 
 using namespace Acquisition;
 using namespace ViconDataStreamClient;
 
+const std::string ForcePlateDataAcquisition::amti1("AMTI 1");
+const std::string ForcePlateDataAcquisition::amti2("AMTI 2");
+
 ForcePlateDataAcquisition::ForcePlateDataAcquisition()
     : client(),
-      amtis({"AMTI 1", "AMTI 2"}),
-      subsampleCount(setupClient(client).getDeviceOutputSubsamples("AMTI 1", "Fx"))
+      subsampleCount(setupClient(client).getDeviceOutputSubsamples(ForcePlateDataAcquisition::amti1, "Fx"))
 {
 }
 
@@ -23,33 +26,27 @@ void ForcePlateDataAcquisition::waitForFrame(ViconDataStreamClient::DataStreamCl
     }
 }
 
-// int prevNum = 0;
-
-void ForcePlateDataAcquisition::grabDirect()
+std::vector<ForcePlateData> ForcePlateDataAcquisition::grabDirect(const std::string &amti)
 {
     waitForFrame(client);
     long frameNumber = client.getFrameNumber();
 
-    // if (frameNumber - prevNum > 1) {
-    //     std::cout << prevNum << "::" << frameNumber << std::endl;
-    // }
-    // prevNum = frameNumber;
+    std::vector<ForcePlateData> forcePlateDataVector(subsampleCount);
 
     for (unsigned int subsample = 0; subsample < subsampleCount; ++subsample)
     {
-        for (const auto &amti : amtis)
-        {
-            double fx = client.getDeviceOutputValue(amti, "Fx", subsample); // N
-            double fy = client.getDeviceOutputValue(amti, "Fy", subsample);
-            double fz = client.getDeviceOutputValue(amti, "Fz", subsample);
-            double mx = client.getDeviceOutputValue(amti, "MX", subsample); // Nm bzw. J
-            double my = client.getDeviceOutputValue(amti, "MY", subsample);
-            double mz = client.getDeviceOutputValue(amti, "MZ", subsample);
-            std::cout << frameNumber << ", " << subsample << ", " << amti << ", "
-                      << fx << ", " << fy << ", " << fz << ", "
-                      << mx << ", " << my << ", " << mz << std::endl;
-        }
+        double fx = client.getDeviceOutputValue(amti, "Fx", subsample); // N
+        double fy = client.getDeviceOutputValue(amti, "Fy", subsample);
+        double fz = client.getDeviceOutputValue(amti, "Fz", subsample);
+        double mx = client.getDeviceOutputValue(amti, "MX", subsample); // Nm bzw. J
+        double my = client.getDeviceOutputValue(amti, "MY", subsample);
+        double mz = client.getDeviceOutputValue(amti, "MZ", subsample);
+
+        ForcePlateData data(ForcePlateData(frameNumber, subsample, fx, fy, fz, mx, my, mz));
+
+        forcePlateDataVector.push_back(data);
     }
+    return forcePlateDataVector;
 }
 
 ViconDataStreamClient::DataStreamClientFacade &ForcePlateDataAcquisition::setupClient(ViconDataStreamClient::DataStreamClientFacade &client)
