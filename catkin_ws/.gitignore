@@ -1,5 +1,6 @@
 # https://github.com/github/gitignore/blob/main/ROS.gitignore
 
+install/
 devel/
 logs/
 build/

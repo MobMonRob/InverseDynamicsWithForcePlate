@@ -5,38 +5,40 @@
 #include <iostream>
 
 #include "ros_communicator/Force_plate_data.h"
+#include "force_plate_data_acquisition/ForcePlateDataAcquisition.hpp"
 
 using namespace ros_communicator;
+using namespace Acquisition;
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "Force_plate_data_publisher");
-  ros::NodeHandle n;
-  ros::Publisher publisher = n.advertise<Force_plate_data>("Force_plate_data", 1000);
-  ros::Rate loop_rate(10);
+    ForcePlateDataAcquisition forcePlateDataAcquisition;
 
-  int count = 0;
-  while (ros::ok())
-  {
-    Force_plate_data msg;
+    ros::init(argc, argv, "Force_plate_data_publisher");
+    ros::NodeHandle n;
+    ros::Publisher publisher = n.advertise<Force_plate_data>("Force_plate_data", 1000);
+    ros::Rate loop_rate(10);
 
-    msg.frame_number = 25;
+    int count = 0;
+    while (ros::ok())
+    {
+        Force_plate_data msg;
 
-    /**
-     * The publish() function is how you send messages. The parameter
-     * is the message object. The type of this object must agree with the type
-     * given as a template parameter to the advertise<>() call, as was done
-     * in the constructor above.
-     */
-    publisher.publish(msg);
+        msg.frame_number = 25;
 
-    ros::spinOnce();
+        /**
+         * The publish() function is how you send messages. The parameter
+         * is the message object. The type of this object must agree with the type
+         * given as a template parameter to the advertise<>() call, as was done
+         * in the constructor above.
+         */
+        publisher.publish(msg);
 
-    loop_rate.sleep();
-    ++count;
-  }
+        ros::spinOnce();
 
+        loop_rate.sleep();
+        ++count;
+    }
 
-  return 0;
-} 
- 
+    return 0;
+}
