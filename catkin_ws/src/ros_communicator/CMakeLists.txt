@@ -121,9 +121,12 @@ include_directories(
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/ros_communicator.cpp
-# )
+ add_library(${PROJECT_NAME}
+   src/Force_plate_data_publisher.cpp
+ )
+
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+add_dependencies(${PROJECT_NAME} ros_communicator_generate_messages_cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -160,7 +163,7 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
-   scripts/listener.py
+   #scripts/listener.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
@@ -205,6 +208,7 @@ catkin_install_python(PROGRAMS
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-add_executable(talker src/talker.cpp)
-target_link_libraries(talker ${catkin_LIBRARIES})
-add_dependencies(talker ros_communicator_generate_messages_cpp)
+add_executable(Force_plate_data_publisher src/Force_plate_data_publisher.cpp)
+target_link_libraries(Force_plate_data_publisher ${catkin_LIBRARIES})
+add_dependencies(Force_plate_data_publisher ros_communicator_generate_messages_cpp)
+

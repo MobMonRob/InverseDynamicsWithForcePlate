@@ -2,15 +2,10 @@
 #include "ros/ros.h"
 #include <sstream>
 
-// Own includes
-#include "DataStreamClient.h"
-
 #include <iostream>
-#include "ForcePlateDataAcquisition.hpp"
 
-#include "Force_plate_data.h"
+#include "ros_communicator/Force_plate_data.h"
 
-using namespace Acquisition;
 using namespace ros_communicator;
 
 int main(int argc, char **argv)
@@ -25,11 +20,7 @@ int main(int argc, char **argv)
   {
     Force_plate_data msg;
 
-    std::stringstream ss;
-    ss << "hello world " << count;
-    msg.data = ss.str();
-
-    ROS_INFO("%s", msg.data.c_str());
+    msg.frame_number = 25;
 
     /**
      * The publish() function is how you send messages. The parameter
@@ -37,7 +28,7 @@ int main(int argc, char **argv)
      * given as a template parameter to the advertise<>() call, as was done
      * in the constructor above.
      */
-    chatter_pub.publish(msg);
+    publisher.publish(msg);
 
     ros::spinOnce();
 
