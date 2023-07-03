@@ -4,7 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/ViconLib1.10"
+                "${workspaceFolder}/ViconLib1.12",
+                "${workspaceFolder}/publicInclude"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
