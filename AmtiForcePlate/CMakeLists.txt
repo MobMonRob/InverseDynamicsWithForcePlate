@@ -22,7 +22,7 @@ add_executable(forcePlateGetData.out ${SOURCES})
 
 # Specify the include directories
 target_include_directories(forcePlateGetData.out PRIVATE ${VICON_ROOT})
-target_include_directories(forcePlateGetData.out PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+#target_include_directories(forcePlateGetData.out PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(forcePlateGetData.out PUBLIC "${CMAKE_CURRENT_LIST_DIR}/publicInclude/")
 
 # Specify the library directory
@@ -37,14 +37,15 @@ target_link_libraries(forcePlateGetData.out ${LIBRARIES})
 ###
 
 # Add the library and link the sources
-add_library(ForcePlateGetData SHARED ${SOURCES})
+add_library(force_plate_data_acquisition SHARED ${SOURCES})
 
 set(RST_PUBLIC_HEADERS "ForcePlateData.hpp" "ForcePlateDataAcquisition.hpp")
 
-target_include_directories(ForcePlateGetData PRIVATE ${VICON_ROOT})
-target_include_directories(ForcePlateGetData PRIVATE ${CMAKE_CURRENT_LIST_DIR})
-target_include_directories(ForcePlateGetData PUBLIC "${CMAKE_CURRENT_LIST_DIR}/publicInclude/")
+target_include_directories(force_plate_data_acquisition PRIVATE ${VICON_ROOT})
+#target_include_directories(force_plate_data_acquisition PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(force_plate_data_acquisition PUBLIC "${CMAKE_CURRENT_LIST_DIR}/publicInclude/")
 
-target_link_directories(ForcePlateGetData PRIVATE ${VICON_ROOT})
+target_link_directories(force_plate_data_acquisition PRIVATE ${VICON_ROOT})
 
-target_link_libraries(ForcePlateGetData ${LIBRARIES})
+target_link_libraries(force_plate_data_acquisition ${LIBRARIES})
+#ForcePlateGetData

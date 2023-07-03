@@ -1,5 +1,7 @@
 #include "ForcePlateDataAcquisition.hpp"
 
+#include "../DataStreamClientFacade.hpp"
+
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -12,8 +14,12 @@ const std::string ForcePlateDataAcquisition::amti1("AMTI 1");
 const std::string ForcePlateDataAcquisition::amti2("AMTI 2");
 
 ForcePlateDataAcquisition::ForcePlateDataAcquisition()
-    : client(),
-      subsampleCount(setupClient(client).getDeviceOutputSubsamples(ForcePlateDataAcquisition::amti1, "Fx"))
+    : client(std::make_unique<ViconDataStreamClient::DataStreamClientFacade>()),
+      subsampleCount(setupClient(*client).getDeviceOutputSubsamples(ForcePlateDataAcquisition::amti1, "Fx"))
+{
+}
+
+ForcePlateDataAcquisition::~ForcePlateDataAcquisition()
 {
 }
 
@@ -28,19 +34,19 @@ void ForcePlateDataAcquisition::waitForFrame(ViconDataStreamClient::DataStreamCl
 
 std::vector<ForcePlateData> ForcePlateDataAcquisition::grabDirect(const std::string &amti)
 {
-    waitForFrame(client);
-    long frameNumber = client.getFrameNumber();
+    waitForFrame(*client);
+    long frameNumber = client->getFrameNumber();
 
     std::vector<ForcePlateData> forcePlateDataVector(subsampleCount);
 
     for (unsigned int subsample = 0; subsample < subsampleCount; ++subsample)
     {
-        double fx = client.getDeviceOutputValue(amti, "Fx", subsample); // N
-        double fy = client.getDeviceOutputValue(amti, "Fy", subsample);
-        double fz = client.getDeviceOutputValue(amti, "Fz", subsample);
-        double mx = client.getDeviceOutputValue(amti, "MX", subsample); // Nm bzw. J
-        double my = client.getDeviceOutputValue(amti, "MY", subsample);
-        double mz = client.getDeviceOutputValue(amti, "MZ", subsample);
+        double fx = client->getDeviceOutputValue(amti, "Fx", subsample); // N
+        double fy = client->getDeviceOutputValue(amti, "Fy", subsample);
+        double fz = client->getDeviceOutputValue(amti, "Fz", subsample);
+        double mx = client->getDeviceOutputValue(amti, "MX", subsample); // Nm bzw. J
+        double my = client->getDeviceOutputValue(amti, "MY", subsample);
+        double mz = client->getDeviceOutputValue(amti, "MZ", subsample);
 
         ForcePlateData data(ForcePlateData(frameNumber, subsample, fx, fy, fz, mx, my, mz));
 
@@ -61,7 +67,7 @@ ViconDataStreamClient::DataStreamClientFacade &ForcePlateDataAcquisition::setupC
     }
 
     client.enableDeviceData();
-    // client.enableDebugData();
+    // client->enableDebugData();
 
     client.setBufferSize(100);
 
