@@ -14,8 +14,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Set the ViconLib directory
 set(VICON_ROOT "${CMAKE_SOURCE_DIR}/ViconLib1.12")
 
-# Add the executable
-add_executable(forcePlateGetData.out Main.cpp DataStreamClientFacade.cpp ForcePlateDataAcquisition.cpp ForcePlateData.cpp)
+# Add all .cpp files in the current directory to the sources list
+file(GLOB SOURCES "*.cpp")
+
+# Add the executable and link the sources
+add_executable(forcePlateGetData.out ${SOURCES})
 
 # Specify the include directories
 target_include_directories(forcePlateGetData.out PRIVATE ${VICON_ROOT})
