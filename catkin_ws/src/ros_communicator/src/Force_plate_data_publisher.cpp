@@ -12,32 +12,38 @@ using namespace Acquisition;
 
 int main(int argc, char **argv)
 {
-    ForcePlateDataAcquisition forcePlateDataAcquisition;
-
     ros::init(argc, argv, "Force_plate_data_publisher");
     ros::NodeHandle n;
     ros::Publisher publisher = n.advertise<Force_plate_data>("Force_plate_data", 1000);
-    ros::Rate loop_rate(10);
 
-    int count = 0;
+    ForcePlateDataAcquisition forcePlateDataAcquisition;
+
+    long prevFrameNum = 0;
     while (ros::ok())
     {
-        Force_plate_data msg;
+        ForcePlateDataFrame dataFrame = forcePlateDataAcquisition.grabDirect(ForcePlateDataAcquisition::amti1);
 
-        msg.frame_number = 25;
+        if (dataFrame.frameNumber > prevFrameNum + 1)
+        {
+            ROS_WARN("Lost frames from %ld to inclusive %ld!", prevFrameNum + 1, dataFrame.frameNumber - 1);
+        }
+        prevFrameNum = dataFrame.frameNumber;
 
-        /**
-         * The publish() function is how you send messages. The parameter
-         * is the message object. The type of this object must agree with the type
-         * given as a template parameter to the advertise<>() call, as was done
-         * in the constructor above.
-         */
-        publisher.publish(msg);
+        for (const ForcePlateData &dataPoint : dataFrame.forcePlateDataVector)
+        {
+            Force_plate_data msg;
+
+            msg.f_x = dataPoint.fX;
+            msg.f_y = dataPoint.fY;
+            msg.f_z = dataPoint.fZ;
+            msg.m_x = dataPoint.mX;
+            msg.m_y = dataPoint.mY;
+            msg.m_z = dataPoint.mZ;
+
+            publisher.publish(msg);
+        }
 
         ros::spinOnce();
-
-        loop_rate.sleep();
-        ++count;
     }
 
     return 0;

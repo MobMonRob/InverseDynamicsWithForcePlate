@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(ros_communicator)
 
-## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+# Use C++20 standard
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -107,7 +108,7 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ros_communicator
   CATKIN_DEPENDS roscpp rospy std_msgs message_runtime force_plate_data_acquisition
-  DEPENDS system_lib
+#  DEPENDS system_lib
 )
 
 ###########
