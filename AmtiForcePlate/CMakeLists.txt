@@ -22,6 +22,8 @@ add_executable(forcePlateGetData.out ${SOURCES})
 
 # Specify the include directories
 target_include_directories(forcePlateGetData.out PRIVATE ${VICON_ROOT})
+target_include_directories(forcePlateGetData.out PRIVATE ${CMAKE_SOURCE_DIR})
+target_include_directories(forcePlateGetData.out PUBLIC "${CMAKE_SOURCE_DIR}/publicInclude/")
 
 # Specify the library directory
 target_link_directories(forcePlateGetData.out PRIVATE ${VICON_ROOT})
@@ -31,3 +33,26 @@ file(GLOB LIBRARIES "${VICON_ROOT}/*.so.1.75.0" "${VICON_ROOT}/*.so")
 
 # Link the libraries
 target_link_libraries(forcePlateGetData.out ${LIBRARIES})
+
+###
+
+# Add the library and link the sources
+add_library(ForcePlateGetData SHARED ${SOURCES})
+
+set(RST_PUBLIC_HEADERS "ForcePlateData.hpp" "ForcePlateDataAcquisition.hpp")
+
+set_target_properties(ForcePlateGetData PROPERTIES PUBLIC_HEADER "${RST_PUBLIC_HEADERS}")
+
+target_include_directories(ForcePlateGetData PRIVATE ${VICON_ROOT})
+target_include_directories(ForcePlateGetData PRIVATE ${CMAKE_SOURCE_DIR})
+target_include_directories(ForcePlateGetData PUBLIC "${CMAKE_SOURCE_DIR}/publicInclude/")
+
+target_link_directories(ForcePlateGetData PRIVATE ${VICON_ROOT})
+
+target_link_libraries(ForcePlateGetData ${LIBRARIES})
+
+include(GNUInstallDirs)
+
+install(TARGETS ForcePlateGetData
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
