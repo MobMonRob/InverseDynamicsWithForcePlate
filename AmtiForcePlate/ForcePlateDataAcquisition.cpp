@@ -32,9 +32,10 @@ void ForcePlateDataAcquisition::waitForFrame(ViconDataStreamClient::DataStreamCl
     }
 }
 
-std::vector<ForcePlateData> ForcePlateDataAcquisition::grabDirect(const std::string &amti)
+ForcePlateDataFrame ForcePlateDataAcquisition::grabDirect(const std::string &amti)
 {
     waitForFrame(*client);
+
     long frameNumber = client->getFrameNumber();
 
     std::vector<ForcePlateData> forcePlateDataVector(subsampleCount);
@@ -48,11 +49,14 @@ std::vector<ForcePlateData> ForcePlateDataAcquisition::grabDirect(const std::str
         double my = client->getDeviceOutputValue(amti, "MY", subsample);
         double mz = client->getDeviceOutputValue(amti, "MZ", subsample);
 
-        ForcePlateData data(ForcePlateData(frameNumber, subsample, fx, fy, fz, mx, my, mz));
+        ForcePlateData data(fx, fy, fz, mx, my, mz);
 
-        forcePlateDataVector.push_back(data);
+        forcePlateDataVector.push_back(std::move(data));
     }
-    return forcePlateDataVector;
+
+    ForcePlateDataFrame forcePlateDataFrame(frameNumber, std::move(forcePlateDataVector));
+
+    return forcePlateDataFrame;
 }
 
 ViconDataStreamClient::DataStreamClientFacade &ForcePlateDataAcquisition::setupClient(ViconDataStreamClient::DataStreamClientFacade &client)
@@ -74,9 +78,7 @@ ViconDataStreamClient::DataStreamClientFacade &ForcePlateDataAcquisition::setupC
     // Tut manchmal.
     client.setStreamMode(ViconDataStreamSDK::CPP::StreamMode::Enum::ServerPush);
     //
-
     waitForFrame(client);
     waitForFrame(client);
-
     return client;
 }

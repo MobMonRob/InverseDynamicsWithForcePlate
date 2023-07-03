@@ -1,9 +1,8 @@
 #pragma once
 
-#include "ForcePlateData.hpp"
+#include "ForcePlateDataFrame.hpp"
 
 #include <string>
-#include <vector>
 #include <memory>
 
 namespace ViconDataStreamClient
@@ -22,7 +21,7 @@ public:
     ForcePlateDataAcquisition();
     ~ForcePlateDataAcquisition();
 
-    std::vector<ForcePlateData> grabDirect(const std::string &amti);
+    ForcePlateDataFrame grabDirect(const std::string &amti);
     static const std::string amti1;
     static const std::string amti2;
 

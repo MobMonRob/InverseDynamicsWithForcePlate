@@ -15,10 +15,10 @@ int main()
 
         while (true)
         {
-            std::vector<ForcePlateData> data = forcePlateDataAcquisition.grabDirect(amti);
-            for (const ForcePlateData &dataPoint : data)
+            ForcePlateDataFrame dataFrame = forcePlateDataAcquisition.grabDirect(amti);
+            for (const ForcePlateData &dataPoint : dataFrame.forcePlateDataVector)
             {
-                std::cout << dataPoint.frameNumber << ", " << dataPoint.subsampleNumber << ", " << amti << ", "
+                std::cout << dataFrame.frameNumber << ", " << amti << ", "
                           << dataPoint.fX << ", " << dataPoint.fY << ", " << dataPoint.fZ << ", "
                           << dataPoint.mX << ", " << dataPoint.mY << ", " << dataPoint.mZ << std::endl;
             }
