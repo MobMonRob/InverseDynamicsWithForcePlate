@@ -4,20 +4,27 @@ project(AmtiForcePlate
     VERSION 1.0 LANGUAGES CXX
 )
 
-#useful for debugging
-#SET(CMAKE_VERBOSE_MAKEFILE ON)
+# Use C++20 standard
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set (CMAKE_CXX_STANDARD_REQUIRED 20)
+# Use the VERBOSE option for debugging
+# set(CMAKE_VERBOSE_MAKEFILE ON)
 
-SET (VICON_ROOT "${CMAKE_SOURCE_DIR}/ViconLib1.12")
+# Set the ViconLib directory
+set(VICON_ROOT "${CMAKE_SOURCE_DIR}/ViconLib1.12")
 
-foreach(src ${SOURCES})
-    list(APPEND SOURCES_tmp "${src}.cpp")
-endforeach()
-set(SOURCES ${SOURCES_tmp})
+# Add the executable
+add_executable(forcePlateGetData.out Main.cpp DataStreamClientFacade.cpp ForcePlateDataAcquisition.cpp ForcePlateData.cpp)
 
-file(GLOB_RECURSE VICON_SRC FOLLOW_SYMLINKS ${VICON_ROOT} "${VICON_ROOT}/*.cpp")
+# Specify the include directories
+target_include_directories(forcePlateGetData.out PRIVATE ${VICON_ROOT})
 
-file(GLOB_RECURSE VICON_H FOLLOW_SYMLINKS ${VICON_ROOT} "${VICON_ROOT}/*.h")
+# Specify the library directory
+target_link_directories(forcePlateGetData.out PRIVATE ${VICON_ROOT})
 
-add_executable(forcePlateGetData.out Main.cpp DataStreamClientFacade.cpp ForcePlateDataAcquisition.cpp ForcePlateData.cpp) 
+# Use a wildcard to include all required libraries
+file(GLOB LIBRARIES "${VICON_ROOT}/*.so.1.75.0" "${VICON_ROOT}/*.so")
+
+# Link the libraries
+target_link_libraries(forcePlateGetData.out ${LIBRARIES})
