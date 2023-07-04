@@ -213,4 +213,4 @@ add_dependencies(${PROJECT_NAME} ros_communicator_generate_messages_cpp)
 add_executable(Force_plate_data_publisher src/Force_plate_data_publisher.cpp)
 target_link_libraries(Force_plate_data_publisher ${catkin_LIBRARIES})
 add_dependencies(Force_plate_data_publisher ros_communicator_generate_messages_cpp)
-
+target_compile_options(Force_plate_data_publisher PRIVATE -O3)

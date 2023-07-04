@@ -207,3 +207,4 @@ include_directories(
 # catkin_add_nosetests(test)
 
 add_subdirectory(src)
+#target_compile_options(Force_plate_data_publisher PRIVATE -O3)
