@@ -4,10 +4,10 @@
 
 #include <iostream>
 
-#include "ros_communicator/Force_plate_data.h"
+#include "force_plate_data_publisher/Force_plate_data.h"
 #include "force_plate_data_acquisition/ForcePlateDataAcquisition.hpp"
 
-using namespace ros_communicator;
+using namespace force_plate_data_publisher;
 using namespace Acquisition;
 
 int main(int argc, char **argv)
