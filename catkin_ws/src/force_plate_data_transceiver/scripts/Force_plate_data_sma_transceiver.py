@@ -10,6 +10,8 @@ queue = Queue(window_size)
 current_count = 0
 average = Force_plate_data()
 
+publisher = None
+
 #############################################
 def callback(data):
     if (queue.qsize() < window_size):
@@ -32,16 +34,20 @@ def callback(data):
     average.m_y = average.m_y + (data.m_y - old.m_y) / window_size
     average.m_z = average.m_z + (data.m_z - old.m_z) / window_size
 
+    publisher.publish(average)
+
     rospy.loginfo(f"\n{rospy.get_caller_id()}\nI heard\n{average}\n")
 
 #############################################
-def subscriber():
+def transceiver():
     rospy.init_node('force_plate_data_transceiver', anonymous=True)
 
+    global publisher
+    publisher = rospy.Publisher('Force_plate_data_sma', Force_plate_data, queue_size = 1000)
     rospy.Subscriber("Force_plate_data", Force_plate_data, callback)
 
     rospy.spin()
 
 #############################################
 if __name__ == '__main__':
-    subscriber() 
+    transceiver() 
