@@ -36,7 +36,7 @@ def callback(data):
 
 #############################################
 def subscriber():
-    rospy.init_node('Force_plate_data_subscriber', anonymous=True)
+    rospy.init_node('force_plate_data_transceiver', anonymous=True)
 
     rospy.Subscriber("Force_plate_data", Force_plate_data, callback)
 
