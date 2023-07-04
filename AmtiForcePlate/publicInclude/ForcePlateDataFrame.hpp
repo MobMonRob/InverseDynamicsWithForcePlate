@@ -13,10 +13,9 @@ namespace Acquisition
 class Acquisition::ForcePlateDataFrame
 {
 public:
-    ForcePlateDataFrame();
     ForcePlateDataFrame(long frameNumber, std::vector<ForcePlateData> &&forcePlateDataVector);
     ForcePlateDataFrame(ForcePlateDataFrame &&) = default;
-    // ForcePlateDataFrame(const ForcePlateDataFrame &) = default;
+    ForcePlateDataFrame(const ForcePlateDataFrame &) = delete;
 
     long frameNumber;
     std::vector<ForcePlateData> forcePlateDataVector;

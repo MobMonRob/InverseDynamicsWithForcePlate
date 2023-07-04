@@ -34,6 +34,8 @@ file(GLOB LIBRARIES "${VICON_ROOT}/*.so.1.75.0" "${VICON_ROOT}/*.so")
 # Link the libraries
 target_link_libraries(forcePlateGetData.out ${LIBRARIES})
 
+target_compile_options(forcePlateGetData.out PRIVATE -O3)
+
 ###
 
 # Add the library and link the sources
@@ -48,4 +50,5 @@ target_include_directories(force_plate_data_acquisition PUBLIC "${CMAKE_CURRENT_
 target_link_directories(force_plate_data_acquisition PRIVATE ${VICON_ROOT})
 
 target_link_libraries(force_plate_data_acquisition ${LIBRARIES})
-#ForcePlateGetData
+
+target_compile_options(force_plate_data_acquisition PRIVATE -O3)
