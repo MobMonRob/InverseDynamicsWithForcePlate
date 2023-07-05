@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include <iostream>
+#include <limits>
 
 #include "force_plate_data_publisher/Force_plate_data.h"
 #include "force_plate_data_acquisition/ForcePlateDataAcquisition.hpp"
@@ -18,7 +19,7 @@ int main(int argc, char **argv)
 
     ForcePlateDataAcquisition forcePlateDataAcquisition;
 
-    long prevFrameNum = 0;
+    long prevFrameNum = std::numeric_limits<long>::max() - 1;
     while (ros::ok())
     {
         ForcePlateDataFrame dataFrame = forcePlateDataAcquisition.grabDirect(ForcePlateDataAcquisition::amti1);
