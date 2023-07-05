@@ -1,6 +1,6 @@
-#! /bin/bash
+#!/bin/bash
 
-# catkin_make
+#catkin_make
 
 # Must be done in each terminal window.
 source ./devel/setup.bash
@@ -12,7 +12,9 @@ sleep 3s
 # rosrun [packageName] [nodeName] 
 
 # Caution: mock!!
-konsole --new-tab -e "rosrun force_plate_data_publisher Force_plate_data_publisher_mock" &
+# konsole --new-tab -e "rosrun force_plate_data_publisher Force_plate_data_publisher_mock" &
+
+konsole --new-tab -e "rosrun force_plate_data_publisher Force_plate_data_publisher" &
 
 sleep 1s
 
