@@ -2,34 +2,59 @@
 
 import rospy
 from force_plate_data_publisher.msg import Force_plate_data;
-
 from queue import Queue
-
-window_size = 1000
-queue = Queue(window_size)
-current_count = 0
-average = Force_plate_data()
+import copy
 
 publisher = None
 
-offset_x = 0
-offset_y = 0
-offset_z = 0
+window_size = 1000
+queue = Queue(window_size)
+average = Force_plate_data()
+offset = Force_plate_data()
+previous = Force_plate_data()
 
 #############################################
 def callback(data):
     global average
-    global offset_x
-    global offset_y
-    global offset_z
+    global offset
+    global previous
 
-    # Massen bestimmen
-    data.f_x = data.f_x
-    data.f_y = data.f_y
+    # Masse bestimmen
     data.f_z = data.f_z / 9.81
 
+    # Nullen filtern
+    if (abs(data.f_x) < 0.5):
+        data.f_x = previous.f_x
+
+    if (abs(data.f_y) < 0.5):
+        data.f_y = previous.f_y
+
+    if (abs(data.f_z) < 0.5):
+        data.f_z = previous.f_z
+
+    if (abs(data.m_x) < 0.5):
+        data.m_x = previous.m_x
+
+    if (abs(data.m_y) < 0.5):
+        data.m_y = previous.m_y
+
+    if (abs(data.m_z) < 0.5):
+        data.m_z = previous.m_z
+
+    previous = copy.deepcopy(data)
+
+    if (abs(data.f_z) < 0.5):
+        rospy.loginfo(f"{data.f_z}\n")
+
+    #publisher.publish(data)
+    #return
+
+    # Averaging Fenster initialisieren
     if (queue.qsize() < window_size):
         rospy.loginfo(f"{queue.qsize()}")
+        # Nullwerte am Anfang nicht in das Offset einfliessen lassen
+        if (abs(data.f_z) < 0.5):
+            return
         queue.put(data)
         average.f_x = average.f_x + data.f_x / window_size
         average.f_y = average.f_y + data.f_y / window_size
@@ -37,20 +62,23 @@ def callback(data):
         average.m_x = average.m_x + data.m_x / window_size
         average.m_y = average.m_y + data.m_y / window_size
         average.m_z = average.m_z + data.m_z / window_size
-        offset_x = average.f_x
-        offset_y = average.f_y
-        offset_z = average.f_z
+        # Tarierung bestimmen
+        offset = copy.deepcopy(average)
         return
 
-    # Offset von Data abziehen
-    data.f_x = data.f_x -offset_x
-    data.f_y = data.f_y -offset_y
-    data.f_z = data.f_z -offset_z
-    # Hier nochmal 100 abwarten, bis die alten alle raus sind.
+    # Tarierung anwenden
+    data.f_x = data.f_x - offset.f_x
+    data.f_y = data.f_y - offset.f_y
+    data.f_z = data.f_z - offset.f_z
+    data.m_x = data.m_x - offset.m_x
+    data.m_y = data.m_y - offset.m_y
+    data.m_z = data.m_z - offset.m_z
 
+    # Averaging Fenster weiter ziehen
     old = queue.get()
     queue.put(data)
 
+    # Averaging durchfueren
     average.f_x = average.f_x + (data.f_x - old.f_x) / window_size
     average.f_y = average.f_y + (data.f_y - old.f_y) / window_size
     average.f_z = average.f_z + (data.f_z - old.f_z) / window_size
@@ -58,9 +86,8 @@ def callback(data):
     average.m_y = average.m_y + (data.m_y - old.m_y) / window_size
     average.m_z = average.m_z + (data.m_z - old.m_z) / window_size
 
+    # Publishing
     publisher.publish(average)
-
-    #rospy.loginfo(f"\n{rospy.get_caller_id()}\nI heard\n{average}\n")
 
 #############################################
 def transceiver():
