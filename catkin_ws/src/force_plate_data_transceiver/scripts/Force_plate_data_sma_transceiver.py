@@ -24,8 +24,8 @@ def callback(data):
     global offset_z
 
     # Massen bestimmen
-    data.f_x = data.f_x / 9.81
-    data.f_y = data.f_y / 9.81
+    data.f_x = data.f_x
+    data.f_y = data.f_y
     data.f_z = data.f_z / 9.81
 
     if (queue.qsize() < window_size):
