@@ -12,7 +12,7 @@ namespace ViconDataStreamClient
 class ViconDataStreamClient::DataStreamClientFacade
 {
 public:
-    ViconDataStreamSDK::CPP::Client getInner() {return innerDataStreamClient;}
+    ViconDataStreamSDK::CPP::Client& getInner() {return innerDataStreamClient;}
 
     void enableDeviceData();
     void setStreamMode(ViconDataStreamSDK::CPP::StreamMode::Enum mode);
