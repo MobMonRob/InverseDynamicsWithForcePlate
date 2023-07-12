@@ -165,3 +165,18 @@ double DataStreamClientFacade::getDeviceOutputValue(const std::string &deviceNam
     }
     return deviceOutputValue;
 }
+
+void DataStreamClientFacade::enableMarkerData()
+{
+    Output_EnableMarkerData output = innerDataStreamClient.EnableMarkerData();
+    Result::Enum result = output.Result;
+    if (result == Result::Enum::NotConnected)
+    {
+        throw std::runtime_error("The client is not connected!");
+    }
+    else if (result != Result::Enum::Success)
+    {
+        throw std::runtime_error("enableMarkerData() failed due to unknown reason!");
+    }
+}
+

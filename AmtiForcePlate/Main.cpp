@@ -11,7 +11,7 @@ int main()
     {
         ForcePlateDataAcquisition forcePlateDataAcquisition;
 
-        const std::string &amti = ForcePlateDataAcquisition::amti1;
+        const std::string &amti = ForcePlateDataAcquisition::amti2;
 
         while (true)
         {

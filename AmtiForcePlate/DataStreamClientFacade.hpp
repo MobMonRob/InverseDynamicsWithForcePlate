@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <array>
 
 #include "DataStreamClient.h"
 
@@ -11,6 +12,8 @@ namespace ViconDataStreamClient
 class ViconDataStreamClient::DataStreamClientFacade
 {
 public:
+    ViconDataStreamSDK::CPP::Client getInner() {return innerDataStreamClient;}
+
     void enableDeviceData();
     void setStreamMode(ViconDataStreamSDK::CPP::StreamMode::Enum mode);
     bool getFrame();
@@ -21,6 +24,7 @@ public:
     void setBufferSize(unsigned int bufferSize);
     double getDeviceOutputValue(const std::string &deviceName, const std::string &deviceOutputComponentName);
     double getDeviceOutputValue(const std::string &deviceName, const std::string &deviceOutputComponentName, const unsigned int subsample);
+    void enableMarkerData();
 
 private:
     ViconDataStreamSDK::CPP::Client innerDataStreamClient;

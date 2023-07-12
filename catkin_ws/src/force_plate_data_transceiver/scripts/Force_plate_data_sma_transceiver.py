@@ -7,7 +7,7 @@ import copy
 
 publisher = None
 
-window_size = 100
+window_size = 1000
 queue = Queue(window_size)
 average = Force_plate_data()
 offset = Force_plate_data()
@@ -103,4 +103,4 @@ def transceiver():
 
 #############################################
 if __name__ == '__main__':
-    transceiver() 
+    transceiver()

@@ -15,7 +15,7 @@ const std::string ForcePlateDataAcquisition::amti2("AMTI 2");
 
 ForcePlateDataAcquisition::ForcePlateDataAcquisition()
     : client(std::make_unique<ViconDataStreamClient::DataStreamClientFacade>()),
-      subsampleCount(setupClient(*client).getDeviceOutputSubsamples(ForcePlateDataAcquisition::amti1, "Fx"))
+      subsampleCount(setupClient(*client).getDeviceOutputSubsamples(ForcePlateDataAcquisition::amti2, "Fz"))
 {
 }
 
@@ -59,6 +59,9 @@ ForcePlateDataFrame ForcePlateDataAcquisition::grabDirect(const std::string &amt
     return forcePlateDataFrame;
 }
 
+using namespace ViconDataStreamSDK::CPP;
+using namespace ViconDataStreamClient;
+
 ViconDataStreamClient::DataStreamClientFacade &ForcePlateDataAcquisition::setupClient(ViconDataStreamClient::DataStreamClientFacade &client)
 {
     std::string hostname = "192.168.10.1:801";
@@ -75,10 +78,48 @@ ViconDataStreamClient::DataStreamClientFacade &ForcePlateDataAcquisition::setupC
 
     client.setBufferSize(100);
 
-    // Tut manchmal.
     client.setStreamMode(ViconDataStreamSDK::CPP::StreamMode::Enum::ServerPush);
-    //
+
     waitForFrame(client);
     waitForFrame(client);
+
+    //////////////////////////////////////////////////
+
+    client.enableMarkerData();
+    ViconDataStreamSDK::CPP::Client vicon = client.getInner();
+
+    std::string subjectName = "Tip";
+
+    vicon.ClearSubjectFilter();
+    vicon.AddToSubjectFilter(subjectName);
+
+    Output_GetMarkerCount output_GetMarkerCount = vicon.GetMarkerCount(subjectName);
+    uint markerCount = output_GetMarkerCount.MarkerCount;
+
+    std::cout << "markerCount: " << markerCount << std::endl;
+
+    for (;;)
+    {
+        waitForFrame(client);
+
+        for (uint i = 0; i < markerCount; ++i)
+        {
+            Output_GetMarkerName output_GetMarkerName = vicon.GetMarkerName(subjectName, i);
+            std::string markerName = output_GetMarkerName.MarkerName;
+
+            Output_GetMarkerGlobalTranslation output_GetMarkerGlobalTranslation = vicon.GetMarkerGlobalTranslation(subjectName, markerName);
+            double x = output_GetMarkerGlobalTranslation.Translation[0];
+            // occluded auch
+
+            std::cout << markerName << " " << x << std::endl;
+
+            // Erst mal ausprobieren mit zwei Clients.
+            // Sonst Facade mehrteilen.
+            // Oder einfach alles zu einem Matschball formen.
+        }
+    }
+
+    //////////////////////////////////////////////////
+
     return client;
 }
