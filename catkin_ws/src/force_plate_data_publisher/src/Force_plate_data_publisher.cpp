@@ -22,7 +22,7 @@ int main(int argc, char **argv)
     long prevFrameNum = std::numeric_limits<long>::max() - 1;
     while (ros::ok())
     {
-        ForcePlateDataFrame dataFrame = forcePlateDataAcquisition.grabDirect(ForcePlateDataAcquisition::amti1);
+        ForcePlateDataFrame dataFrame = forcePlateDataAcquisition.grabDirect(ForcePlateDataAcquisition::amti2);
 
         if (dataFrame.frameNumber > prevFrameNum + 1)
         {
