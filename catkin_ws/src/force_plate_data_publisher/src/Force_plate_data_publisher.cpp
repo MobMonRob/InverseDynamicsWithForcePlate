@@ -65,7 +65,7 @@ int main(int argc, char **argv)
             uint8_t markerGlobalTranslationVectorSize = markerGlobalTranslationDataVector.size();
             for (uint8_t i = 0; i < markerGlobalTranslationVectorSize; ++i)
             {
-                const MarkerGlobalTranslationData& currentOrigin(markerGlobalTranslationDataVector[i]);
+                const MarkerGlobalTranslationData &currentOrigin(markerGlobalTranslationDataVector[i]);
                 Marker_global_translation msg;
 
                 msg.frameNumber = frameNumber;
