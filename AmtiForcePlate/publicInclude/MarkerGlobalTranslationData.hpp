@@ -10,7 +10,7 @@ namespace Acquisition
 class Acquisition::MarkerGlobalTranslationData
 {
 public:
-    MarkerGlobalTranslationData() = default;
+    MarkerGlobalTranslationData() = delete;
     MarkerGlobalTranslationData(MarkerGlobalTranslationData &&) = default;
     MarkerGlobalTranslationData(const MarkerGlobalTranslationData &) = delete;
     MarkerGlobalTranslationData(bool occluded, double x, double y, double z);

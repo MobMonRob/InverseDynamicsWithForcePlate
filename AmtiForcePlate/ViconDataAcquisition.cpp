@@ -41,7 +41,8 @@ void ViconDataAcquisition::waitForFrame(ViconDataStreamClient::DataStreamClientF
 
 std::vector<ForcePlateData> ViconDataAcquisition::grabForcePlataDataFrame(const std::string &amti)
 {
-    std::vector<ForcePlateData> forcePlateDataVector(subsampleCount);
+    std::vector<ForcePlateData> forcePlateDataVector;
+    forcePlateDataVector.reserve(subsampleCount);
 
     for (uint subsample = 0; subsample < subsampleCount; ++subsample)
     {
@@ -106,6 +107,7 @@ ViconDataAcquisition ViconDataAcquisition::create()
     std::cout << "markerCount: " << markerCount << std::endl;
 
     std::vector<std::string> markerNames;
+    markerNames.reserve(markerCount);
 
     for (uint i = 0; i < markerCount; ++i)
     {
@@ -124,7 +126,8 @@ ViconDataAcquisition ViconDataAcquisition::create()
 
 std::vector<MarkerGlobalTranslationData> ViconDataAcquisition::grabMarkerGlobalTranslation()
 {
-    std::vector<MarkerGlobalTranslationData> dataVector(markerNames.size());
+    std::vector<MarkerGlobalTranslationData> dataVector;
+    dataVector.reserve(markerNames.size());
 
     for (const std::string& markerName : markerNames)
     {

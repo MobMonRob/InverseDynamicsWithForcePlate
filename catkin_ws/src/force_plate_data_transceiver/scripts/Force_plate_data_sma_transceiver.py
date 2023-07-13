@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from force_plate_data_publisher.msg import Vicon_compound_data;
-from force_plate_data_publisher.msg import Force_plate_data;
+from force_plate_data_publisher.msg import Force_plate_data
 from queue import Queue
 import copy
 
@@ -98,7 +97,7 @@ def transceiver():
 
     global publisher
     publisher = rospy.Publisher('Force_plate_data_sma', Force_plate_data, queue_size = 1000)
-    rospy.Subscriber("Vicon_compound_data", Vicon_compound_data, callback)
+    rospy.Subscriber("Force_plate_data", Force_plate_data, callback)
 
     rospy.loginfo(f"Tranceiver started.")
 
