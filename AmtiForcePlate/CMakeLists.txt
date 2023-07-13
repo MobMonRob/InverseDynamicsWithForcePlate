@@ -41,7 +41,7 @@ target_compile_options(forcePlateGetData.out PRIVATE -O3)
 # Add the library and link the sources
 add_library(force_plate_data_acquisition SHARED ${SOURCES})
 
-set(RST_PUBLIC_HEADERS "ForcePlateData.hpp" "ViconDataAcquisition.hpp")
+set(RST_PUBLIC_HEADERS "ForcePlateData.hpp" "ViconDataAcquisition.hpp" "MarkerDataAcquisition.hpp")
 
 target_include_directories(force_plate_data_acquisition PRIVATE ${VICON_ROOT})
 #target_include_directories(force_plate_data_acquisition PRIVATE ${CMAKE_CURRENT_LIST_DIR})
