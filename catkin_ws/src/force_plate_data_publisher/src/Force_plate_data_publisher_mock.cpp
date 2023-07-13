@@ -36,12 +36,12 @@ int main(int argc, char **argv)
         {
             Force_plate_data msg;
 
-            msg.f_x = distr(gen);
-            msg.f_y = distr(gen);
-            msg.f_z = distr(gen);
-            msg.m_x = distr(gen);
-            msg.m_y = distr(gen);
-            msg.m_z = distr(gen);
+            msg.fx_N = distr(gen);
+            msg.fy_N = distr(gen);
+            msg.fz_N = distr(gen);
+            msg.mx_Nm = distr(gen);
+            msg.my_Nm = distr(gen);
+            msg.mz_Nm = distr(gen);
 
             publisher.publish(msg);
         }

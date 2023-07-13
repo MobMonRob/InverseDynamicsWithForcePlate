@@ -15,11 +15,11 @@ int main()
 
         while (true)
         {
-            viconDataAcquisition.waitForFrame();
-            ForcePlateDataFrame dataFrame = viconDataAcquisition.grabForcePlataDataFrame(amti);
-            for (const ForcePlateData &dataPoint : dataFrame.forcePlateDataVector)
+            long frameNumber = viconDataAcquisition.waitForFrame();
+            std::vector<ForcePlateData> dataVector = viconDataAcquisition.grabForcePlataDataFrame(amti);
+            for (const ForcePlateData &dataPoint : dataVector)
             {
-                std::cout << dataFrame.frameNumber << ", " << amti << ", "
+                std::cout << frameNumber << ", " << amti << ", "
                           << dataPoint.fX << ", " << dataPoint.fY << ", " << dataPoint.fZ << ", "
                           << dataPoint.mX << ", " << dataPoint.mY << ", " << dataPoint.mZ << std::endl;
             }

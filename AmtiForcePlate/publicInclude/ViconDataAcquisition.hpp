@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ForcePlateDataFrame.hpp"
+#include "ForcePlateData.hpp"
 #include "MarkerGlobalTranslationData.hpp"
 
 #include <string>
@@ -25,11 +25,11 @@ public:
     ViconDataAcquisition(ViconDataAcquisition&) = delete;
     ~ViconDataAcquisition();
 
-    ForcePlateDataFrame grabForcePlataDataFrame(const std::string &amti);
+    std::vector<ForcePlateData> grabForcePlataDataFrame(const std::string &amti);
     static const std::string amti1;
     static const std::string amti2;
 
-    void waitForFrame();
+    long waitForFrame();
     std::vector<MarkerGlobalTranslationData> grabMarkerGlobalTranslation();
 
     const long subsampleCount;

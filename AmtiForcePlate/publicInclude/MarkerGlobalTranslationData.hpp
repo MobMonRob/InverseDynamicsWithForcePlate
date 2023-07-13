@@ -13,11 +13,10 @@ public:
     MarkerGlobalTranslationData() = default;
     MarkerGlobalTranslationData(MarkerGlobalTranslationData &&) = default;
     MarkerGlobalTranslationData(const MarkerGlobalTranslationData &) = delete;
-    MarkerGlobalTranslationData(double x, double y, double z, bool occluded, const std::string& markerName);
+    MarkerGlobalTranslationData(bool occluded, double x, double y, double z);
 
+    bool occluded;
     double x;
     double y;
     double z;
-    bool occluded;
-    const std::string& markerName;
 };

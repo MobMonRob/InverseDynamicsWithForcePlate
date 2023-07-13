@@ -24,9 +24,10 @@ ViconDataAcquisition::~ViconDataAcquisition()
 {
 }
 
-void ViconDataAcquisition::waitForFrame()
+long ViconDataAcquisition::waitForFrame()
 {
     waitForFrame(*client);
+    return client->getFrameNumber();
 }
 
 void ViconDataAcquisition::waitForFrame(ViconDataStreamClient::DataStreamClientFacade &client)
@@ -38,10 +39,8 @@ void ViconDataAcquisition::waitForFrame(ViconDataStreamClient::DataStreamClientF
     }
 }
 
-ForcePlateDataFrame ViconDataAcquisition::grabForcePlataDataFrame(const std::string &amti)
+std::vector<ForcePlateData> ViconDataAcquisition::grabForcePlataDataFrame(const std::string &amti)
 {
-    long frameNumber = client->getFrameNumber();
-
     std::vector<ForcePlateData> forcePlateDataVector(subsampleCount);
 
     for (unsigned int subsample = 0; subsample < subsampleCount; ++subsample)
@@ -58,9 +57,7 @@ ForcePlateDataFrame ViconDataAcquisition::grabForcePlataDataFrame(const std::str
         forcePlateDataVector.push_back(std::move(data));
     }
 
-    ForcePlateDataFrame forcePlateDataFrame(frameNumber, std::move(forcePlateDataVector));
-
-    return forcePlateDataFrame;
+    return forcePlateDataVector;
 }
 
 using namespace ViconDataStreamSDK::CPP;
@@ -130,16 +127,16 @@ ViconDataAcquisition ViconDataAcquisition::create()
 
 std::vector<MarkerGlobalTranslationData> ViconDataAcquisition::grabMarkerGlobalTranslation()
 {
-    std::vector<MarkerGlobalTranslationData> dataVector;
+    std::vector<MarkerGlobalTranslationData> dataVector(markerNames.size());
 
     for (const std::string& markerName : markerNames)
     {
         Output_GetMarkerGlobalTranslation output_GetMarkerGlobalTranslation = client->getInner().GetMarkerGlobalTranslation(subjectName, markerName);
+        bool occluded = output_GetMarkerGlobalTranslation.Occluded;
         double x = output_GetMarkerGlobalTranslation.Translation[0];
         double y = output_GetMarkerGlobalTranslation.Translation[1];
         double z = output_GetMarkerGlobalTranslation.Translation[2];
-        bool occluded = output_GetMarkerGlobalTranslation.Occluded;
-        MarkerGlobalTranslationData data(x, y, z, occluded, markerName);
+        MarkerGlobalTranslationData data(occluded, x, y, z);
         dataVector.push_back(std::move(data));
     }
 

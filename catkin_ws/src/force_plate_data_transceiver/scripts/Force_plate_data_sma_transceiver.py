@@ -17,8 +17,7 @@ previous = Force_plate_data()
 #############################################
 
 def callback(data):
-    for dataPoint in data.force_plate_data :
-        process_and_publish(dataPoint)
+    process_and_publish(data)
 
 #############################################
 def process_and_publish(data):
@@ -27,71 +26,68 @@ def process_and_publish(data):
     global previous
 
     # Masse bestimmen
-    data.f_z = data.f_z / 9.81
+    data.fz_N = data.fz_N / 9.81
 
     # Nullen filtern
-    if (abs(data.f_x) < 0.5):
-        data.f_x = previous.f_x
+    if (abs(data.fx_N) < 0.5):
+        data.fx_N = previous.fx_N
 
-    if (abs(data.f_y) < 0.5):
-        data.f_y = previous.f_y
+    if (abs(data.fy_N) < 0.5):
+        data.fy_N = previous.fy_N
 
-    if (abs(data.f_z) < 0.5):
-        data.f_z = previous.f_z
+    if (abs(data.fz_N) < 0.5):
+        data.fz_N = previous.fz_N
 
-    if (abs(data.m_x) < 0.5):
-        data.m_x = previous.m_x
+    if (abs(data.mx_Nm) < 0.5):
+        data.mx_Nm = previous.mx_Nm
 
-    if (abs(data.m_y) < 0.5):
-        data.m_y = previous.m_y
+    if (abs(data.my_Nm) < 0.5):
+        data.my_Nm = previous.my_Nm
 
-    if (abs(data.m_z) < 0.5):
-        data.m_z = previous.m_z
+    if (abs(data.mz_Nm) < 0.5):
+        data.mz_Nm = previous.mz_Nm
 
     previous = copy.deepcopy(data)
 
-    if (abs(data.f_z) < 0.5):
-        rospy.loginfo(f"{data.f_z}\n")
-
-    #publisher.publish(data)
-    #return
+    if (abs(data.fz_N) < 0.5):
+        rospy.loginfo(f"{data.fz_N}\n")
 
     # Averaging Fenster initialisieren
     if (queue.qsize() < window_size):
         rospy.loginfo(f"{queue.qsize()}")
         # Nullwerte am Anfang nicht in das Offset einfliessen lassen
-        if (abs(data.f_z) < 0.5):
+        if (abs(data.fz_N) < 0.5):
             return
         queue.put(data)
-        average.f_x = average.f_x + data.f_x / window_size
-        average.f_y = average.f_y + data.f_y / window_size
-        average.f_z = average.f_z + data.f_z / window_size
-        average.m_x = average.m_x + data.m_x / window_size
-        average.m_y = average.m_y + data.m_y / window_size
-        average.m_z = average.m_z + data.m_z / window_size
+        average.fx_N = average.fx_N + data.fx_N / window_size
+        average.fy_N = average.fy_N + data.fy_N / window_size
+        average.fz_N = average.fz_N + data.fz_N / window_size
+        average.mx_Nm = average.mx_Nm + data.mx_Nm / window_size
+        average.my_Nm = average.my_Nm + data.my_Nm / window_size
+        average.mz_Nm = average.mz_Nm + data.mz_Nm / window_size
         # Tarierung bestimmen
         offset = copy.deepcopy(average)
         return
 
     # Tarierung anwenden
-    data.f_x = data.f_x - offset.f_x
-    data.f_y = data.f_y - offset.f_y
-    data.f_z = data.f_z - offset.f_z
-    data.m_x = data.m_x - offset.m_x
-    data.m_y = data.m_y - offset.m_y
-    data.m_z = data.m_z - offset.m_z
+    data.fx_N = data.fx_N - offset.fx_N
+    data.fy_N = data.fy_N - offset.fy_N
+    data.fz_N = data.fz_N - offset.fz_N
+    data.mx_Nm = data.mx_Nm - offset.mx_Nm
+    data.my_Nm = data.my_Nm - offset.my_Nm
+    data.mz_Nm = data.mz_Nm - offset.mz_Nm
 
     # Averaging Fenster weiter ziehen
     old = queue.get()
     queue.put(data)
 
     # Averaging durchfueren
-    average.f_x = average.f_x + (data.f_x - old.f_x) / window_size
-    average.f_y = average.f_y + (data.f_y - old.f_y) / window_size
-    average.f_z = average.f_z + (data.f_z - old.f_z) / window_size
-    average.m_x = average.m_x + (data.m_x - old.m_x) / window_size
-    average.m_y = average.m_y + (data.m_y - old.m_y) / window_size
-    average.m_z = average.m_z + (data.m_z - old.m_z) / window_size
+    average.fx_N = average.fx_N + (data.fx_N - old.fx_N) / window_size
+    average.fy_N = average.fy_N + (data.fy_N - old.fy_N) / window_size
+    average.fz_N = average.fz_N + (data.fz_N - old.fz_N) / window_size
+    average.mx_Nm = average.mx_Nm + (data.mx_Nm - old.mx_Nm) / window_size
+    average.my_Nm = average.my_Nm + (data.my_Nm - old.my_Nm) / window_size
+    average.mz_Nm = average.mz_Nm + (data.mz_Nm - old.mz_Nm) / window_size
 
     # Publishing
     publisher.publish(average)
