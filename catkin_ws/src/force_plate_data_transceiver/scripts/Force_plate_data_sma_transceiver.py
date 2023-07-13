@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from force_plate_data_publisher.msg import Force_plate_data
+from vicon_data_publisher.msg import Force_plate_data
 from queue import Queue
 import copy
 

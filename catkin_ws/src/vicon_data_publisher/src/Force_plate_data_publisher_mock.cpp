@@ -4,13 +4,13 @@
 
 #include <iostream>
 
-#include "force_plate_data_publisher/Force_plate_data.h"
+#include "vicon_data_publisher/Force_plate_data.h"
 #include "force_plate_data_acquisition/ForcePlateDataAcquisition.hpp"
 
 #include <iostream>
 #include <random>
 
-using namespace force_plate_data_publisher;
+using namespace vicon_data_publisher;
 using namespace Acquisition;
 
 int main(int argc, char **argv)

@@ -60,9 +60,9 @@
   <build_export_depend>rospy</build_export_depend>
   <exec_depend>rospy</exec_depend>
 
-  <build_depend>force_plate_data_publisher</build_depend>
-  <build_export_depend>force_plate_data_publisher</build_export_depend>
-  <exec_depend>force_plate_data_publisher</exec_depend>
+  <build_depend>vicon_data_publisher</build_depend>
+  <build_export_depend>vicon_data_publisher</build_export_depend>
+  <exec_depend>vicon_data_publisher</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

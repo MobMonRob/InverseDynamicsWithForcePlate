@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(force_plate_data_publisher)
+project(vicon_data_publisher)
 
 # Use C++20 standard
 set(CMAKE_CXX_STANDARD 20)
@@ -107,7 +107,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES force_plate_data_publisher
+  LIBRARIES vicon_data_publisher
   CATKIN_DEPENDS roscpp std_msgs message_runtime force_plate_data_acquisition
 #  DEPENDS system_lib
 )
@@ -129,7 +129,7 @@ include_directories(
  )
 
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-add_dependencies(${PROJECT_NAME} force_plate_data_publisher_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME} vicon_data_publisher_generate_messages_cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -139,7 +139,7 @@ add_dependencies(${PROJECT_NAME} force_plate_data_publisher_generate_messages_cp
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/force_plate_data_publisher_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/vicon_data_publisher_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -203,7 +203,7 @@ add_dependencies(${PROJECT_NAME} force_plate_data_publisher_generate_messages_cp
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_force_plate_data_publisher.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_vicon_data_publisher.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
@@ -213,15 +213,15 @@ add_dependencies(${PROJECT_NAME} force_plate_data_publisher_generate_messages_cp
 
 add_executable(Force_plate_data_publisher_mock src/Force_plate_data_publisher_mock.cpp)
 target_link_libraries(Force_plate_data_publisher_mock ${catkin_LIBRARIES})
-add_dependencies(Force_plate_data_publisher_mock force_plate_data_publisher_generate_messages_cpp)
+add_dependencies(Force_plate_data_publisher_mock vicon_data_publisher_generate_messages_cpp)
 target_compile_options(Force_plate_data_publisher_mock PRIVATE -O3)
 
 add_executable(Force_plate_data_publisher src/Force_plate_data_publisher.cpp)
 target_link_libraries(Force_plate_data_publisher ${catkin_LIBRARIES})
-add_dependencies(Force_plate_data_publisher force_plate_data_publisher_generate_messages_cpp)
+add_dependencies(Force_plate_data_publisher vicon_data_publisher_generate_messages_cpp)
 target_compile_options(Force_plate_data_publisher PRIVATE -O3)
 
 add_executable(Marker_data_publisher src/Marker_data_publisher.cpp)
 target_link_libraries(Marker_data_publisher ${catkin_LIBRARIES})
-add_dependencies(Marker_data_publisher force_plate_data_publisher_generate_messages_cpp)
+add_dependencies(Marker_data_publisher vicon_data_publisher_generate_messages_cpp)
 target_compile_options(Marker_data_publisher PRIVATE -O3)

@@ -5,10 +5,10 @@
 #include <iostream>
 #include <limits>
 
-#include "force_plate_data_publisher/Marker_global_translation.h"
+#include "vicon_data_publisher/Marker_global_translation.h"
 #include "force_plate_data_acquisition/MarkerDataAcquisition.hpp"
 
-using namespace force_plate_data_publisher;
+using namespace vicon_data_publisher;
 using namespace Acquisition;
 
 int main(int argc, char **argv)
