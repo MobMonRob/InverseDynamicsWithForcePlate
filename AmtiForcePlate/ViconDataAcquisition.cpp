@@ -12,7 +12,7 @@ using namespace ViconDataStreamClient;
 const std::string ViconDataAcquisition::amti1("AMTI 1");
 const std::string ViconDataAcquisition::amti2("AMTI 2");
 
-ViconDataAcquisition::ViconDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade>&& client, uint subsampleCount, std::vector<std::string>&& markerNames, std::string&& subjectName)
+ViconDataAcquisition::ViconDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> &&client, uint subsampleCount, std::vector<std::string> &&markerNames, std::string &&subjectName)
     : client(std::move(client)),
       subsampleCount(subsampleCount),
       markerNames(std::move(markerNames)),
@@ -129,7 +129,7 @@ std::vector<MarkerGlobalTranslationData> ViconDataAcquisition::grabMarkerGlobalT
     std::vector<MarkerGlobalTranslationData> dataVector;
     dataVector.reserve(markerNames.size());
 
-    for (const std::string& markerName : markerNames)
+    for (const std::string &markerName : markerNames)
     {
         std::array<double, 3> translation = client->getMarkerGlobalTranslation(subjectName, markerName);
         bool occluded = client->getLastWasOccluded();
