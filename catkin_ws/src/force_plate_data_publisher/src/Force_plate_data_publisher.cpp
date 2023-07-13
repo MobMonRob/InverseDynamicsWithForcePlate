@@ -8,6 +8,7 @@
 #include "force_plate_data_publisher/Force_plate_data.h"
 #include "force_plate_data_publisher/Marker_global_translation.h"
 #include "force_plate_data_acquisition/ViconDataAcquisition.hpp"
+#include "force_plate_data_acquisition/MarkerDataAcquisition.hpp"
 
 using namespace force_plate_data_publisher;
 using namespace Acquisition;
@@ -20,6 +21,7 @@ int main(int argc, char **argv)
     ros::Publisher publisher_Marker_global_translation = n.advertise<Marker_global_translation>("Marker_global_translation", 1000);
 
     ViconDataAcquisition viconDataAcquisition(ViconDataAcquisition::create());
+    MarkerDataAcquisition markerDataAcquisition(MarkerDataAcquisition::create());
 
     uint prevFrameNum = std::numeric_limits<uint>::max() - 1;
 
@@ -60,7 +62,7 @@ int main(int argc, char **argv)
         //////////////////////////////////////////////////////////////
 
         {
-            std::vector<MarkerGlobalTranslationData> markerGlobalTranslationDataVector(viconDataAcquisition.grabMarkerGlobalTranslation());
+            std::vector<MarkerGlobalTranslationData> markerGlobalTranslationDataVector(markerDataAcquisition.grabMarkerGlobalTranslation());
 
             uint8_t markerGlobalTranslationVectorSize = markerGlobalTranslationDataVector.size();
             for (uint8_t i = 0; i < markerGlobalTranslationVectorSize; ++i)

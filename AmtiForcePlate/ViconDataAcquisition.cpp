@@ -12,11 +12,9 @@ using namespace ViconDataStreamClient;
 const std::string ViconDataAcquisition::amti1("AMTI 1");
 const std::string ViconDataAcquisition::amti2("AMTI 2");
 
-ViconDataAcquisition::ViconDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> &&client, uint subsampleCount, std::vector<std::string> &&markerNames, std::string &&subjectName)
+ViconDataAcquisition::ViconDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> &&client, uint subsampleCount)
     : client(std::move(client)),
-      subsampleCount(subsampleCount),
-      markerNames(std::move(markerNames)),
-      subjectName(std::move(subjectName))
+      subsampleCount(subsampleCount)
 {
 }
 
@@ -93,52 +91,7 @@ ViconDataAcquisition ViconDataAcquisition::create()
 
     //////////////////////////////////////////////////
 
-    client->enableMarkerData();
-
-    std::string subjectName = "Tip";
-
-    client->clearSubjectFilter();
-    client->addToSubjectFilter(subjectName);
-
-    waitForFrame(*client);
-    waitForFrame(*client);
-
-    uint markerCount = client->getMarkerCount(subjectName);
-    std::cout << "markerCount: " << markerCount << std::endl;
-
-    std::vector<std::string> markerNames;
-    markerNames.reserve(markerCount);
-
-    for (uint i = 0; i < markerCount; ++i)
-    {
-        std::string markerName = client->getMarkerName(subjectName, i);
-        markerNames.push_back(markerName);
-
-        std::cout << markerName << std::endl;
-    }
-
-    //////////////////////////////////////////////////
-
-    ViconDataAcquisition viconDataAcquisition(std::move(client), subsampleCount, std::move(markerNames), std::move(subjectName));
+    ViconDataAcquisition viconDataAcquisition(std::move(client), subsampleCount);
 
     return viconDataAcquisition;
-}
-
-std::vector<MarkerGlobalTranslationData> ViconDataAcquisition::grabMarkerGlobalTranslation()
-{
-    std::vector<MarkerGlobalTranslationData> dataVector;
-    dataVector.reserve(markerNames.size());
-
-    for (const std::string &markerName : markerNames)
-    {
-        std::array<double, 3> translation = client->getMarkerGlobalTranslation(subjectName, markerName);
-        bool occluded = client->getLastWasOccluded();
-        double x = translation[0];
-        double y = translation[1];
-        double z = translation[2];
-        MarkerGlobalTranslationData data(occluded, x, y, z);
-        dataVector.push_back(std::move(data));
-    }
-
-    return dataVector;
 }

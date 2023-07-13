@@ -21,8 +21,8 @@ class Acquisition::ViconDataAcquisition
 {
 public:
     static ViconDataAcquisition create();
-    ViconDataAcquisition(ViconDataAcquisition&&) = default;
-    ViconDataAcquisition(ViconDataAcquisition&) = delete;
+    ViconDataAcquisition(ViconDataAcquisition &&) = default;
+    ViconDataAcquisition(ViconDataAcquisition &) = delete;
     ~ViconDataAcquisition();
 
     std::vector<ForcePlateData> grabForcePlataDataFrame(const std::string &amti);
@@ -30,16 +30,11 @@ public:
     static const std::string amti2;
 
     uint waitForFrame();
-    std::vector<MarkerGlobalTranslationData> grabMarkerGlobalTranslation();
-
     const uint subsampleCount;
-
-    const std::vector<std::string> markerNames;
-    const std::string subjectName;
 
 private:
     std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> client;
 
-    ViconDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade>&& client, uint subsampleCount, std::vector<std::string>&& markerNames, std::string&& subjectName);
-    static void waitForFrame(ViconDataStreamClient::DataStreamClientFacade& client);
+    ViconDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> &&client, uint subsampleCount);
+    static void waitForFrame(ViconDataStreamClient::DataStreamClientFacade &client);
 };
