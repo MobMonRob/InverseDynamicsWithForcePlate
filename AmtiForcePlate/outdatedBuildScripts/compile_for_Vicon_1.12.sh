@@ -1,6 +1,6 @@
 #!/bin/bash
 
-g++ -cpp "./Main.cpp" "./DataStreamClientFacade.cpp" "./ViconDataAcquisition.cpp" "./ForcePlateData.cpp" \
+g++ -cpp "./Main.cpp" "./DataStreamClientFacade.cpp" "./ForcePlateDataAcquisition.cpp" "./ForcePlateData.cpp" \
     -I"./ViconLib1.12" \
     -Wl,--start-group \
     -L"./ViconLib1.12" \

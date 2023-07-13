@@ -1,4 +1,4 @@
-#include "ViconDataAcquisition.hpp"
+#include "ForcePlateDataAcquisition.hpp"
 
 #include "../DataStreamClientFacade.hpp"
 
@@ -9,26 +9,26 @@
 using namespace Acquisition;
 using namespace ViconDataStreamClient;
 
-const std::string ViconDataAcquisition::amti1("AMTI 1");
-const std::string ViconDataAcquisition::amti2("AMTI 2");
+const std::string ForcePlateDataAcquisition::amti1("AMTI 1");
+const std::string ForcePlateDataAcquisition::amti2("AMTI 2");
 
-ViconDataAcquisition::ViconDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> &&client, uint subsampleCount)
+ForcePlateDataAcquisition::ForcePlateDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> &&client, uint subsampleCount)
     : client(std::move(client)),
       subsampleCount(subsampleCount)
 {
 }
 
-ViconDataAcquisition::~ViconDataAcquisition()
+ForcePlateDataAcquisition::~ForcePlateDataAcquisition()
 {
 }
 
-uint ViconDataAcquisition::waitForFrame()
+uint ForcePlateDataAcquisition::waitForFrame()
 {
     waitForFrame(*client);
     return client->getFrameNumber();
 }
 
-void ViconDataAcquisition::waitForFrame(ViconDataStreamClient::DataStreamClientFacade &client)
+void ForcePlateDataAcquisition::waitForFrame(ViconDataStreamClient::DataStreamClientFacade &client)
 {
     while (!client.getFrame())
     {
@@ -37,7 +37,7 @@ void ViconDataAcquisition::waitForFrame(ViconDataStreamClient::DataStreamClientF
     }
 }
 
-std::vector<ForcePlateData> ViconDataAcquisition::grabForcePlataDataFrame(const std::string &amti)
+std::vector<ForcePlateData> ForcePlateDataAcquisition::grabForcePlataDataFrame(const std::string &amti)
 {
     std::vector<ForcePlateData> forcePlateDataVector;
     forcePlateDataVector.reserve(subsampleCount);
@@ -62,7 +62,7 @@ std::vector<ForcePlateData> ViconDataAcquisition::grabForcePlataDataFrame(const 
 using namespace ViconDataStreamSDK::CPP;
 using namespace ViconDataStreamClient;
 
-ViconDataAcquisition ViconDataAcquisition::create()
+ForcePlateDataAcquisition ForcePlateDataAcquisition::create()
 {
     std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> client(std::make_unique<ViconDataStreamClient::DataStreamClientFacade>());
 
@@ -87,11 +87,11 @@ ViconDataAcquisition ViconDataAcquisition::create()
     waitForFrame(*client);
     waitForFrame(*client);
 
-    uint subsampleCount = client->getDeviceOutputSubsamples(ViconDataAcquisition::amti2, "Fz");
+    uint subsampleCount = client->getDeviceOutputSubsamples(ForcePlateDataAcquisition::amti2, "Fz");
 
     //////////////////////////////////////////////////
 
-    ViconDataAcquisition viconDataAcquisition(std::move(client), subsampleCount);
+    ForcePlateDataAcquisition ForcePlateDataAcquisition(std::move(client), subsampleCount);
 
-    return viconDataAcquisition;
+    return ForcePlateDataAcquisition;
 }

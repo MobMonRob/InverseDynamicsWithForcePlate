@@ -1,7 +1,7 @@
 #include "DataStreamClient.h"
 
 #include <iostream>
-#include "ViconDataAcquisition.hpp"
+#include "ForcePlateDataAcquisition.hpp"
 
 using namespace Acquisition;
 
@@ -9,14 +9,14 @@ int main()
 {
     try
     {
-        ViconDataAcquisition viconDataAcquisition(ViconDataAcquisition::create());
+        ForcePlateDataAcquisition forcePlateDataAcquisition(ForcePlateDataAcquisition::create());
 
-        const std::string &amti = ViconDataAcquisition::amti2;
+        const std::string &amti = ForcePlateDataAcquisition::amti2;
 
         while (true)
         {
-            long frameNumber = viconDataAcquisition.waitForFrame();
-            std::vector<ForcePlateData> dataVector = viconDataAcquisition.grabForcePlataDataFrame(amti);
+            long frameNumber = forcePlateDataAcquisition.waitForFrame();
+            std::vector<ForcePlateData> dataVector = forcePlateDataAcquisition.grabForcePlataDataFrame(amti);
             for (const ForcePlateData &dataPoint : dataVector)
             {
                 std::cout << frameNumber << ", " << amti << ", "

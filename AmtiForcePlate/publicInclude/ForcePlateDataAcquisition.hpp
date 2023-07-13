@@ -14,16 +14,16 @@ namespace ViconDataStreamClient
 
 namespace Acquisition
 {
-    class ViconDataAcquisition;
+    class ForcePlateDataAcquisition;
 }
 
-class Acquisition::ViconDataAcquisition
+class Acquisition::ForcePlateDataAcquisition
 {
 public:
-    static ViconDataAcquisition create();
-    ViconDataAcquisition(ViconDataAcquisition &&) = default;
-    ViconDataAcquisition(ViconDataAcquisition &) = delete;
-    ~ViconDataAcquisition();
+    static ForcePlateDataAcquisition create();
+    ForcePlateDataAcquisition(ForcePlateDataAcquisition &&) = default;
+    ForcePlateDataAcquisition(ForcePlateDataAcquisition &) = delete;
+    ~ForcePlateDataAcquisition();
 
     std::vector<ForcePlateData> grabForcePlataDataFrame(const std::string &amti);
     static const std::string amti1;
@@ -35,6 +35,6 @@ public:
 private:
     std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> client;
 
-    ViconDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> &&client, uint subsampleCount);
+    ForcePlateDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> &&client, uint subsampleCount);
     static void waitForFrame(ViconDataStreamClient::DataStreamClientFacade &client);
 };
