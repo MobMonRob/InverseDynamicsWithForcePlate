@@ -6,9 +6,7 @@
 #include <limits>
 
 #include "force_plate_data_publisher/Force_plate_data.h"
-#include "force_plate_data_publisher/Marker_global_translation.h"
 #include "force_plate_data_acquisition/ForcePlateDataAcquisition.hpp"
-#include "force_plate_data_acquisition/MarkerDataAcquisition.hpp"
 
 using namespace force_plate_data_publisher;
 using namespace Acquisition;
@@ -18,16 +16,14 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "Force_plate_data_publisher");
     ros::NodeHandle n;
     ros::Publisher publisher_Force_plate_data = n.advertise<Force_plate_data>("Force_plate_data", 1000);
-    ros::Publisher publisher_Marker_global_translation = n.advertise<Marker_global_translation>("Marker_global_translation", 1000);
 
-    ForcePlateDataAcquisition ForcePlateDataAcquisition(ForcePlateDataAcquisition::create());
-    MarkerDataAcquisition markerDataAcquisition(MarkerDataAcquisition::create());
+    ForcePlateDataAcquisition forcePlateDataAcquisition(ForcePlateDataAcquisition::create());
 
     uint prevFrameNum = std::numeric_limits<uint>::max() - 1;
 
     while (ros::ok())
     {
-        uint frameNumber = ForcePlateDataAcquisition.waitForFrame();
+        uint frameNumber = forcePlateDataAcquisition.waitForFrame();
 
         if (frameNumber > prevFrameNum + 1)
         {
@@ -38,7 +34,7 @@ int main(int argc, char **argv)
         //////////////////////////////////////////////////////////////
 
         {
-            std::vector<ForcePlateData> forcePlateDataVector(ForcePlateDataAcquisition.grabForcePlataDataFrame(ForcePlateDataAcquisition::amti2));
+            std::vector<ForcePlateData> forcePlateDataVector(forcePlateDataAcquisition.grabForcePlataDataFrame(ForcePlateDataAcquisition::amti2));
 
             uint8_t forcePlateDataVectorSize = forcePlateDataVector.size();
             for (uint8_t i = 0; i < forcePlateDataVectorSize; ++i)
@@ -56,28 +52,6 @@ int main(int argc, char **argv)
                 msg.mz_Nm = currentOrigin.mZ;
 
                 publisher_Force_plate_data.publish(std::move(msg));
-            }
-        }
-
-        //////////////////////////////////////////////////////////////
-
-        {
-            std::vector<MarkerGlobalTranslationData> markerGlobalTranslationDataVector(markerDataAcquisition.grabMarkerGlobalTranslation());
-
-            uint8_t markerGlobalTranslationVectorSize = markerGlobalTranslationDataVector.size();
-            for (uint8_t i = 0; i < markerGlobalTranslationVectorSize; ++i)
-            {
-                const MarkerGlobalTranslationData &currentOrigin(markerGlobalTranslationDataVector[i]);
-                Marker_global_translation msg;
-
-                msg.frameNumber = frameNumber;
-                msg.markerNumber = i;
-                msg.occluded = currentOrigin.occluded;
-                msg.x_mm = currentOrigin.x;
-                msg.y_mm = currentOrigin.y;
-                msg.z_mm = currentOrigin.z;
-
-                publisher_Marker_global_translation.publish(std::move(msg));
             }
         }
 

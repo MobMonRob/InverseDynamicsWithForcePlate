@@ -211,12 +211,17 @@ add_dependencies(${PROJECT_NAME} force_plate_data_publisher_generate_messages_cp
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
+add_executable(Force_plate_data_publisher_mock src/Force_plate_data_publisher_mock.cpp)
+target_link_libraries(Force_plate_data_publisher_mock ${catkin_LIBRARIES})
+add_dependencies(Force_plate_data_publisher_mock force_plate_data_publisher_generate_messages_cpp)
+target_compile_options(Force_plate_data_publisher_mock PRIVATE -O3)
+
 add_executable(Force_plate_data_publisher src/Force_plate_data_publisher.cpp)
 target_link_libraries(Force_plate_data_publisher ${catkin_LIBRARIES})
 add_dependencies(Force_plate_data_publisher force_plate_data_publisher_generate_messages_cpp)
 target_compile_options(Force_plate_data_publisher PRIVATE -O3)
 
-add_executable(Force_plate_data_publisher_mock src/Force_plate_data_publisher_mock.cpp)
-target_link_libraries(Force_plate_data_publisher_mock ${catkin_LIBRARIES})
-add_dependencies(Force_plate_data_publisher_mock force_plate_data_publisher_generate_messages_cpp)
-target_compile_options(Force_plate_data_publisher_mock PRIVATE -O3)
+add_executable(Marker_data_publisher src/Marker_data_publisher.cpp)
+target_link_libraries(Marker_data_publisher ${catkin_LIBRARIES})
+add_dependencies(Marker_data_publisher force_plate_data_publisher_generate_messages_cpp)
+target_compile_options(Marker_data_publisher PRIVATE -O3)
