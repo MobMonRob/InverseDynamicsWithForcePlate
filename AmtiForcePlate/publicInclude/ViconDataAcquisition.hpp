@@ -40,6 +40,6 @@ public:
 private:
     std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> client;
 
-    ViconDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade>&& client, long subsampleCount, std::vector<std::string>&& markerNames, std::string&& subjectName);
+    ViconDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade>&& client, uint subsampleCount, std::vector<std::string>&& markerNames, std::string&& subjectName);
     static void waitForFrame(ViconDataStreamClient::DataStreamClientFacade& client);
 };

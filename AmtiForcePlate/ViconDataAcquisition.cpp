@@ -12,7 +12,7 @@ using namespace ViconDataStreamClient;
 const std::string ViconDataAcquisition::amti1("AMTI 1");
 const std::string ViconDataAcquisition::amti2("AMTI 2");
 
-ViconDataAcquisition::ViconDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade>&& client, long subsampleCount, std::vector<std::string>&& markerNames, std::string&& subjectName)
+ViconDataAcquisition::ViconDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade>&& client, uint subsampleCount, std::vector<std::string>&& markerNames, std::string&& subjectName)
     : client(std::move(client)),
       subsampleCount(subsampleCount),
       markerNames(std::move(markerNames)),
@@ -43,7 +43,7 @@ std::vector<ForcePlateData> ViconDataAcquisition::grabForcePlataDataFrame(const 
 {
     std::vector<ForcePlateData> forcePlateDataVector(subsampleCount);
 
-    for (unsigned int subsample = 0; subsample < subsampleCount; ++subsample)
+    for (uint subsample = 0; subsample < subsampleCount; ++subsample)
     {
         double fx = client->getDeviceOutputValue(amti, "Fx", subsample); // N
         double fy = client->getDeviceOutputValue(amti, "Fy", subsample);
@@ -88,31 +88,28 @@ ViconDataAcquisition ViconDataAcquisition::create()
     waitForFrame(*client);
     waitForFrame(*client);
 
-    long subsampleCount = client->getDeviceOutputSubsamples(ViconDataAcquisition::amti2, "Fz");
+    uint subsampleCount = client->getDeviceOutputSubsamples(ViconDataAcquisition::amti2, "Fz");
 
     //////////////////////////////////////////////////
 
     client->enableMarkerData();
-    ViconDataStreamSDK::CPP::Client& vicon(client->getInner());
 
     std::string subjectName = "Tip";
 
-    vicon.ClearSubjectFilter();
-    vicon.AddToSubjectFilter(subjectName);
+    client->clearSubjectFilter();
+    client->addToSubjectFilter(subjectName);
 
     waitForFrame(*client);
     waitForFrame(*client);
 
-    Output_GetMarkerCount output_GetMarkerCount = vicon.GetMarkerCount(subjectName);
-    uint markerCount = output_GetMarkerCount.MarkerCount;
+    uint markerCount = client->getMarkerCount(subjectName);
     std::cout << "markerCount: " << markerCount << std::endl;
 
     std::vector<std::string> markerNames;
 
     for (uint i = 0; i < markerCount; ++i)
     {
-        Output_GetMarkerName output_GetMarkerName = vicon.GetMarkerName(subjectName, i);
-        std::string markerName = output_GetMarkerName.MarkerName;
+        std::string markerName = client->getMarkerName(subjectName, i);
         markerNames.push_back(markerName);
 
         std::cout << markerName << std::endl;
@@ -131,11 +128,11 @@ std::vector<MarkerGlobalTranslationData> ViconDataAcquisition::grabMarkerGlobalT
 
     for (const std::string& markerName : markerNames)
     {
-        Output_GetMarkerGlobalTranslation output_GetMarkerGlobalTranslation = client->getInner().GetMarkerGlobalTranslation(subjectName, markerName);
-        bool occluded = output_GetMarkerGlobalTranslation.Occluded;
-        double x = output_GetMarkerGlobalTranslation.Translation[0];
-        double y = output_GetMarkerGlobalTranslation.Translation[1];
-        double z = output_GetMarkerGlobalTranslation.Translation[2];
+        std::array<double, 3> translation = client->getMarkerGlobalTranslation(subjectName, markerName);
+        bool occluded = client->getLastWasOccluded();
+        double x = translation[0];
+        double y = translation[1];
+        double z = translation[2];
         MarkerGlobalTranslationData data(occluded, x, y, z);
         dataVector.push_back(std::move(data));
     }
