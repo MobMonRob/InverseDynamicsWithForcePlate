@@ -9,7 +9,7 @@
                 "/home/deralbert/BA/InverseDynamicsWithForcePlate/AmtiForcePlate/publicInclude/**",
                 "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/devel/include/**",
                 "/opt/ros/noetic/include/**",
-                "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/force_plate_data_acquisition/include/**",
+                "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/vicon_data_acquisition/include/**",
                 "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/vicon_data_publisher/include/**",
                 "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/force_plate_data_transceiver/include/**",
                 "/usr/include/**",

@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  force_plate_data_acquisition
+  vicon_data_acquisition
   roscpp
   std_msgs
   message_generation
@@ -108,7 +108,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES vicon_data_publisher
-  CATKIN_DEPENDS roscpp std_msgs message_runtime force_plate_data_acquisition
+  CATKIN_DEPENDS roscpp std_msgs message_runtime vicon_data_acquisition
 #  DEPENDS system_lib
 )
 

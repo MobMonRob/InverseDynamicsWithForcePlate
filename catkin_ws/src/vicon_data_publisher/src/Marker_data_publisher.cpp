@@ -6,7 +6,7 @@
 #include <limits>
 
 #include "vicon_data_publisher/Marker_global_translation.h"
-#include "force_plate_data_acquisition/MarkerDataAcquisition.hpp"
+#include "vicon_data_acquisition/MarkerDataAcquisition.hpp"
 
 using namespace vicon_data_publisher;
 using namespace Acquisition;

@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include "vicon_data_publisher/Force_plate_data.h"
-#include "force_plate_data_acquisition/ForcePlateDataAcquisition.hpp"
+#include "vicon_data_acquisition/ForcePlateDataAcquisition.hpp"
 
 #include <iostream>
 #include <random>
