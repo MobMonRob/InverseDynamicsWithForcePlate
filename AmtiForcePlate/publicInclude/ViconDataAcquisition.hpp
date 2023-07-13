@@ -29,10 +29,10 @@ public:
     static const std::string amti1;
     static const std::string amti2;
 
-    long waitForFrame();
+    uint waitForFrame();
     std::vector<MarkerGlobalTranslationData> grabMarkerGlobalTranslation();
 
-    const long subsampleCount;
+    const uint subsampleCount;
 
     const std::vector<std::string> markerNames;
     const std::string subjectName;

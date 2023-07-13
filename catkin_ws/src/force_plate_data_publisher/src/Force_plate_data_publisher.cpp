@@ -21,15 +21,15 @@ int main(int argc, char **argv)
 
     ViconDataAcquisition viconDataAcquisition(ViconDataAcquisition::create());
 
-    long prevFrameNum = std::numeric_limits<long>::max() - 1;
+    uint prevFrameNum = std::numeric_limits<uint>::max() - 1;
 
     while (ros::ok())
     {
-        long frameNumber = viconDataAcquisition.waitForFrame();
+        uint frameNumber = viconDataAcquisition.waitForFrame();
 
         if (frameNumber > prevFrameNum + 1)
         {
-            ROS_WARN("Lost frames from %ld to inclusive %ld!", prevFrameNum + 1, frameNumber - 1);
+            ROS_WARN("Lost frames from %d to inclusive %d!", prevFrameNum + 1, frameNumber - 1);
         }
         prevFrameNum = frameNumber;
 

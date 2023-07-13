@@ -24,7 +24,7 @@ ViconDataAcquisition::~ViconDataAcquisition()
 {
 }
 
-long ViconDataAcquisition::waitForFrame()
+uint ViconDataAcquisition::waitForFrame()
 {
     waitForFrame(*client);
     return client->getFrameNumber();
