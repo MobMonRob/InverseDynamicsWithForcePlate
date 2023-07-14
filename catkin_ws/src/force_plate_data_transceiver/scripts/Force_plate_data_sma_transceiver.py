@@ -99,7 +99,7 @@ def transceiver():
     publisher = rospy.Publisher('Force_plate_data_sma', Force_plate_data, queue_size = 1000)
     rospy.Subscriber("Force_plate_data", Force_plate_data, callback)
 
-    rospy.loginfo(f"Tranceiver started.")
+    rospy.loginfo(f"Force_plate_data_sma_transceiver started.")
 
     rospy.spin()
 

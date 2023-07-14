@@ -16,6 +16,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "Force_plate_data_publisher");
     ros::NodeHandle n;
     ros::Publisher publisher_Force_plate_data = n.advertise<Force_plate_data>("Force_plate_data", 1000);
+    ROS_INFO("Force_plate_data_publisher started.");
 
     ForcePlateDataAcquisition forcePlateDataAcquisition(ForcePlateDataAcquisition::create());
 

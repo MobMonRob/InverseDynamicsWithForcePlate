@@ -16,6 +16,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "Marker_data_publisher");
     ros::NodeHandle n;
     ros::Publisher publisher_Marker_global_translation = n.advertise<Marker_global_translation>("Marker_global_translation", 1000);
+    ROS_INFO("Marker_data_publisher started.");
 
     MarkerDataAcquisition markerDataAcquisition(MarkerDataAcquisition::create());
 
