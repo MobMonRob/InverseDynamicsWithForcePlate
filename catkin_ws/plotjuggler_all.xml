@@ -1,111 +1,84 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <root>
- <tabbed_widget parent="main_window" name="Main Window">
-  <Tab containers="1" tab_name="tab2">
+ <tabbed_widget name="Main Window" parent="main_window">
+  <Tab tab_name="Force_plata_data_sma" containers="1">
    <Container>
-    <DockSplitter orientation="-" count="3" sizes="0.333601;0.332799;0.333601">
-     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+    <DockSplitter sizes="0.333333;0.333333;0.333333" orientation="-" count="3">
+     <DockSplitter sizes="0.5;0.5" orientation="|" count="2">
       <DockArea name="...">
-       <plot style="Lines" flip_x="false" flip_y="false" mode="TimeSeries">
-        <range right="73.807699" bottom="-16.147099" top="176.492010" left="33.808658"/>
+       <plot style="Lines" flip_x="false" mode="TimeSeries" flip_y="false">
+        <range top="0.117913" bottom="-0.756795" left="0.000240" right="9.995208"/>
         <limitY/>
-        <curve name="/Force_plate_data/f_x" color="#f14cc1"/>
+        <curve name="/Force_plate_data_sma/fx_N" color="#1f77b4"/>
        </plot>
       </DockArea>
       <DockArea name="...">
-       <plot style="Lines" flip_x="false" flip_y="false" mode="TimeSeries">
-        <range right="73.807699" bottom="-117.162670" top="5.649148" left="33.808658"/>
+       <plot style="Lines" flip_x="false" mode="TimeSeries" flip_y="false">
+        <range top="-0.002320" bottom="-0.205010" left="0.000240" right="9.995208"/>
         <limitY/>
-        <curve name="/Force_plate_data/m_x" color="#1f77b4"/>
-       </plot>
-      </DockArea>
-     </DockSplitter>
-     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
-      <DockArea name="...">
-       <plot style="Lines" flip_x="false" flip_y="false" mode="TimeSeries">
-        <range right="73.807699" bottom="-46.672741" top="12.080362" left="33.808658"/>
-        <limitY/>
-        <curve name="/Force_plate_data/f_y" color="#9467bd"/>
-       </plot>
-      </DockArea>
-      <DockArea name="...">
-       <plot style="Lines" flip_x="false" flip_y="false" mode="TimeSeries">
-        <range right="73.807699" bottom="-2.101450" top="7.557168" left="33.808658"/>
-        <limitY/>
-        <curve name="/Force_plate_data/m_y" color="#17becf"/>
+        <curve name="/Force_plate_data_sma/mx_Nm" color="#ff7f0e"/>
        </plot>
       </DockArea>
      </DockSplitter>
-     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+     <DockSplitter sizes="0.5;0.5" orientation="|" count="2">
       <DockArea name="...">
-       <plot style="Lines" flip_x="false" flip_y="false" mode="TimeSeries">
-        <range right="73.807699" bottom="-56.134934" top="735.680695" left="33.808658"/>
+       <plot style="Lines" flip_x="false" mode="TimeSeries" flip_y="false">
+        <range top="0.071668" bottom="-0.558448" left="0.000240" right="9.995208"/>
         <limitY/>
-        <curve name="/Force_plate_data/f_z" color="#1ac938"/>
+        <curve name="/Force_plate_data_sma/fy_N" color="#d62728"/>
        </plot>
       </DockArea>
       <DockArea name="...">
-       <plot style="Lines" flip_x="false" flip_y="false" mode="TimeSeries">
-        <range right="73.807699" bottom="-2.873080" top="26.244605" left="33.808658"/>
+       <plot style="Lines" flip_x="false" mode="TimeSeries" flip_y="false">
+        <range top="0.045298" bottom="-0.051055" left="0.000240" right="9.995208"/>
         <limitY/>
-        <curve name="/Force_plate_data/m_z" color="#bcbd22"/>
+        <curve name="/Force_plate_data_sma/my_Nm" color="#f14cc1"/>
+       </plot>
+      </DockArea>
+     </DockSplitter>
+     <DockSplitter sizes="0.5;0.5" orientation="|" count="2">
+      <DockArea name="...">
+       <plot style="Lines" flip_x="false" mode="TimeSeries" flip_y="false">
+        <range top="0.026824" bottom="-0.209615" left="0.000240" right="9.995208"/>
+        <limitY/>
+        <curve name="/Force_plate_data_sma/fz_N" color="#1ac938"/>
+       </plot>
+      </DockArea>
+      <DockArea name="...">
+       <plot style="Lines" flip_x="false" mode="TimeSeries" flip_y="false">
+        <range top="-0.095258" bottom="-0.226071" left="0.000240" right="9.995208"/>
+        <limitY/>
+        <curve name="/Force_plate_data_sma/mz_Nm" color="#9467bd"/>
        </plot>
       </DockArea>
      </DockSplitter>
     </DockSplitter>
    </Container>
   </Tab>
-  <Tab containers="1" tab_name="tab3">
+  <Tab tab_name="Marker_filter" containers="1">
    <Container>
-    <DockSplitter orientation="-" count="3" sizes="0.333601;0.332799;0.333601">
-     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
-      <DockArea name="...">
-       <plot style="Lines" flip_x="false" flip_y="false" mode="TimeSeries">
-        <range right="73.809541" bottom="-10.586505" top="166.073678" left="33.809993"/>
-        <limitY/>
-        <curve name="/Force_plate_data_sma/f_x" color="#1f77b4"/>
-       </plot>
-      </DockArea>
-      <DockArea name="...">
-       <plot style="Lines" flip_x="false" flip_y="false" mode="TimeSeries">
-        <range right="73.809541" bottom="-115.856681" top="4.089078" left="33.809993"/>
-        <limitY/>
-        <curve name="/Force_plate_data_sma/m_x" color="#1ac938"/>
-       </plot>
-      </DockArea>
-     </DockSplitter>
-     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
-      <DockArea name="...">
-       <plot style="Lines" flip_x="false" flip_y="false" mode="TimeSeries">
-        <range right="73.809541" bottom="-42.865105" top="2.517358" left="33.809993"/>
-        <limitY/>
-        <curve name="/Force_plate_data_sma/f_y" color="#d62728"/>
-       </plot>
-      </DockArea>
-      <DockArea name="...">
-       <plot style="Lines" flip_x="false" flip_y="false" mode="TimeSeries">
-        <range right="73.809541" bottom="-1.693740" top="7.055739" left="33.809993"/>
-        <limitY/>
-        <curve name="/Force_plate_data_sma/m_y" color="#ff7f0e"/>
-       </plot>
-      </DockArea>
-     </DockSplitter>
-     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
-      <DockArea name="...">
-       <plot style="Lines" flip_x="false" flip_y="false" mode="TimeSeries">
-        <range right="73.809541" bottom="-3.344691" top="71.460828" left="33.809993"/>
-        <limitY/>
-        <curve name="/Force_plate_data_sma/f_z" color="#ff7f0e"/>
-       </plot>
-      </DockArea>
-      <DockArea name="...">
-       <plot style="Lines" flip_x="false" flip_y="false" mode="TimeSeries">
-        <range right="73.809541" bottom="-1.861192" top="25.241501" left="33.809993"/>
-        <limitY/>
-        <curve name="/Force_plate_data_sma/m_z" color="#f14cc1"/>
-       </plot>
-      </DockArea>
-     </DockSplitter>
+    <DockSplitter sizes="0.333333;0.333333;0.333333" orientation="-" count="3">
+     <DockArea name="...">
+      <plot style="Lines" flip_x="false" mode="TimeSeries" flip_y="false">
+       <range top="372.442726" bottom="372.355443" left="0.000000" right="9.993199"/>
+       <limitY/>
+       <curve name="/Marker_global_translation_filter/x_mm" color="#1f77b4"/>
+      </plot>
+     </DockArea>
+     <DockArea name="...">
+      <plot style="Lines" flip_x="false" mode="TimeSeries" flip_y="false">
+       <range top="262.751754" bottom="262.730232" left="0.000000" right="9.993199"/>
+       <limitY/>
+       <curve name="/Marker_global_translation_filter/y_mm" color="#d62728"/>
+      </plot>
+     </DockArea>
+     <DockArea name="...">
+      <plot style="Lines" flip_x="false" mode="TimeSeries" flip_y="false">
+       <range top="171.350987" bottom="171.197798" left="0.000000" right="9.993199"/>
+       <limitY/>
+       <curve name="/Marker_global_translation_filter/z_mm" color="#1ac938"/>
+      </plot>
+     </DockArea>
     </DockSplitter>
    </Container>
   </Tab>
@@ -116,7 +89,7 @@
  <!-- - - - - - - - - - - - - - - -->
  <Plugins>
   <plugin ID="DataLoad CSV">
-   <default time_axis="" delimiter="0"/>
+   <default delimiter="0" time_axis=""/>
   </plugin>
   <plugin ID="DataLoad MCAP"/>
   <plugin ID="DataLoad ROS bags">
