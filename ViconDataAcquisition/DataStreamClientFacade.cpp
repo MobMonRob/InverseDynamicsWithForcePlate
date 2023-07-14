@@ -8,7 +8,7 @@ using namespace ViconDataStreamSDK::CPP;
 using namespace ViconDataStreamClient;
 
 ResultException::ResultException(ViconDataStreamSDK::CPP::Result::Enum cause)
-    : cause(cause), std::runtime_error(causeToString(cause))
+    : std::runtime_error(causeToString(cause)), cause(cause)
 {
 }
 
