@@ -5,13 +5,17 @@ class Point3D:
         self.x = x
         self.y = y
         self.z = z
+        self.pointExpression = f"({x}, {y}, {z})"
 
 class Line3D:
-    def __init__(self, point, vector, line_equation, parametrized_line_equation):
+    def __init__(self, point, vector, xTerm, yTerm, zTerm, xTermParametrized, yTermParametrized, zTermParametrized):
         self.point = point
         self.vector = vector
-        self.line_equation = line_equation
-        self.parametrized_line_equation = parametrized_line_equation
+        self.line_equation = f"{xTerm} = {yTerm} = {zTerm}"
+        self.xTermParametrized = xTermParametrized
+        self.yTermParametrized = yTermParametrized
+        self.zTermParametrized = zTermParametrized
+        self.parametrized_line_equation = f"x = {xTermParametrized}, y = {yTermParametrized}, z = {zTermParametrized}"
 
 def input_point(prompt):
     values = input(prompt).split()
@@ -21,36 +25,40 @@ def input_point(prompt):
     return Point3D(x, y, z)
 
 def define_line(point1, point2):
-    xTerm = f"(x - {point1.x}) / {point2.x - point1.x}"
-    if point1.x < 0:
-        xTerm = f"x + {-point1.x} / {point2.x - point1.x}"
+    terms = ['x', 'y', 'z']
+    line_terms = []
 
-    yTerm = f"(y - {point1.y}) / {point2.y - point1.y}"
-    if point1.y < 0:
-        yTerm = f"(y + {-point1.y}) / {point2.y - point1.y}"
+    for term in terms:
+        p1 = getattr(point1, term)
+        p2 = getattr(point2, term)
 
-    zTerm = f"(z - {point1.z}) / {point2.z - point1.z}"
-    if point1.z < 0:
-        zTerm = f"(z + {-point1.z}) / {point2.z - point1.z}"
+        term_line = f"({term} - {p1}) / {p2 - p1}"
+        if p1 < 0:
+            term_line = f"({term} + {-p1}) / {p2 - p1}"
 
-    line_equation = f"Line equation: {xTerm} = {yTerm} = {zTerm}"
-    return line_equation
+        line_terms.append(term_line)
+
+    return tuple(line_terms)
 
 def define_line_parametrized(point1, point2):
-    xTerm = f"{point2.x - point1.x} * t + {point1.x}"
-    if point1.x < 0:
-        xTerm = f"{point2.x - point1.x} * t - {-point1.x}"
+    terms = ['x', 'y', 'z']
+    parametrized = []
 
-    yTerm = f"{point2.y - point1.y} * t + {point1.y}"
-    if point1.y < 0:
-        yTerm = f"{point2.y - point1.y} * t - {-point1.y}"
+    for term in terms:
+        p1 = getattr(point1, term)
+        p2 = getattr(point2, term)
 
-    zTerm = f"{point2.z - point1.z} * t + {point1.z}"
-    if point1.z < 0:
-        zTerm = f"{point2.z - point1.z} * t - {-point1.z}"
+        term_parametrized = f"{p2 - p1} * t"
+        if p1 < 0:
+            term_parametrized += f" - {-p1}"
+        elif p1 == 0:
+            term_parametrized = f"{p2} * t"
+        else:
+            term_parametrized += f" + {p1}"
 
-    parametrized_line_equation = f"Parametrized line equation: x = {xTerm}, y = {yTerm}, z = {zTerm}"
-    return parametrized_line_equation
+        parametrized.append(term_parametrized)
+
+    return tuple(parametrized)
 
 def main():
     point1 = input_point("Enter the coordinates for point1 (x y z): ")
@@ -58,15 +66,16 @@ def main():
 
     vector = Point3D(point2.x - point1.x, point2.y - point1.y, point2.z - point1.z)
 
-    line_equation = define_line(point1, point2)
-    parametrized_line_equation = define_line_parametrized(point1, point2)
+    xTerm, yTerm, zTerm = define_line(point1, point2)
+    xTermParametrized, yTermParametrized, zTermParametrized = define_line_parametrized(point1, point2)
 
-    line = Line3D(point1, vector, line_equation, parametrized_line_equation)
+    line = Line3D(point1, vector, xTerm, yTerm, zTerm, xTermParametrized, yTermParametrized, zTermParametrized)
 
-    print(f"The line is defined by point {nameof(line.point)}: ({line.point.x}, {line.point.y}, {line.point.z})")
-    print(f"and vector: ({line.vector.x}, {line.vector.y}, {line.vector.z})")
-    print(line.line_equation)
-    print(line.parametrized_line_equation)
+    # print(f"The line is defined by point {nameof(line.point)}: ({line.point.x}, {line.point.y}, {line.point.z})")
+    # print(f"and vector: ({line.vector.x}, {line.vector.y}, {line.vector.z})")
+    
+    #print(f"Canonical equation: {line.line_equation}")
+    #print(f"Parametrized equation: {line.parametrized_line_equation}")
 
     return line
 

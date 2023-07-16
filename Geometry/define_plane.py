@@ -1,12 +1,14 @@
+# This code is inspired by https://kitchingroup.cheme.cmu.edu/blog/2015/01/18/Equation-of-a-plane-through-three-points/
+
 import numpy as np
 
-class Plane:
-    def __init__(self, a, b, c, d, plane_equation):
+class Plane3D:
+    def __init__(self, a, b, c, d):
         self.a = a
         self.b = b
         self.c = c
         self.d = d
-        self.plane_equation = plane_equation
+        self.plane_equation = f"({a}) * x + ({b}) * y + ({c}) * z + ({d}) = 0"
 
 def input_point(prompt):
     values = input(prompt).split()
@@ -27,10 +29,10 @@ def define_plane(point1, point2, point3):
     # This evaluates a * x3 + b * y3 + c * z3 which equals d
     d = np.dot(cp, point3)
 
-    plane_equation = 'The equation is {0}x + {1}y + {2}z = {3}'.format(a, b, c, d)
-    print(plane_equation)
+    plane = Plane3D(a, b, c, d)
+    #print(plane.plane_equation)
 
-    return Plane(a, b, c, d, plane_equation)
+    return plane
 
 def main():
     point1 = input_point("Enter the coordinates for point1 (x y z): ")
