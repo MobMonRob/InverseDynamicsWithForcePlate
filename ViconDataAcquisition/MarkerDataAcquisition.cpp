@@ -3,8 +3,6 @@
 #include "../DataStreamClientFacade.hpp"
 
 #include <iostream>
-#include <thread>
-#include <chrono>
 
 using namespace Acquisition;
 using namespace ViconDataStreamClient;
