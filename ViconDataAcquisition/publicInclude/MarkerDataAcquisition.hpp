@@ -19,20 +19,25 @@ namespace Acquisition
 class Acquisition::MarkerDataAcquisition
 {
 public:
-    static MarkerDataAcquisition create();
+    static MarkerDataAcquisition create(const std::string& hostname, const std::string& subjectName);
     MarkerDataAcquisition(MarkerDataAcquisition &&) = default;
-    MarkerDataAcquisition(MarkerDataAcquisition &) = delete;
+    MarkerDataAcquisition(const MarkerDataAcquisition &) = delete;
     ~MarkerDataAcquisition();
 
-    uint waitForFrame();
-    std::vector<MarkerGlobalTranslationData> grabMarkerGlobalTranslation();
+    uint getFrame();
+    const std::vector<MarkerGlobalTranslationData>& getMarkerGlobalTranslationVectorCache();
+    void updateMarkerGlobalTranslationVectorCache();
 
     const std::vector<std::string> markerNames;
     const std::string subjectName;
 
+    static const std::string defaultHostname;
+    static const std::string defaultSubjectName;
+
 private:
     std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> client;
+    std::vector<MarkerGlobalTranslationData> markerGlobalTranslationVectorCache;
+    const uint markerNamesCount;
 
-    MarkerDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> &&client, std::vector<std::string> &&markerNames, std::string &&subjectName);
-    static void waitForFrame(ViconDataStreamClient::DataStreamClientFacade &client);
+    MarkerDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> &&client, std::vector<std::string> &&markerNames, const std::string &subjectName, std::vector<MarkerGlobalTranslationData>&& markerGlobalTranslationVectorCache);
 };

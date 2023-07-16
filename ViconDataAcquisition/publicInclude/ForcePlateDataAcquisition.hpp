@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ForcePlateData.hpp"
-#include "MarkerGlobalTranslationData.hpp"
 
 #include <string>
 #include <memory>
@@ -20,21 +19,24 @@ namespace Acquisition
 class Acquisition::ForcePlateDataAcquisition
 {
 public:
-    static ForcePlateDataAcquisition create();
+    static ForcePlateDataAcquisition create(const std::string& hostname, const std::string &amti);
     ForcePlateDataAcquisition(ForcePlateDataAcquisition &&) = default;
-    ForcePlateDataAcquisition(ForcePlateDataAcquisition &) = delete;
+    ForcePlateDataAcquisition(const ForcePlateDataAcquisition &) = delete;
     ~ForcePlateDataAcquisition();
 
-    std::vector<ForcePlateData> grabForcePlataDataFrame(const std::string &amti);
-    static const std::string amti1;
-    static const std::string amti2;
+    uint getFrame();
+    const std::vector<ForcePlateData>& getForcePlateDataVectorCache();
+    void updateForcePlateDataVectorCache();
 
-    uint waitForFrame();
-    const uint subsampleCount;
+    const std::string amti;
+
+    static const std::string defaultHostname;
+    static const std::string defaultAMTI;
 
 private:
     std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> client;
+    std::vector<ForcePlateData> forcePlateDataVectorCache;
+    const uint subsampleCount;
 
-    ForcePlateDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> &&client, uint subsampleCount);
-    static void waitForFrame(ViconDataStreamClient::DataStreamClientFacade &client);
+    ForcePlateDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> &&client, std::vector<ForcePlateData>&& forcePlateDataVectorCache, const std::string &amti);
 };

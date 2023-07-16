@@ -3,18 +3,18 @@
 #include "../DataStreamClientFacade.hpp"
 
 #include <iostream>
-#include <thread>
-#include <chrono>
 
 using namespace Acquisition;
 using namespace ViconDataStreamClient;
 
-const std::string ForcePlateDataAcquisition::amti1("AMTI 1");
-const std::string ForcePlateDataAcquisition::amti2("AMTI 2");
+const std::string ForcePlateDataAcquisition::defaultHostname("192.168.10.1:801");
+const std::string ForcePlateDataAcquisition::defaultAMTI("AMTI 2");
 
-ForcePlateDataAcquisition::ForcePlateDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> &&client, uint subsampleCount)
+ForcePlateDataAcquisition::ForcePlateDataAcquisition(std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> &&client, std::vector<ForcePlateData>&& forcePlateDataVectorCache, const std::string &amti)
     : client(std::move(client)),
-      subsampleCount(subsampleCount)
+      forcePlateDataVectorCache(std::move(forcePlateDataVectorCache)),
+      amti(amti),
+      subsampleCount(forcePlateDataVectorCache.size())
 {
 }
 
@@ -22,51 +22,36 @@ ForcePlateDataAcquisition::~ForcePlateDataAcquisition()
 {
 }
 
-uint ForcePlateDataAcquisition::waitForFrame()
+uint ForcePlateDataAcquisition::getFrame()
 {
-    waitForFrame(*client);
+    client->getFrame();
     return client->getFrameNumber();
 }
 
-void ForcePlateDataAcquisition::waitForFrame(ViconDataStreamClient::DataStreamClientFacade &client)
+const std::vector<ForcePlateData>& ForcePlateDataAcquisition::getForcePlateDataVectorCache()
 {
-    while (!client.getFrame())
-    {
-        std::cout << "waiting" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
+    return forcePlateDataVectorCache;
 }
 
-std::vector<ForcePlateData> ForcePlateDataAcquisition::grabForcePlataDataFrame(const std::string &amti)
+void ForcePlateDataAcquisition::updateForcePlateDataVectorCache()
 {
-    std::vector<ForcePlateData> forcePlateDataVector;
-    forcePlateDataVector.reserve(subsampleCount);
-
     for (uint subsample = 0; subsample < subsampleCount; ++subsample)
     {
-        double fx = client->getDeviceOutputValue(amti, "Fx", subsample); // N
-        double fy = client->getDeviceOutputValue(amti, "Fy", subsample);
-        double fz = client->getDeviceOutputValue(amti, "Fz", subsample);
-        double mx = client->getDeviceOutputValue(amti, "MX", subsample); // Nm bzw. J
-        double my = client->getDeviceOutputValue(amti, "MY", subsample);
-        double mz = client->getDeviceOutputValue(amti, "MZ", subsample);
-
-        ForcePlateData data(fx, fy, fz, mx, my, mz);
-
-        forcePlateDataVector.push_back(std::move(data));
+        ForcePlateData& data(forcePlateDataVectorCache[subsample]);
+        data.fX = client->getDeviceOutputValue(amti, "Fx", subsample); // N
+        data.fY = client->getDeviceOutputValue(amti, "Fy", subsample);
+        data.fZ = client->getDeviceOutputValue(amti, "Fz", subsample);
+        data.mX = client->getDeviceOutputValue(amti, "MX", subsample); // Nm bzw. J
+        data.mY = client->getDeviceOutputValue(amti, "MY", subsample);
+        data.mZ = client->getDeviceOutputValue(amti, "MZ", subsample);
     }
-
-    return forcePlateDataVector;
 }
 
-using namespace ViconDataStreamSDK::CPP;
-using namespace ViconDataStreamClient;
-
-ForcePlateDataAcquisition ForcePlateDataAcquisition::create()
+ForcePlateDataAcquisition ForcePlateDataAcquisition::create(const std::string& hostname, const std::string &amti)
 {
-    std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> client(std::make_unique<ViconDataStreamClient::DataStreamClientFacade>());
+    std::cout << "amti: " << amti << std::endl;
 
-    std::string hostname = "192.168.10.1:801";
+    std::unique_ptr<ViconDataStreamClient::DataStreamClientFacade> client(std::make_unique<ViconDataStreamClient::DataStreamClientFacade>());
 
     std::cout << "Try to connect to: " << hostname << std::endl;
     client->connect(hostname, 4000);
@@ -82,16 +67,17 @@ ForcePlateDataAcquisition ForcePlateDataAcquisition::create()
     //////////////////////////////////////////////////
 
     client->enableDeviceData();
-    // client->enableDebugData();
 
-    waitForFrame(*client);
-    waitForFrame(*client);
+    client->getFrame();
+    client->getFrame();
 
-    uint subsampleCount = client->getDeviceOutputSubsamples(ForcePlateDataAcquisition::amti2, "Fz");
+    const uint subsampleCount = client->getDeviceOutputSubsamples(amti, "Fz");
+
+    std::vector<ForcePlateData> forcePlateDataVectorCache(subsampleCount);
 
     //////////////////////////////////////////////////
 
-    ForcePlateDataAcquisition ForcePlateDataAcquisition(std::move(client), subsampleCount);
+    ForcePlateDataAcquisition ForcePlateDataAcquisition(std::move(client), std::move(forcePlateDataVectorCache), amti);
 
     return ForcePlateDataAcquisition;
 }

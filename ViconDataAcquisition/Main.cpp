@@ -9,15 +9,16 @@ int main()
 {
     try
     {
-        ForcePlateDataAcquisition forcePlateDataAcquisition(ForcePlateDataAcquisition::create());
-
-        const std::string &amti = ForcePlateDataAcquisition::amti2;
+        const std::string& amti(ForcePlateDataAcquisition::defaultAMTI);
+        ForcePlateDataAcquisition forcePlateDataAcquisition(ForcePlateDataAcquisition::create(ForcePlateDataAcquisition::defaultHostname, amti));
+        const std::vector<ForcePlateData>& forcePlateDataVectorCache(forcePlateDataAcquisition.getForcePlateDataVectorCache());
+        uint subsampleCount = forcePlateDataVectorCache.size();
 
         while (true)
         {
-            long frameNumber = forcePlateDataAcquisition.waitForFrame();
-            std::vector<ForcePlateData> dataVector = forcePlateDataAcquisition.grabForcePlataDataFrame(amti);
-            for (const ForcePlateData &dataPoint : dataVector)
+            const uint frameNumber = forcePlateDataAcquisition.getFrame();
+            forcePlateDataAcquisition.updateForcePlateDataVectorCache();
+            for (const ForcePlateData &dataPoint : forcePlateDataVectorCache)
             {
                 std::cout << frameNumber << ", " << amti << ", "
                           << dataPoint.fX << ", " << dataPoint.fY << ", " << dataPoint.fZ << ", "

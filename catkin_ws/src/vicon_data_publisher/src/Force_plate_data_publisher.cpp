@@ -18,13 +18,16 @@ int main(int argc, char **argv)
     ros::Publisher publisher_Force_plate_data = n.advertise<Force_plate_data>("Force_plate_data", 1000);
     ROS_INFO("Force_plate_data_publisher started.");
 
-    ForcePlateDataAcquisition forcePlateDataAcquisition(ForcePlateDataAcquisition::create());
+    ForcePlateDataAcquisition forcePlateDataAcquisition(ForcePlateDataAcquisition::create(ForcePlateDataAcquisition::defaultHostname, ForcePlateDataAcquisition::defaultAMTI));
+    const std::vector<ForcePlateData>& forcePlateDataVectorCache(forcePlateDataAcquisition.getForcePlateDataVectorCache());
+    const uint subsampleCount = forcePlateDataVectorCache.size();
+    Force_plate_data msg;
 
     uint prevFrameNum = std::numeric_limits<uint>::max() - 1;
 
     while (ros::ok())
     {
-        uint frameNumber = forcePlateDataAcquisition.waitForFrame();
+        const uint frameNumber = forcePlateDataAcquisition.getFrame();
 
         if (frameNumber > prevFrameNum + 1)
         {
@@ -35,14 +38,12 @@ int main(int argc, char **argv)
         //////////////////////////////////////////////////////////////
 
         {
-            std::vector<ForcePlateData> forcePlateDataVector(forcePlateDataAcquisition.grabForcePlataDataFrame(ForcePlateDataAcquisition::amti2));
+            forcePlateDataAcquisition.updateForcePlateDataVectorCache();
 
-            uint8_t forcePlateDataVectorSize = forcePlateDataVector.size();
-            for (uint8_t i = 0; i < forcePlateDataVectorSize; ++i)
+            for (uint i = 0; i < subsampleCount; ++i)
             {
-                const ForcePlateData &currentOrigin(forcePlateDataVector[i]);
-                Force_plate_data msg;
-
+                const ForcePlateData &currentOrigin(forcePlateDataVectorCache[i]);
+                
                 msg.frameNumber = frameNumber;
                 msg.subsampleNumber = i;
                 msg.fx_N = currentOrigin.fX;
@@ -52,7 +53,7 @@ int main(int argc, char **argv)
                 msg.my_Nm = currentOrigin.mY;
                 msg.mz_Nm = currentOrigin.mZ;
 
-                publisher_Force_plate_data.publish(std::move(msg));
+                publisher_Force_plate_data.publish(static_cast<const Force_plate_data&>(msg));
             }
         }
 

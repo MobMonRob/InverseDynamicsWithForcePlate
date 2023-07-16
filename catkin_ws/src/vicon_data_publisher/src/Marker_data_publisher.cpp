@@ -18,13 +18,16 @@ int main(int argc, char **argv)
     ros::Publisher publisher_Marker_global_translation = n.advertise<Marker_global_translation>("Marker_global_translation", 1000);
     ROS_INFO("Marker_data_publisher started.");
 
-    MarkerDataAcquisition markerDataAcquisition(MarkerDataAcquisition::create());
+    MarkerDataAcquisition markerDataAcquisition(MarkerDataAcquisition::create(MarkerDataAcquisition::defaultHostname, MarkerDataAcquisition::defaultSubjectName));
+    const std::vector<MarkerGlobalTranslationData>& markerGlobalTranslationVectorCache(markerDataAcquisition.getMarkerGlobalTranslationVectorCache());
+    const uint markerGlobalTranslationVectorSize = markerGlobalTranslationVectorCache.size();
+    Marker_global_translation msg;
 
     uint prevFrameNum = std::numeric_limits<uint>::max() - 1;
 
     while (ros::ok())
     {
-        uint frameNumber = markerDataAcquisition.waitForFrame();
+        const uint frameNumber = markerDataAcquisition.getFrame();
 
         if (frameNumber > prevFrameNum + 1)
         {
@@ -35,13 +38,11 @@ int main(int argc, char **argv)
         //////////////////////////////////////////////////////////////
 
         {
-            std::vector<MarkerGlobalTranslationData> markerGlobalTranslationDataVector(markerDataAcquisition.grabMarkerGlobalTranslation());
+            markerDataAcquisition.updateMarkerGlobalTranslationVectorCache();
 
-            uint8_t markerGlobalTranslationVectorSize = markerGlobalTranslationDataVector.size();
-            for (uint8_t i = 0; i < markerGlobalTranslationVectorSize; ++i)
+            for (uint i = 0; i < markerGlobalTranslationVectorSize; ++i)
             {
-                const MarkerGlobalTranslationData &currentOrigin(markerGlobalTranslationDataVector[i]);
-                Marker_global_translation msg;
+                const MarkerGlobalTranslationData &currentOrigin(markerGlobalTranslationVectorCache[i]);
 
                 msg.frameNumber = frameNumber;
                 msg.markerNumber = i;
@@ -50,7 +51,7 @@ int main(int argc, char **argv)
                 msg.y_mm = currentOrigin.y;
                 msg.z_mm = currentOrigin.z;
 
-                publisher_Marker_global_translation.publish(std::move(msg));
+                publisher_Marker_global_translation.publish(static_cast<const Marker_global_translation&>(msg));
             }
         }
 
