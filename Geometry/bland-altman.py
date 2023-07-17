@@ -3,6 +3,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.random import random
+import pandas as pd
 
 def bland_altman_plot(data1, data2, *args, **kwargs):
     data1     = np.asarray(data1)
@@ -20,8 +21,15 @@ def bland_altman_plot(data1, data2, *args, **kwargs):
     plt.axhline(md - 1.96*sd, color='gray', linestyle='--')
     return md, sd, mean, CI_low, CI_high
 
+# Read data from CoP_force_plate.csv
+force_plate_data = pd.read_csv('CoP_force_plate.csv')
+data1 = force_plate_data.iloc[:, 1]  # Read the second column
 
-md, sd, mean, CI_low, CI_high = bland_altman_plot(random(10), random(10))
+# Read data from CoP_vicon.csv
+vicon_data = pd.read_csv('CoP_vicon.csv')
+data2 = vicon_data.iloc[:, 1]  # Read the second column
+
+md, sd, mean, CI_low, CI_high = bland_altman_plot(data1, data2)
 plt.title(r"$\mathbf{Bland-Altman}$" + " " + r"$\mathbf{Plot}$")
 plt.xlabel("Means")
 plt.ylabel("Difference")

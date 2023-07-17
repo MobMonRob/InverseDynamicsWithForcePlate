@@ -1,18 +1,15 @@
+import pandas as pd
 from sympy.solvers import solve
 from sympy import Symbol
 import numpy as np
 
-from define_line import main as get_line, Point3D
-from define_plane import main as define_plane, Plane3D
+from define_line import get_line_prompt, get_lines_from_csv, get_line_as_arguments, Point3D
+from define_plane import define_plane, Plane3D
 
-print("Define the line:")
-line = get_line()
-
-print()
-
-# print("Define the plane:")
-plane = define_plane(np.array([0, 0, 0]), np.array([0.6, 0, 0]), np.array([0, 0.4, 0]))
-plane = Plane3D()
+def define_lines_and_plane():
+    lines = get_lines_from_csv()
+    plane = define_plane(np.array([0, 0, 0]), np.array([0.6, 0, 0]), np.array([0, 0.4, 0]))
+    return lines, plane
 
 def substitute_variables(line, plane):
     substituted_equation = plane.plane_equation.replace('x', f"({line.xTermParametrized})")
@@ -23,7 +20,7 @@ def substitute_variables(line, plane):
     substituted_equation = substituted_equation[:-4]
     return substituted_equation
 
-def main():
+def find_intersection(line, plane):
     substituted_equation = substitute_variables(line, plane)
 
     # Calculate t parameter that will be used for calculation of intersection point
@@ -37,8 +34,28 @@ def main():
     y = eval(line.yTermParametrized, locals_dict)
     z = eval(line.zTermParametrized, locals_dict)
 
-    intersection_point = Point3D(x, y, z)
-    # print("Intersection Point:")
-    # print(intersection_point.pointExpression)
+    return Point3D(x, y, z)
 
-    return intersection_point
+# Console version
+def main():
+    line = get_line_prompt()
+    plane = define_plane(np.array([0, 0, 0]), np.array([0.6, 0, 0]), np.array([0, 0.4, 0]))
+    intersection_point = find_intersection(line, plane)
+    print(f"Intersection point: ({intersection_point.x}, {intersection_point.y}, {intersection_point.z})")
+
+# Csv version
+# def main():
+#     lines, plane = define_lines_and_plane()
+#     results = []
+#     for line in lines:
+#         intersection_point = find_intersection(line, plane)
+#         results.append([line.frameNumber, intersection_point.x, intersection_point.y, intersection_point.z])
+
+#     # Create a DataFrame from the results
+#     df = pd.DataFrame(results, columns=['frameNumber', 'x', 'y', 'z'])
+
+#     # Save the DataFrame to a CSV file
+#     df.to_csv('CoP_vicon.csv', index=False)
+
+if __name__ == "__main__":
+    main()

@@ -3,6 +3,11 @@
 
 from varname import nameof
 from define_line import Point3D
+import pandas as pd
+
+def read_csv_data(file_path):
+    data = pd.read_csv(file_path)
+    return data
 
 def get_user_input():
     # Get input values from the user
@@ -60,14 +65,63 @@ def perform_calculation(a, b, z0, h, fx, fy, fz, mx, my, mz, width, length):
 
     return CoPx_g, CoPy_g, CoPz_g#, Tz_g
 
-def main():
+def get_cop_as_arguments(fx, fy, fz, mx, my, mz):
+    a = 0
+    b = 0
+    z0 = 0
+    h = 0.045 # [Meter]
+    width = 0.4 # [Meter]
+    length = 0.6 # [Meter]
+
+    # Perform calculation
+    CoPx_g, CoPy_g, CoPz_g = perform_calculation(a, b, z0, h, fx, fy, fz, mx, my, mz, width, length)
+    point = Point3D(CoPx_g, CoPy_g, CoPz_g)
+    return point
+
+def get_cop_prompt():
     # Get user input
     a, b, z0, h, fx, fy, fz, mx, my, mz, width, length = get_user_input()
 
     # Perform calculation
     CoPx_g, CoPy_g, CoPz_g = perform_calculation(a, b, z0, h, fx, fy, fz, mx, my, mz, width, length)
     point = Point3D(CoPx_g, CoPy_g, CoPz_g)
-    return point#, Tz_g
+    return point
+
+def main():
+    point = get_cop_prompt()
+    print(f"x = {point.x}; y = {point.y}")
+
+# def main():
+#     file_path = 'folded_force_plate_data.csv'  # Provide the correct file path
+#     data = read_csv_data(file_path)
+
+#     # Get other input values
+#     a, b, z0, h = 0, 0, 0, 0.045  # Provide the desired values
+#     width, length = 0.4, 0.6  # [Meters], For AMTI BP400600 model in labor 
+
+#     # Perform calculation for each row
+#     results = []
+#     for _, row in data.iterrows():
+#         fx = row['field.fx_N']
+#         fy = row['field.fy_N']
+#         fz = row['field.fz_N']
+#         mx = row['field.mx_Nm']
+#         my = row['field.my_Nm']
+#         mz = row['field.mz_Nm']
+        
+#         CoPx_g, CoPy_g, CoPz_g = perform_calculation(a, b, z0, h, fx, fy, fz, mx, my, mz, width, length)
+#         point = Point3D(CoPx_g, CoPy_g, CoPz_g)
+#         point.frame_number = row['field.frameNumber']
+#         results.append(point)
+
+#     # Create a DataFrame from the results
+#     result_df = pd.DataFrame({'frameNumber': [point.frame_number for point in results],
+#                               'x': [point.x for point in results],
+#                               'y': [point.y for point in results],
+#                               'z': [point.z for point in results]})
+
+#     # Save the DataFrame to a new CSV file
+#     result_df.to_csv('CoP_force_plate.csv', index=False)
 
 if __name__ == "__main__":
     main()
