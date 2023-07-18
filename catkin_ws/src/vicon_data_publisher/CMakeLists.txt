@@ -53,7 +53,6 @@ add_message_files(
    FILES
    Force_plate_data.msg
    Marker_global_translation.msg
-   Vicon_compound_data.msg
  )
 
 ## Generate services in the 'srv' folder

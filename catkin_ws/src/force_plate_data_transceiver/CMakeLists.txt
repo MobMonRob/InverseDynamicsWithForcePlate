@@ -52,6 +52,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
+  CoP_position.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -163,7 +164,6 @@ include_directories(
 catkin_install_python(PROGRAMS
   scripts/Force_plate_data_sma_transceiver.py
   scripts/Marker_data_filter.py
-  scripts/CoP_data_filter.py
   scripts/CoP_force_plate_sma.py
   scripts/CoP_force_plate_1euro.py
   scripts/CoP_marker.py

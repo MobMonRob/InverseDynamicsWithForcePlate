@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import rospy
-from geometry_msgs.msg import Point
 from vicon_data_publisher.msg import Marker_global_translation
+from force_plate_data_transceiver.msg import CoP_position
 
 import sys, os
 sys.path.append("/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/force_plate_data_transceiver/scripts/")
@@ -56,10 +56,11 @@ def callback(data: Marker_global_translation):
     #     rospy.loginfo(f"{point1.x}, {point1.y}, {point1.z}")
     #     rospy.loginfo(f"{point2.x}, {point2.y}, {point2.z}")
 
-    msg: Point = Point()
-    msg.x = intersection_point.x
-    msg.y = intersection_point.y
-    msg.z = intersection_point.z
+    msg: CoP_position = CoP_position()
+    msg.frameNumber = data.frameNumber
+    msg.x_m = intersection_point.x
+    msg.y_m = intersection_point.y
+    msg.z_m = intersection_point.z
 
     publisher.publish(msg)
 
@@ -69,7 +70,7 @@ def transceiver():
     rospy.init_node('CoP_marker', anonymous=True)
 
     global publisher
-    publisher = rospy.Publisher('CoP_marker', Point, queue_size = 1000)
+    publisher = rospy.Publisher('CoP_marker', CoP_position, queue_size = 1000)
     
     rospy.Subscriber("Marker_global_translation", Marker_global_translation, callback)
 

@@ -21,6 +21,8 @@ int main(int argc, char **argv)
 
     ros::Rate loop_rate(10);
 
+    uint32_t frameNumber = 0;
+
     while (ros::ok())
     {
         // obtain a random number from hardware
@@ -32,10 +34,11 @@ int main(int argc, char **argv)
         // define the range
         std::uniform_int_distribution<> distr(1, 360);
 
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < 10; i++)
         {
             Force_plate_data msg;
-
+            msg.frameNumber = frameNumber;
+            msg.subsampleNumber = i;
             msg.fx_N = distr(gen);
             msg.fy_N = distr(gen);
             msg.fz_N = distr(gen);
@@ -46,6 +49,7 @@ int main(int argc, char **argv)
             publisher.publish(msg);
         }
 
+        ++frameNumber;
         ros::spinOnce();
         loop_rate.sleep();
     }
