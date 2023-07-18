@@ -40,8 +40,8 @@ def callback(data: Marker_global_translation):
     if ((marker0 == -1) or (marker1 == -1) or (marker2 == -1) or (marker3 == -1)):
         return
     
-    point1: Point3D = Point3D((marker0.x_mm + marker1.x_mm) / (2 * 1000), (marker0.y_mm + marker1.y_mm) / (2 * 1000), (marker0.z_mm + marker1.z_mm) / (2 * 1000))
-    point2: Point3D = Point3D((marker2.x_mm + marker3.x_mm) / (2 * 1000), (marker2.y_mm + marker3.y_mm) / (2 * 1000), (marker2.z_mm + marker3.z_mm) / (2 * 1000))
+    point1: Point3D = Point3D((marker0.x_m + marker1.x_m) / 2, (marker0.y_m + marker1.y_m) / 2, (marker0.z_m + marker1.z_m) / 2)
+    point2: Point3D = Point3D((marker2.x_m + marker3.x_m) / 2, (marker2.y_m + marker3.y_m) / 2, (marker2.z_m + marker3.z_m) / 2)
 
     marker0 = -1
     marker1 = -1

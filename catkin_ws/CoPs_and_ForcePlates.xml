@@ -11,7 +11,7 @@
        <curve name="/CoP_force_plate_1euro/x" color="#bcbd22"/>
        <curve name="/CoP_force_plate_sma/x" color="#1f77b4"/>
        <curve name="/CoP_marker/x" color="#d62728"/>
-       <curve name="/Marker_global_translation_filter_9/x_mm" color="#ff00ff"/>
+       <curve name="/Marker_global_translation_filter_9/x_m" color="#ff00ff"/>
       </plot>
      </DockArea>
      <DockArea name="...">
@@ -21,14 +21,14 @@
        <curve name="/CoP_force_plate_1euro/y" color="#bcbd22"/>
        <curve name="/CoP_force_plate_sma/y" color="#1f77b4"/>
        <curve name="/CoP_marker/y" color="#d62728"/>
-       <curve name="/Marker_global_translation_filter_9/y_mm" color="#ff00ff"/>
+       <curve name="/Marker_global_translation_filter_9/y_m" color="#ff00ff"/>
       </plot>
      </DockArea>
      <DockArea name="...">
       <plot flip_y="false" mode="TimeSeries" style="Lines" flip_x="false">
        <range top="0.181635" bottom="-0.058555" right="1689692957.074627" left="1689692927.075320"/>
        <limitY/>
-       <curve name="/Marker_global_translation_filter_9/z_mm" color="#1ac938"/>
+       <curve name="/Marker_global_translation_filter_9/z_m" color="#1ac938"/>
       </plot>
      </DockArea>
      <DockArea name="...">

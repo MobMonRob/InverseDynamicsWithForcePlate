@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     ROS_INFO("Marker_data_publisher started.");
 
     MarkerDataAcquisition markerDataAcquisition(MarkerDataAcquisition::create(MarkerDataAcquisition::defaultHostname, MarkerDataAcquisition::defaultSubjectName));
-    const std::vector<MarkerGlobalTranslationData>& markerGlobalTranslationVectorCache(markerDataAcquisition.getMarkerGlobalTranslationVectorCache());
+    const std::vector<MarkerGlobalTranslationData> &markerGlobalTranslationVectorCache(markerDataAcquisition.getMarkerGlobalTranslationVectorCache());
     const uint markerGlobalTranslationVectorSize = markerGlobalTranslationVectorCache.size();
     Marker_global_translation msg;
 
@@ -59,11 +59,11 @@ int main(int argc, char **argv)
                 msg.frameNumber = frameNumber;
                 msg.markerNumber = i;
                 msg.occluded = currentOrigin.occluded;
-                msg.x_mm = currentOrigin.x;
-                msg.y_mm = currentOrigin.y;
-                msg.z_mm = currentOrigin.z;
+                msg.x_m = currentOrigin.x / 1000;
+                msg.y_m = currentOrigin.y / 1000;
+                msg.z_m = currentOrigin.z / 1000;
 
-                publisher_Marker_global_translation.publish(static_cast<const Marker_global_translation&>(msg));
+                publisher_Marker_global_translation.publish(static_cast<const Marker_global_translation &>(msg));
             }
         }
 

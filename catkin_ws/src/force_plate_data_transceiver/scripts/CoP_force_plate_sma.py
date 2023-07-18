@@ -20,12 +20,12 @@ def callback(data: Force_plate_data):
     msg.x = point3d.x
     msg.y = point3d.y
     msg.z = point3d.z
-    if (abs(point3d.x) > 1):
-        msg.x = -1
-    if (abs(point3d.y) > 1):
-        msg.y = -1
-    if (abs(point3d.z) > 1):
-        msg.z = -1
+    # if (abs(point3d.x) > 1):
+    #     msg.x = -1
+    # if (abs(point3d.y) > 1):
+    #     msg.y = -1
+    # if (abs(point3d.z) > 1):
+    #     msg.z = -1
     publisher.publish(msg)
 
 

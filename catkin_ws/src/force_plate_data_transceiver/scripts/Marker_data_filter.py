@@ -24,9 +24,6 @@ def callback(data: Marker_global_translation):
     elif (data.markerNumber == 3):
         publisher3.publish(data)
     if (data.markerNumber == 9):
-        data.x_mm = data.x_mm / 1000
-        data.y_mm = data.y_mm / 1000
-        data.z_mm = data.z_mm / 1000
         publisher9.publish(data)
 
 #############################################

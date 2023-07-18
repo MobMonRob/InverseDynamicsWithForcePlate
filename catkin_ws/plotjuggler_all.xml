@@ -62,21 +62,21 @@
       <plot style="Lines" flip_x="false" mode="TimeSeries" flip_y="false">
        <range top="372.442726" bottom="372.355443" left="0.000000" right="9.993199"/>
        <limitY/>
-       <curve name="/Marker_global_translation_filter/x_mm" color="#1f77b4"/>
+       <curve name="/Marker_global_translation_filter/x_m" color="#1f77b4"/>
       </plot>
      </DockArea>
      <DockArea name="...">
       <plot style="Lines" flip_x="false" mode="TimeSeries" flip_y="false">
        <range top="262.751754" bottom="262.730232" left="0.000000" right="9.993199"/>
        <limitY/>
-       <curve name="/Marker_global_translation_filter/y_mm" color="#d62728"/>
+       <curve name="/Marker_global_translation_filter/y_m" color="#d62728"/>
       </plot>
      </DockArea>
      <DockArea name="...">
       <plot style="Lines" flip_x="false" mode="TimeSeries" flip_y="false">
        <range top="171.350987" bottom="171.197798" left="0.000000" right="9.993199"/>
        <limitY/>
-       <curve name="/Marker_global_translation_filter/z_mm" color="#1ac938"/>
+       <curve name="/Marker_global_translation_filter/z_m" color="#1ac938"/>
       </plot>
      </DockArea>
     </DockSplitter>
