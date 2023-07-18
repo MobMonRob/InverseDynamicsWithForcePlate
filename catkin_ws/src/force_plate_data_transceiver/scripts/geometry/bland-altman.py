@@ -21,13 +21,13 @@ def bland_altman_plot(data1, data2, *args, **kwargs):
     plt.axhline(md - 1.96*sd, color='gray', linestyle='--')
     return md, sd, mean, CI_low, CI_high
 
-# Read data from CoP_force_plate.csv
-force_plate_data = pd.read_csv('CoP_force_plate.csv')
-data1 = force_plate_data.iloc[:, 1]  # Read the second column
+# Read data from fist source
+force_plate_data = pd.read_csv('folded_CoP_force_plate_sma.csv')
+data1 = force_plate_data.iloc[:, 2]
 
-# Read data from CoP_vicon.csv
-vicon_data = pd.read_csv('CoP_vicon.csv')
-data2 = vicon_data.iloc[:, 1]  # Read the second column
+# Read data from second source
+vicon_data = pd.read_csv('Marker_global_translation_filter_9.csv')
+data2 = vicon_data.iloc[:, 2]
 
 md, sd, mean, CI_low, CI_high = bland_altman_plot(data1, data2)
 plt.title(r"$\mathbf{Bland-Altman}$" + " " + r"$\mathbf{Plot}$")
