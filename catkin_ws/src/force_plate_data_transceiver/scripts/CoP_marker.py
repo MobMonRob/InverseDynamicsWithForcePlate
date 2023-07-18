@@ -26,6 +26,9 @@ plane = define_plane(np.array([0, 0, 0]), np.array([0.6, 0, 0]), np.array([0, 0.
 #############################################
 
 def callback(data: Marker_global_translation):
+    # if (data.frameNumber % 10 > 0):
+    #     return
+
     global marker0, marker1, marker2, marker3, plane
 
     if data.markerNumber == 0 and marker0 == -1:
@@ -67,14 +70,16 @@ def callback(data: Marker_global_translation):
 
 #############################################
 def transceiver():
-    rospy.init_node('CoP_marker', anonymous=True)
+    name = 'CoP_marker'
+
+    rospy.init_node(name, anonymous=True)
 
     global publisher
-    publisher = rospy.Publisher('CoP_marker', CoP_position, queue_size = 1000)
+    publisher = rospy.Publisher(name, CoP_position, queue_size = 1000)
     
     rospy.Subscriber("Marker_global_translation", Marker_global_translation, callback)
 
-    rospy.loginfo(f"CoP_force_plate started.")
+    rospy.loginfo(f"{name} started.")
 
     rospy.spin()
 
