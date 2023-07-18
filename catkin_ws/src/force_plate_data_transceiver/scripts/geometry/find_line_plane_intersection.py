@@ -3,8 +3,8 @@ from sympy.solvers import solve
 from sympy import Symbol
 import numpy as np
 
-from define_line import get_line_prompt, get_lines_from_csv, get_line_as_arguments, Point3D
-from define_plane import define_plane, Plane3D
+from geometry.define_line import get_line_prompt, get_lines_from_csv, get_line_as_arguments, Point3D
+from geometry.define_plane import define_plane, Plane3D
 
 def define_lines_and_plane():
     lines = get_lines_from_csv()

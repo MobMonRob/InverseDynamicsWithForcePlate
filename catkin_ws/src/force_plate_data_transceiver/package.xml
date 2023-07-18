@@ -64,6 +64,9 @@
   <build_export_depend>vicon_data_publisher</build_export_depend>
   <exec_depend>vicon_data_publisher</exec_depend>
 
+  <build_depend>geometry_msgs</build_depend>
+  <build_export_depend>geometry_msgs</build_export_depend>
+  <exec_depend>geometry_msgs</exec_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

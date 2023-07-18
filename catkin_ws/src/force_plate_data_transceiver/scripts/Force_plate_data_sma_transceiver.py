@@ -25,7 +25,7 @@ def process_and_publish(data):
     global previous
 
     # Masse bestimmen
-    data.fz_N = data.fz_N / 9.81
+    # data.fz_N = data.fz_N / 9.81
 
     # Nullen filtern
     if (abs(data.fx_N) < 0.5):
@@ -81,6 +81,8 @@ def process_and_publish(data):
     queue.put(data)
 
     # Averaging durchfueren
+    average.frameNumber = data.frameNumber
+    average.subsampleNumber = data.subsampleNumber
     average.fx_N = average.fx_N + (data.fx_N - old.fx_N) / window_size
     average.fy_N = average.fy_N + (data.fy_N - old.fy_N) / window_size
     average.fz_N = average.fz_N + (data.fz_N - old.fz_N) / window_size

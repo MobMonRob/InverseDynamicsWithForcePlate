@@ -1,0 +1,19 @@
+roscore
+
+rosbag play --loop ./rosbags/2023-07-14-16-57-17.bag
+
+rosrun force_plate_data_transceiver Force_plate_data_sma_transceiver.py
+
+rosrun plotjuggler plotjuggler
+# CoPs_and_ForcePlates.xml
+
+rosrun force_plate_data_transceiver Marker_data_filter.py
+
+rosrun force_plate_data_transceiver CoP_force_plate_sma.py
+
+rosrun force_plate_data_transceiver CoP_marker.py
+
+rosrun force_plate_data_transceiver Force_plate_data_1euro_filter.py
+
+rosrun force_plate_data_transceiver CoP_force_plate_1euro.py
+

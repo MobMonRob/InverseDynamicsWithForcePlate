@@ -2,7 +2,7 @@
 # https://drive.google.com/drive/folders/1bfN8hC_wq9LQO2sB6vjtVNFYpZkxI474
 
 from varname import nameof
-from define_line import Point3D
+from geometry.define_line import Point3D
 import pandas as pd
 
 def read_csv_data(file_path):
@@ -65,7 +65,7 @@ def perform_calculation(a, b, z0, h, fx, fy, fz, mx, my, mz, width, length):
 
     return CoPx_g, CoPy_g, CoPz_g#, Tz_g
 
-def get_cop_as_arguments(fx, fy, fz, mx, my, mz):
+def get_cop_as_arguments(fx, fy, fz, mx, my, mz) -> Point3D:
     a = 0
     b = 0
     z0 = 0

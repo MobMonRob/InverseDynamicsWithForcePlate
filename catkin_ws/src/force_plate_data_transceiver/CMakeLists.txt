@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   vicon_data_publisher
   rospy
   std_msgs
+  geometry_msgs
   message_generation
 )
 
@@ -105,7 +106,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES force_plate_data_transceiver
-  CATKIN_DEPENDS rospy std_msgs message_runtime vicon_data_publisher
+  CATKIN_DEPENDS rospy std_msgs geometry_msgs message_runtime vicon_data_publisher
 #  DEPENDS system_lib
 )
 
@@ -162,6 +163,11 @@ include_directories(
 catkin_install_python(PROGRAMS
   scripts/Force_plate_data_sma_transceiver.py
   scripts/Marker_data_filter.py
+  scripts/CoP_data_filter.py
+  scripts/CoP_force_plate_sma.py
+  scripts/CoP_force_plate_1euro.py
+  scripts/CoP_marker.py
+  scripts/Force_plate_data_1euro_filter.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
