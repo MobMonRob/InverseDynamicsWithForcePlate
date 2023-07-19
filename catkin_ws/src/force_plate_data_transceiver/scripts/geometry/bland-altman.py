@@ -1,4 +1,4 @@
-# The source is https://stackoverflow.com/a/70652576/7817074
+# Inspired by https://stackoverflow.com/a/70652576/7817074
 
 import matplotlib.pyplot as plt
 import numpy as np
