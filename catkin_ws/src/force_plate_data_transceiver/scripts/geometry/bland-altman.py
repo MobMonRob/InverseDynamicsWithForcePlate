@@ -99,7 +99,6 @@ def generate_bland_altman_plot(data1Path: str, data2Path: str, data1ColumnName: 
     plt.gcf().set_size_inches(6.5, 4.5)
     plt.savefig(f"img/BAD_{plotDescription}.svg", format="svg")
     plt.savefig(f"img/BAD_{plotDescription}.png", format="png")
-    plt.show()
 
 def main():
     data1Path = "folded_CoP_force_plate_sma.csv"
@@ -120,6 +119,7 @@ def main():
                                data1ColumnName, data2ColumnName,
                                dataSynchronizationColumnName, shouldSynchronize,
                                dataScalingFactor, firstDataName, secondDataName, additionalComment, units)
+    plt.show()
 
 if __name__ == "__main__":
     main()
