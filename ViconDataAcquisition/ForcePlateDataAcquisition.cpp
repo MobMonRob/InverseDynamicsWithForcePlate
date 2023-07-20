@@ -14,7 +14,7 @@ ForcePlateDataAcquisition::ForcePlateDataAcquisition(std::unique_ptr<ViconDataSt
     : client(std::move(client)),
       forcePlateDataVectorCache(std::move(forcePlateDataVectorCache)),
       amti(amti),
-      subsampleCount(forcePlateDataVectorCache.size())
+      subsampleCount(this->forcePlateDataVectorCache.size())
 {
 }
 

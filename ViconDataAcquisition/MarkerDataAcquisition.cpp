@@ -15,7 +15,7 @@ MarkerDataAcquisition::MarkerDataAcquisition(std::unique_ptr<ViconDataStreamClie
       markerNames(std::move(markerNames)),
       subjectName(subjectName),
       markerGlobalTranslationVectorCache(std::move(markerGlobalTranslationVectorCache)),
-      markerNamesCount(markerNames.size())
+      markerNamesCount(this->markerNames.size())
 {
 }
 
