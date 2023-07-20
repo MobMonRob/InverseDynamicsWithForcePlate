@@ -5,7 +5,7 @@ from force_plate_data_transceiver.msg import CoP_position
 from vicon_data_publisher.msg import Force_plate_data
 
 import sys, os
-sys.path.append("/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/force_plate_data_transceiver/scripts/")
+sys.path.append("/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/catkin_ws/src/force_plate_data_transceiver/scripts/")
 from geometry.define_line import Point3D
 from geometry.calculate_cop import get_cop_as_arguments
 

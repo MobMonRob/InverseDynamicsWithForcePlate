@@ -5,7 +5,7 @@ from vicon_data_publisher.msg import Marker_global_translation
 from force_plate_data_transceiver.msg import CoP_position
 
 import sys, os
-sys.path.append("/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/force_plate_data_transceiver/scripts/")
+sys.path.append("/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/catkin_ws/src/force_plate_data_transceiver/scripts/")
 from geometry.find_line_plane_intersection import find_intersection, substitute_variables
 from geometry.define_line import get_line_as_arguments, Point3D
 from geometry.define_plane import define_plane
@@ -16,12 +16,12 @@ from sympy import Symbol
 
 publisher = None
 
-marker0 = -1
-marker1 = -1
-marker2 = -1
-marker3 = -1
+marker4 = -1
+marker5 = -1
+marker6 = -1
+marker7 = -1
 
-plane = define_plane(np.array([0, 0, 0]), np.array([0.6, 0, 0]), np.array([0, 0.4, 0]))
+plane = define_plane(np.array([-0.019 / 1000, 0.124 / 1000, -0.002 / 1000]), np.array([0.6, -0.037 / 1000, -0.037 / 1000]), np.array([-0.102 / 1000, 0.434847, 0.1321 / 1000]))
 
 #############################################
 
@@ -29,27 +29,27 @@ def callback(data: Marker_global_translation):
     # if (data.frameNumber % 10 > 0):
     #     return
 
-    global marker0, marker1, marker2, marker3, plane
+    global marker4, marker5, marker6, marker7, plane
 
-    if data.markerNumber == 0 and marker0 == -1:
-        marker0 = data
-    elif data.markerNumber == 1 and marker1 == -1:
-        marker1 = data
-    elif data.markerNumber == 2 and marker2 == -1:
-        marker2 = data
-    elif data.markerNumber == 3 and marker3 == -1:
-        marker3 = data
+    if data.markerNumber == 4 and marker4 == -1:
+        marker4 = data
+    elif data.markerNumber == 5 and marker5 == -1:
+        marker5 = data
+    elif data.markerNumber == 6 and marker6 == -1:
+        marker6 = data
+    elif data.markerNumber == 7 and marker7 == -1:
+        marker7 = data
     
-    if ((marker0 == -1) or (marker1 == -1) or (marker2 == -1) or (marker3 == -1)):
+    if ((marker4 == -1) or (marker5 == -1) or (marker6 == -1) or (marker7 == -1)):
         return
     
-    point1: Point3D = Point3D((marker0.x_m + marker1.x_m) / 2, (marker0.y_m + marker1.y_m) / 2, (marker0.z_m + marker1.z_m) / 2)
-    point2: Point3D = Point3D((marker2.x_m + marker3.x_m) / 2, (marker2.y_m + marker3.y_m) / 2, (marker2.z_m + marker3.z_m) / 2)
+    point1: Point3D = Point3D((marker4.x_m + marker5.x_m) / 2, (marker4.y_m + marker5.y_m) / 2, (marker4.z_m + marker5.z_m) / 2)
+    point2: Point3D = Point3D((marker6.x_m + marker7.x_m) / 2, (marker6.y_m + marker7.y_m) / 2, (marker6.z_m + marker7.z_m) / 2)
 
-    marker0 = -1
-    marker1 = -1
-    marker2 = -1
-    marker3 = -1
+    marker4 = -1
+    marker5 = -1
+    marker6 = -1
+    marker7 = -1
 
     line = get_line_as_arguments(point1, point2)
 
