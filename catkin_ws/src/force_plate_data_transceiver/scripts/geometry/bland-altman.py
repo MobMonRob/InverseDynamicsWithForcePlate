@@ -1,29 +1,33 @@
 # Inspired by https://stackoverflow.com/a/70652576/7817074
 
+import sys
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+
 def bland_altman_plot(data1, data2, *args, **kwargs):
-    data1     = np.asarray(data1)
-    data2     = np.asarray(data2)
-    mean      = np.mean([data1, data2], axis = 0)
-    diff      = data1 - data2                   # Difference between data1 and data2
-    md        = np.mean(diff)                   # Mean of the difference
-    sd        = np.std(diff, axis = 0)          # Standard deviation of the difference
-    CI_low    = md - 1.96 * sd
-    CI_high   = md + 1.96 * sd
+    data1 = np.asarray(data1)
+    data2 = np.asarray(data2)
+    mean = np.mean([data1, data2], axis=0)
+    diff = data1 - data2                   # Difference between data1 and data2
+    md = np.mean(diff)                   # Mean of the difference
+    sd = np.std(diff, axis=0)          # Standard deviation of the difference
+    CI_low = md - 1.96 * sd
+    CI_high = md + 1.96 * sd
 
     plt.scatter(mean, diff, *args, **kwargs)
-    plt.axhline(md,             color = 'red',   linestyle='-')
-    plt.axhline(md + 1.96 * sd, color = 'green', linestyle='--')
-    plt.axhline(md - 1.96 * sd, color = 'green', linestyle='--')
+    plt.axhline(md,             color='red',   linestyle='-')
+    plt.axhline(md + 1.96 * sd, color='green', linestyle='--')
+    plt.axhline(md - 1.96 * sd, color='green', linestyle='--')
     return md, sd, mean, CI_low, CI_high
 
-def read_data(data1Path : str, data2Path : str,
+
+def read_data(data1Path: str, data2Path: str,
               data1ColumnName, data2ColumnName,
-              shouldSynchronize : bool, dataSynchronizationColumnName : str,
-              dataScalingFactor : int) -> pd.Series:
+              shouldSynchronize: bool, dataSynchronizationColumnName: str,
+              dataScalingFactor: int) -> pd.Series:
     data1Csv = pd.read_csv(data1Path)
     data2Csv = pd.read_csv(data2Path)
 
@@ -42,20 +46,21 @@ def read_data(data1Path : str, data2Path : str,
         print(f"Data was synchronized on column {dataSynchronizationColumnName} between values {beginValue} and {endValue}")
 
     if (dataScalingFactor != 1):
-        data1 : pd.Series = data1Csv[data1ColumnName].apply(lambda x : float(x) * dataScalingFactor)
-        data2 : pd.Series = data2Csv[data2ColumnName].apply(lambda x : float(x) * dataScalingFactor)
+        data1: pd.Series = data1Csv[data1ColumnName].apply(lambda x: float(x) * dataScalingFactor)
+        data2: pd.Series = data2Csv[data2ColumnName].apply(lambda x: float(x) * dataScalingFactor)
         print(f"Values under {data1ColumnName} from first data and values under {data2ColumnName} from second data are scaled with the factor of {dataScalingFactor}")
     else:
-        data1 : pd.Series = data1Csv[data1ColumnName]
-        data2 : pd.Series = data2Csv[data2ColumnName]
+        data1: pd.Series = data1Csv[data1ColumnName]
+        data2: pd.Series = data2Csv[data2ColumnName]
 
     print(f"First data measurement count: {len(data1)}")
     print(f"Second data measurement count: {len(data2)}")
 
     return data1, data2
 
+
 def generate_bland_altman_plot(data1Path: str, data2Path: str, data1ColumnName: str, data2ColumnName: str,
-                               dataSynchronizationColumnName : str, shouldSynchronize: bool, dataScalingFactor: int,
+                               dataSynchronizationColumnName: str, shouldSynchronize: bool, dataScalingFactor: int,
                                firstDataName: str, secondDataName: str, additionalComment: str, units: str):
 
     dataset1, dataset2 = read_data(data1Path, data2Path,
@@ -100,18 +105,19 @@ def generate_bland_altman_plot(data1Path: str, data2Path: str, data1ColumnName: 
     plt.savefig(f"img/BAD_{plotDescription}.svg", format="svg")
     plt.savefig(f"img/BAD_{plotDescription}.png", format="png")
 
+
 def main():
-    data1Path = "folded_CoP_force_plate_sma.csv"
-    firstDataName = f"CoP Kraftmessplatte"
-    data1ColumnName = 'field.x_m'
+    data1Path = sys.argv[1]  # "path/to/first.csv"
+    firstDataName = sys.argv[2]  # f"CoP Kraftmessplatte"
+    data1ColumnName = sys.argv[3]  # 'field.x_m'
 
-    data2Path = "Marker_global_translation_filter_9.csv"
-    secondDataName = f"CoP Marker an der Spitze"
-    data2ColumnName = 'field.x_m'
+    data2Path = sys.argv[4]  # "path/to/second.csv"
+    secondDataName = sys.argv[5]  # f"CoP Überschneidung"
+    data2ColumnName = sys.argv[6]  # 'field.x_m'
 
-    additionalComment = ""
-    units = "[mm]"
-    dataScalingFactor = 1000
+    additionalComment = sys.argv[7]  # "Example"
+    units = sys.argv[8]  # "[mm]"
+    dataScalingFactor = sys.argv[9]  # 1000 for mm, default 1 for meter
     shouldSynchronize = True
     dataSynchronizationColumnName = "field.frameNumber"
 
@@ -120,6 +126,7 @@ def main():
                                dataSynchronizationColumnName, shouldSynchronize,
                                dataScalingFactor, firstDataName, secondDataName, additionalComment, units)
     plt.show()
+
 
 if __name__ == "__main__":
     main()

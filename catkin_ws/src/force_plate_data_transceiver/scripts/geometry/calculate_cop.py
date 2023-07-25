@@ -5,9 +5,11 @@ from varname import nameof
 from geometry.define_line import Point3D
 import pandas as pd
 
+
 def read_csv_data(file_path):
     data = pd.read_csv(file_path)
     return data
+
 
 def get_user_input():
     # Get input values from the user
@@ -28,10 +30,11 @@ def get_user_input():
     mx, my, mz = map(float, input(f"Enter the values of {nameof(mx)}, {nameof(my)}, and {nameof(mz)} (separated by a space): ").split())
 
     # Get force plate width and length (in my convention width is the smaller number, length is the larger number):
-    width, length = 0.4, 0.6  # [Meters], For AMTI BP400600 model in labor 
+    width, length = 0.4, 0.6  # [Meters], For AMTI BP400600 model in labor
     # width, length = map(float, input(f"Enter the values of {nameof(width)} and {nameof(length)} (separated by a space): ").split())
 
     return a, b, z0, h, fx, fy, fz, mx, my, mz, width, length
+
 
 def perform_calculation(a, b, z0, h, fx, fy, fz, mx, my, mz, width, length):
     # Calculate CoPx in [Meters]
@@ -56,27 +59,29 @@ def perform_calculation(a, b, z0, h, fx, fy, fz, mx, my, mz, width, length):
     CoPx_g = length / 2 + CoPy
     CoPy_g = width / 2 + CoPx
     CoPz_g = 0
-    #Tz_g = -Tz
+    # Tz_g = -Tz
 
     # Print the result
     # print(f"The value of {nameof(CoPx_g)} is: {CoPx_g}\n")
     # print(f"The value of {nameof(CoPy_g)} is: {CoPy_g}\n")
     # print(f"The value of {nameof(Tz_g)} is: {Tz_g}\n")
 
-    return CoPx_g, CoPy_g, CoPz_g#, Tz_g
+    return CoPx_g, CoPy_g, CoPz_g  # , Tz_g
+
 
 def get_cop_as_arguments(fx, fy, fz, mx, my, mz) -> Point3D:
     a = 0
     b = 0
     z0 = 0
-    h = 0.045 # [Meter]
-    width = 0.4 # [Meter]
-    length = 0.6 # [Meter]
+    h = 0.045 - 15.59 / 1000  # [Meter]
+    width = 0.4  # [Meter]
+    length = 0.6  # [Meter]
 
     # Perform calculation
     CoPx_g, CoPy_g, CoPz_g = perform_calculation(a, b, z0, h, fx, fy, fz, mx, my, mz, width, length)
     point = Point3D(CoPx_g, CoPy_g, CoPz_g)
     return point
+
 
 def get_cop_prompt():
     # Get user input
@@ -86,6 +91,7 @@ def get_cop_prompt():
     CoPx_g, CoPy_g, CoPz_g = perform_calculation(a, b, z0, h, fx, fy, fz, mx, my, mz, width, length)
     point = Point3D(CoPx_g, CoPy_g, CoPz_g)
     return point
+
 
 def main():
     point = get_cop_prompt()
@@ -97,7 +103,7 @@ def main():
 
 #     # Get other input values
 #     a, b, z0, h = 0, 0, 0, 0.045  # Provide the desired values
-#     width, length = 0.4, 0.6  # [Meters], For AMTI BP400600 model in labor 
+#     width, length = 0.4, 0.6  # [Meters], For AMTI BP400600 model in labor
 
 #     # Perform calculation for each row
 #     results = []
@@ -108,7 +114,7 @@ def main():
 #         mx = row['field.mx_Nm']
 #         my = row['field.my_Nm']
 #         mz = row['field.mz_Nm']
-        
+
 #         CoPx_g, CoPy_g, CoPz_g = perform_calculation(a, b, z0, h, fx, fy, fz, mx, my, mz, width, length)
 #         point = Point3D(CoPx_g, CoPy_g, CoPz_g)
 #         point.frame_number = row['field.frameNumber']
@@ -122,6 +128,7 @@ def main():
 
 #     # Save the DataFrame to a new CSV file
 #     result_df.to_csv('CoP_force_plate.csv', index=False)
+
 
 if __name__ == "__main__":
     main()

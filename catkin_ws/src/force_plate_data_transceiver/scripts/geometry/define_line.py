@@ -1,11 +1,13 @@
 import pandas as pd
 
+
 class Point3D:
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
         self.z = z
         self.pointExpression = f"({x}, {y}, {z})"
+
 
 class Line3D:
     def __init__(self, point1, point2):
@@ -30,6 +32,7 @@ class Line3D:
         zTermParametrized = f"{self.point2.z - self.point1.z} * t + {self.point1.z}"
         return f"x = {xTermParametrized}, y = {yTermParametrized}, z = {zTermParametrized}"
 
+
 def input_point(prompt):
     values = input(prompt).split()
     if len(values) != 3:
@@ -37,33 +40,39 @@ def input_point(prompt):
     x, y, z = map(float, values)
     return Point3D(x, y, z)
 
+
 def input_point_from_csv(value1, value2, value3):
     return Point3D(value1, value2, value3)
 
+
 def get_line_as_arguments(point1, point2):
     return Line3D(point1, point2)
+
 
 def get_line_prompt():
     point1 = input_point("Enter the coordinates for point1 (x y z): ")
     point2 = input_point("Enter the coordinates for point2 (x y z): ")
     return Line3D(point1, point2)
 
-def get_lines_from_csv():
-    file_path = 'folded_marker_data_two_points.csv'
+
+def get_lines_from_csv(file_path):
+    if (file_path == ""):
+        file_path = 'folded_marker_data_two_points.csv'
     data = pd.read_csv(file_path)
     lines = []
 
     for _, row in data.iterrows():
-        point1 = Point3D(row[1] / 1000, row[2] / 1000, row[3] / 1000)
-        point2 = Point3D(row[7] / 1000, row[8] / 1000, row[9] / 1000)
+        point1 = Point3D(row[1], row[2], row[3])
+        point2 = Point3D(row[7], row[8], row[9])
         line = Line3D(point1, point2)
         line.frameNumber = row[0]
         lines.append(line)
-    
+
     return lines
 
+
 def main():
-    lines = get_lines_from_csv()
+    lines = get_lines_from_csv("")
 
     # Print the lines for verification
     for i, line in enumerate(lines):
@@ -73,6 +82,7 @@ def main():
         print(f"Vector: X: {line.vector.x}, Y: {line.vector.y}, Z: {line.vector.z}")
         print(f"Canonical equation: {line.line_equation}")
         print(f"Parametrized equation: {line.parametrized_line_equation}")
+
 
 if __name__ == "__main__":
     main()
