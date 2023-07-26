@@ -73,7 +73,7 @@ def get_cop_as_arguments(fx, fy, fz, mx, my, mz) -> Point3D:
     a = 0
     b = 0
     z0 = 0
-    h = 0.045 - 15.59 / 1000  # [Meter]
+    h = 0.04478 - 15.59 / 1000  # [Meter]
     width = 0.4  # [Meter]
     length = 0.6  # [Meter]
 

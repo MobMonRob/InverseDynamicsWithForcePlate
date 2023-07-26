@@ -107,17 +107,31 @@ def generate_bland_altman_plot(data1Path: str, data2Path: str, data1ColumnName: 
 
 
 def main():
-    data1Path = sys.argv[1]  # "path/to/first.csv"
-    firstDataName = sys.argv[2]  # f"CoP Kraftmessplatte"
-    data1ColumnName = sys.argv[3]  # 'field.x_m'
+    # data1Path = sys.argv[1]  # "path/to/first.csv"
+    # firstDataName = sys.argv[2]  # f"CoP Kraftmessplatte"
+    # data1ColumnName = sys.argv[3]  # 'field.x_m'
 
-    data2Path = sys.argv[4]  # "path/to/second.csv"
-    secondDataName = sys.argv[5]  # f"CoP Überschneidung"
-    data2ColumnName = sys.argv[6]  # 'field.x_m'
+    # data2Path = sys.argv[4]  # "path/to/second.csv"
+    # secondDataName = sys.argv[5]  # f"CoP Überschneidung"
+    # data2ColumnName = sys.argv[6]  # 'field.x_m'
 
-    additionalComment = sys.argv[7]  # "Example"
-    units = sys.argv[8]  # "[mm]"
-    dataScalingFactor = sys.argv[9]  # 1000 for mm, default 1 for meter
+    # additionalComment = sys.argv[7]  # "Example"
+    # units = sys.argv[8]  # "[mm]"
+    # dataScalingFactor = sys.argv[9]  # 1000 for mm, default 1 for meter
+    # shouldSynchronize = True
+    pointNumber = 20
+
+    data1Path = f"/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/catkin_ws/20Punkte_24.07.2023_1/folded_CoP_FP_SMA/folded_P{pointNumber}_FP_SMA.csv"
+    firstDataName = f"CoP Kraftmessplatte P{pointNumber}"
+    data1ColumnName = 'field.y_m'
+
+    data2Path = f"/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/catkin_ws/20Punkte_24.07.2023_1/CSV_MARKERS_ALL/folded_TWO_POINTS/Intersection_TWO_POINTS/intersection_by_P{pointNumber}.csv"
+    secondDataName = f"CoP Überschneidung P{pointNumber}"
+    data2ColumnName = 'field.y_m'
+
+    additionalComment = ""
+    units = "[mm]"
+    dataScalingFactor = 1000
     shouldSynchronize = True
     dataSynchronizationColumnName = "field.frameNumber"
 
