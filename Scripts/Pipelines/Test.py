@@ -5,7 +5,7 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))  # nopep8
 from Common import Rosbag_extractor
 from Common.Ros_msg_types.vicon_data_publisher.msg._Force_plate_data import Force_plate_data
 from Common.Ros_msg_types.vicon_data_publisher.msg._Marker_global_translation import Marker_global_translation
-from Common import FrameNumber_filter
+from Common import Valid_msgs_filter
 
 
 def test():
@@ -20,8 +20,9 @@ def test():
     compound_topics_to_msgs: dict[str, list] = Rosbag_extractor.getTopicsToMsgsFromDir(dirPath, topics)
     # compound_topics_to_msgs: dict[str, list] = Rosbag_extractor.getTopicsToMsgsFromBag(bagPath, topics)
 
-    compound_topics_to_frameNumbers_to_msgs: dict[str, dict[int, list]] = FrameNumber_filter.groupOnFrameNumber(compound_topics_to_msgs)
-    FrameNumber_filter.removeMsgsWithIndividualFrameNumbers(compound_topics_to_frameNumbers_to_msgs)
+    # TODO: TopicGroup[FrameNumberGroup[list]] Klassen anstatt dict[str, dict[int, list]]
+    compound_topics_to_frameNumbers_to_msgs: dict[str, dict[int, list]] = Valid_msgs_filter.groupOnFrameNumber(compound_topics_to_msgs)
+    Valid_msgs_filter.removeInvalidMsgs(compound_topics_to_frameNumbers_to_msgs)
 
 
 if __name__ == "__main__":

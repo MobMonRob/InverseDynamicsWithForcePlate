@@ -15,7 +15,6 @@ def getTopicsToMsgsFromBag(bagPath: str, _topics: "set[str]") -> "dict[str, list
     for topic in _topics:
         _list = []
         topics_to_msgs.update({topic: _list})
-        print(topic)
 
     with rosbag.Bag(bagPath) as bag:
         for _topic, _msg, _t in bag.read_messages(topics=_topics):
