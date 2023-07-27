@@ -4,14 +4,22 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))  # nopep8
 sys.path.append(os.path.dirname(SCRIPT_DIR))  # nopep8
 from Common import Rosbag_extractor
 from Common.Ros_msg_types.vicon_data_publisher.msg._Force_plate_data import Force_plate_data
-
+from Common.Ros_msg_types.vicon_data_publisher.msg._Marker_global_translation import Marker_global_translation
+from Common import FrameNumber_filter
 
 def test():
-    path: str = "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/Data/2023-07-25-16-30-34_duenne_Meissel.bag"
-    topic: str = "/Force_plate_data"
-    msgs: list[Force_plate_data] = Rosbag_extractor.getMsgList(path, topic)
-    for msg in msgs:
-        print(msg.frameNumber)
+    dirPath: str = "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/Data/20Punkte_24.07.2023_1/"
+    bagPath: str = f"{dirPath}2023-07-24-16-37-12.bag"
+    topic_fp: str = "/Force_plate_data"
+    topic_mgt: str = "/Marker_global_translation"
+
+    Rosbag_extractor.printInfo(bagPath)
+
+    # msgs_fp: list[Force_plate_data] = Rosbag_extractor.getMsgListFromBagDir(dirPath, topic_fp)
+    msgs_fp: list[Force_plate_data] = Rosbag_extractor.getMsgListFromBag(bagPath, topic_fp)
+    msgs_mgt: list[Marker_global_translation] = Rosbag_extractor.getMsgListFromBag(bagPath, topic_mgt)
+
+    FrameNumber_filter.filter(msgs_fp, msgs_mgt)
 
 
 if __name__ == "__main__":
