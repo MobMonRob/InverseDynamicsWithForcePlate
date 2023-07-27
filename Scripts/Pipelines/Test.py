@@ -7,19 +7,21 @@ from Common.Ros_msg_types.vicon_data_publisher.msg._Force_plate_data import Forc
 from Common.Ros_msg_types.vicon_data_publisher.msg._Marker_global_translation import Marker_global_translation
 from Common import FrameNumber_filter
 
+
 def test():
     dirPath: str = "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/Data/20Punkte_24.07.2023_1/"
     bagPath: str = f"{dirPath}2023-07-24-16-37-12.bag"
     topic_fp: str = "/Force_plate_data"
     topic_mgt: str = "/Marker_global_translation"
+    topics: set[str] = set([topic_fp, topic_mgt])
 
     Rosbag_extractor.printInfo(bagPath)
 
-    # msgs_fp: list[Force_plate_data] = Rosbag_extractor.getMsgListFromBagDir(dirPath, topic_fp)
-    msgs_fp: list[Force_plate_data] = Rosbag_extractor.getMsgListFromBag(bagPath, topic_fp)
-    msgs_mgt: list[Marker_global_translation] = Rosbag_extractor.getMsgListFromBag(bagPath, topic_mgt)
+    compound_topics_to_msgs: dict[str, list] = Rosbag_extractor.getTopicsToMsgsFromDir(dirPath, topics)
+    # compound_topics_to_msgs: dict[str, list] = Rosbag_extractor.getTopicsToMsgsFromBag(bagPath, topics)
 
-    FrameNumber_filter.filter(msgs_fp, msgs_mgt)
+    compound_topics_to_frameNumbers_to_msgs: dict[str, dict[int, list]] = FrameNumber_filter.groupOnFrameNumber(compound_topics_to_msgs)
+    FrameNumber_filter.removeMsgsWithIndividualFrameNumbers(compound_topics_to_frameNumbers_to_msgs)
 
 
 if __name__ == "__main__":

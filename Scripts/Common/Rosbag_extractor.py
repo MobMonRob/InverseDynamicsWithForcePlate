@@ -10,16 +10,21 @@ def printInfo(bagPath: str):
             print(topicsInfo[topic])
 
 
-def getMsgListFromBag(bagPath: str, topic: str) -> list:
-    msgList = []
+def getTopicsToMsgsFromBag(bagPath: str, _topics: "set[str]") -> "dict[str, list]":
+    topics_to_msgs: dict[str, list] = dict()
+    for topic in _topics:
+        _list = []
+        topics_to_msgs.update({topic: _list})
+        print(topic)
 
     with rosbag.Bag(bagPath) as bag:
-        for _topic, _msg, _t in bag.read_messages(topics=[topic]):
-            msgList.append(_msg)
+        for _topic, _msg, _t in bag.read_messages(topics=_topics):
+            topics_to_msgs.get(_topic).append(_msg)
 
-    print(f"Rosbag_extractor: Loaded {len(msgList)} messages of topic \"{topic}\" from bag \"{bagPath}\"")
+    for topic, msgs in topics_to_msgs.items():
+        print(f"Rosbag_extractor: Loaded {len(msgs)} messages of topic \"{topic}\" from bag \"{bagPath}\"")
 
-    return msgList
+    return topics_to_msgs
 
 
 def getSortedBagPathList(dirPath: str) -> "list[str]":
@@ -36,15 +41,20 @@ def getSortedBagPathList(dirPath: str) -> "list[str]":
     return bagPathList
 
 
-def getMsgListFromBagDir(dirPath: str, topic: str) -> list:
+def getTopicsToMsgsFromDir(dirPath: str, topics: "set[str]") -> "dict[str, list]":
+    compound_topics_to_msgs: dict[str, list] = dict()
+    for topic in topics:
+        _list = []
+        compound_topics_to_msgs.update({topic: _list})
+
     bagPathList: list[str] = getSortedBagPathList(dirPath)
 
-    compoundMsgList: list = []
-
     for bagPath in bagPathList:
-        msgList: list = getMsgListFromBag(bagPath, topic)
-        compoundMsgList.extend(msgList)
-    
-    print(f"Rosbag_extractor: Loaded {len(compoundMsgList)} messages of topic \"{topic}\" from {len(bagPathList)} files within dir \"{dirPath}\"")
-    
-    return compoundMsgList
+        topics_to_msgs: dict[str, list] = getTopicsToMsgsFromBag(bagPath, topics)
+        for topic, msgs in topics_to_msgs.items():
+            compound_topics_to_msgs.get(topic).extend(msgs)
+
+    for topic, msgs in compound_topics_to_msgs.items():
+        print(f"Rosbag_extractor: Loaded {len(msgs)} messages of topic \"{topic}\" from {len(bagPathList)} files within dir \"{dirPath}\"")
+
+    return compound_topics_to_msgs
