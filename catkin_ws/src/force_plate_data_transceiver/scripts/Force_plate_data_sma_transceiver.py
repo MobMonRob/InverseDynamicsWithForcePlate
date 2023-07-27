@@ -69,12 +69,12 @@ def process_and_publish(data):
         return
 
     # Tarierung anwenden
-    data.fx_N = data.fx_N - offset.fx_N
-    data.fy_N = data.fy_N - offset.fy_N
-    data.fz_N = data.fz_N - offset.fz_N
-    data.mx_Nm = data.mx_Nm - offset.mx_Nm
-    data.my_Nm = data.my_Nm - offset.my_Nm
-    data.mz_Nm = data.mz_Nm - offset.mz_Nm
+    # data.fx_N = data.fx_N - offset.fx_N
+    # data.fy_N = data.fy_N - offset.fy_N
+    # data.fz_N = data.fz_N - offset.fz_N
+    # data.mx_Nm = data.mx_Nm - offset.mx_Nm
+    # data.my_Nm = data.my_Nm - offset.my_Nm
+    # data.mz_Nm = data.mz_Nm - offset.mz_Nm
 
     # Averaging Fenster weiter ziehen
     old = queue.get()

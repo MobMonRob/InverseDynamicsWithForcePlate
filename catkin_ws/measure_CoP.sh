@@ -13,9 +13,9 @@ sleep 3s
 
 konsole --new-tab -e "rosrun vicon_data_publisher Force_plate_data_publisher" &
 
-sleep 1s
+# sleep 1s
 
-konsole --new-tab -e "rosrun vicon_data_publisher Marker_data_publisher" &
+# konsole --new-tab -e "rosrun vicon_data_publisher Marker_data_publisher" &
 
 sleep 1s
 

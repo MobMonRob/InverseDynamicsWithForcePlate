@@ -12,68 +12,81 @@ def normalize_vector(vec):
     magnitude = np.linalg.norm(vec)
     return vec / magnitude
 
+def get_base_vectors(o, a, b):
+    e1 = normalize_vector(np.array([a.x - o.x, a.y - o.y, a.z - o.z]))
+    e3 = normalize_vector(np.cross(e1, [b.x - o.x, b.y - o.y, b.z - o.z]))
+    e2 = normalize_vector(np.cross(e3, e1))
+    return e1, e2, e3
+
 
 def calculate_new_coordinates(o, a, b, s):
-    e1 = np.array([a.x - o.x, a.y - o.y, a.z - o.z])
-    e2 = np.array([b.x - o.x, b.y - o.y, b.z - o.z])
-    e3 = np.cross(e1, e2)
+    e1, e2, e3 = get_base_vectors(o, a, b)
 
-    e1_normalized = normalize_vector(e1)
-    e2_normalized = normalize_vector(e2)
-    e3_normalized = normalize_vector(e3)
-
-    a_inv = np.array([[e1_normalized[0], e2_normalized[0], e3_normalized[0]],
-                      [e1_normalized[1], e2_normalized[1], e3_normalized[1]],
-                      [e1_normalized[2], e2_normalized[2], e3_normalized[2]]])
+    a = np.array([[e1[0], e2[0], e3[0]],
+                      [e1[1], e2[1], e3[1]],
+                      [e1[2], e2[2], e3[2]]])
 
     s_old_Minus_o_old = np.array([s.x - o.x, s.y - o.y, s.z - o.z])
-    s_new = np.dot(a_inv, s_old_Minus_o_old)
+    s_new = np.dot(a, s_old_Minus_o_old)
 
     return Point(s_new[0], s_new[1], s_new[2])
 
 
 def calculate_old_coordinates(o, a, b, s):
-    e1 = np.array([a.x - o.x, a.y - o.y, a.z - o.z])
-    e2 = np.array([b.x - o.x, b.y - o.y, b.z - o.z])
-    e3 = np.cross(e1, e2)
+    e1, e2, e3 = get_base_vectors(o, a, b)
 
-    e1_normalized = normalize_vector(e1)
-    e2_normalized = normalize_vector(e2)
-    e3_normalized = normalize_vector(e3)
-
-    a = np.linalg.inv(np.array([[e1_normalized[0], e2_normalized[0], e3_normalized[0]],
-                                [e1_normalized[1], e2_normalized[1], e3_normalized[1]],
-                                [e1_normalized[2], e2_normalized[2], e3_normalized[2]]]))
+    a = np.linalg.inv(np.array([[e1[0], e2[0], e3[0]],
+                                [e1[1], e2[1], e3[1]],
+                                [e1[2], e2[2], e3[2]]]))
 
     A_mult_S_new = np.dot(a, np.array([s.x, s.y, s.z]))
     s_old = np.array([A_mult_S_new[0] + o.x, A_mult_S_new[1] + o.y, A_mult_S_new[2] + o.z])
     return Point(s_old[0], s_old[1], s_old[2])
 
-
-if __name__ == "__main__":
-    marker1_circle: Point = Point(155.7785 / 1000, 184.1291 / 1000, 69.1871 / 1000)
-    marker2_circle: Point = Point(125.3213 / 1000, 153.6431 / 1000, 69.0495 / 1000)
-    marker3_circle: Point = Point(92.8185 / 1000, 183.7491 / 1000, 69.0835 / 1000)
-    marker4_circle: Point = Point(124.7145 / 1000, 214.5565 / 1000, 69.3995 / 1000)
-
-    middlePoint_circle: Point = Point(
-        (marker1_circle.x + marker2_circle.x + marker3_circle.x + marker4_circle.x) / 4,
-        (marker1_circle.y + marker2_circle.y + marker3_circle.y + marker4_circle.y) / 4,
-        (marker1_circle.z + marker2_circle.z + marker3_circle.z + marker4_circle.z) / 4 - (7 + 2.02) / 1000
+def define_middle_point(p1: Point, p2: Point, p3: Point, p4: Point) -> Point:
+    middlePoint: Point = Point(
+        (p1.x + p2.x + p3.x + p4.x) / 4,
+        (p1.y + p2.y + p3.y + p4.y) / 4,
+        (p1.z + p2.z + p3.z + p4.z) / 4 - (7 + 2.02) / 1000
     )
 
-    print(f"Midle point: x: {middlePoint_circle.x}, y: {middlePoint_circle.y}, z: {middlePoint_circle.z}")
+    return middlePoint
+
+if __name__ == "__main__":
+    marker1_circle: Point = Point(92.8505 / 1000, 199.1685 / 1000, 69.1085 / 1000)
+    marker2_circle: Point = Point(125.3575 / 1000, 169.0835 / 1000, 69.0475 / 1000)
+    marker3_circle: Point = Point(155.8285 / 1000, 199.5767 / 1000, 69.153 / 1000)
+    marker4_circle: Point = Point(124.7485 / 1000, 229.9881 / 1000, 69.4205 / 1000)
+    middlePoint_circle: Point = define_middle_point(marker1_circle, marker2_circle, marker3_circle, marker4_circle)
+    print(f"Midle point circrle: ({middlePoint_circle.x}; {middlePoint_circle.y}; {middlePoint_circle.z})")
+
+    marker1_rectangle: Point = Point(462.4623 / 1000, 137.7025 / 1000, 69.1475 / 1000)
+    marker2_rectangle: Point = Point(557.2875 / 1000, 137.5661 / 1000, 69.4235 / 1000)
+    marker3_rectangle: Point = Point(557.0805 / 1000, 266.6615 / 1000, 70.3195 / 1000)
+    marker4_rectangle: Point = Point(463.0825 / 1000, 267.0355 / 1000, 70.0995 / 1000)
+    middlePoint_rectangle: Point = define_middle_point(marker1_rectangle, marker2_rectangle, marker3_rectangle, marker4_rectangle)
+    print(f"Midle point rectangle: ({middlePoint_rectangle.x}; {middlePoint_rectangle.y}; {middlePoint_rectangle.z})")
 
     direction = input(
         "Enter the direction of conversion (otn or nto): ").strip().lower()
 
-    point_O = Point(0.221414, 0.101355, 0.462577)
-    point_A = Point(0.343369, 0.102263, 0.465886)
-    point_B = Point(0.21844, 0.272956, 0.460893)
-    point_S = middlePoint_circle
+    # from 2023-07-26-16-18-49_Kreis.bag, coordinates of three markers
+    # point_O = Point(0.0702837, 0.116806, 0.480852)
+    # point_A = Point(0.1916, 0.107385, 0.476841)
+    # point_B = Point(0.0819681, 0.288036, 0.480673)
+    # point_S = middlePoint_circle
 
-    # Result old -> new:
-    point_S = Point(0.059669819491609016, 0.09288508675502588, -0.41765939501656)
+    # from 2023-07-26-16-16-28_Rechteck.bag, coordinates of three markers
+    # point_A = Point(0.549109, 0.110133, 0.480863)
+    # point_O = Point(0.428517, 0.126745, 0.478832)
+    # point_B = Point(0.450365, 0.296974, 0.477975)
+    # point_S = middlePoint_rectangle
+
+    # from 2023-07-26-15-59-24_duenne_meissel_mitte.bag, coordinates of three markers
+    point_A = Point(0.591102, 0.132062, 0.479058)
+    point_O = Point(0.469526, 0.129647, 0.485062)
+    point_B = Point(0.464195, 0.301068, 0.478553)
+    point_S = Point(0.066528819491609, 0.0605050867550259, -0.41765939501656)
 
     if direction == "otn":
         new_coordinates_S = calculate_new_coordinates(point_O, point_A, point_B, point_S)
