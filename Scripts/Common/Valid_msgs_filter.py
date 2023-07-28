@@ -3,6 +3,9 @@ from pathlib import Path
 
 
 def removeInvalidMsgs(topics_to_frameNumbers_to_msgs: "dict[str, dict[int, list]]"):
+    """
+    Precondition: frameNumber's do not repeat within the same topic between rosbags.
+    """
     # Seqence matters here!
     __removeIncompleteFrameNumberGroups(topics_to_frameNumbers_to_msgs)
     __removeMsgsWithIndividualFrameNumbers(topics_to_frameNumbers_to_msgs)
