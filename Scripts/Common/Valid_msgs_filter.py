@@ -13,7 +13,7 @@ def __removeIncompleteFrameNumberGroups(topics_to_frameNumbers_to_msgs: "dict[st
         for frameNumber, msgs in frameNumbers_to_msgs.items():
             if len(msgs) != first_length:
                 frameNumbers_to_msgs.pop(frameNumber)
-                print(f"Removed frameNumber {frameNumber} from topic \"{topic}\"")
+                print(f"FrameNumber_filter: Removed frameNumber {frameNumber} from topic \"{topic}\"")
 
 
 def __removeMsgsWithIndividualFrameNumbers(topics_to_frameNumbers_to_msgs: "dict[str, dict[int, list]]"):
