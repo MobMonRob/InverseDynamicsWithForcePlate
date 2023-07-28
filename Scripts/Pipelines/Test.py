@@ -21,7 +21,7 @@ def test():
     compound_topics_to_msgs: dict[str, list] = Rosbag_extractor.getTopicsToMsgsFromBag(bagPath, topics)
 
     # TODO: TopicGroup[FrameNumberGroup[list]] Klassen anstatt dict[str, dict[int, list]]
-    compound_topics_to_frameNumbers_to_msgs: dict[str, dict[int, list]] = Valid_msgs_filter.groupOnFrameNumber(compound_topics_to_msgs)
+    compound_topics_to_frameNumbers_to_msgs: dict[str, dict[int, list]] = Valid_msgs_filter.groupMsgsOnFrameNumber_topic(compound_topics_to_msgs)
     Valid_msgs_filter.removeInvalidMsgs(compound_topics_to_frameNumbers_to_msgs)
 
 
