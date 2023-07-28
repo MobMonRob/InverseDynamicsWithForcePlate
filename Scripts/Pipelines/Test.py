@@ -17,8 +17,8 @@ def test():
 
     Rosbag_extractor.printInfo(bagPath)
 
-    compound_topics_to_msgs: dict[str, list] = Rosbag_extractor.getTopicsToMsgsFromDir(dirPath, topics)
-    # compound_topics_to_msgs: dict[str, list] = Rosbag_extractor.getTopicsToMsgsFromBag(bagPath, topics)
+    # compound_topics_to_msgs: dict[str, list] = Rosbag_extractor.getTopicsToMsgsFromDir(dirPath, topics)
+    compound_topics_to_msgs: dict[str, list] = Rosbag_extractor.getTopicsToMsgsFromBag(bagPath, topics)
 
     # TODO: TopicGroup[FrameNumberGroup[list]] Klassen anstatt dict[str, dict[int, list]]
     compound_topics_to_frameNumbers_to_msgs: dict[str, dict[int, list]] = Valid_msgs_filter.groupOnFrameNumber(compound_topics_to_msgs)

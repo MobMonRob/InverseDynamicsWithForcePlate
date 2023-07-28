@@ -7,7 +7,7 @@ def printInfo(bagPath: str):
     with rosbag.Bag(bagPath) as bag:
         topicsInfo = bag.get_type_and_topic_info()[1]
         for topic in topicsInfo:
-            print(topicsInfo[topic])
+            print(f"topic \"{topic}\": {topicsInfo[topic]}")
 
 
 def getTopicsToMsgsFromBag(bagPath: str, _topics: "set[str]") -> "dict[str, list]":
