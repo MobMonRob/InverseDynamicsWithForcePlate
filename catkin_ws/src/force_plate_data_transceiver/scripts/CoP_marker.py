@@ -7,8 +7,9 @@ from force_plate_data_transceiver.msg import CoP_position
 import sys, os
 sys.path.append("/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/catkin_ws/src/force_plate_data_transceiver/scripts/")
 from geometry.find_line_plane_intersection import find_intersection, substitute_variables
-from geometry.define_line import get_line_as_arguments, Point3D
+from geometry.define_line import get_line_as_arguments
 from geometry.define_plane import define_plane
+from geometry.geometry_classes import Point3D
 import numpy as np
 
 from sympy.solvers import solve

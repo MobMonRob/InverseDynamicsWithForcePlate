@@ -1,12 +1,5 @@
 import numpy as np
-
-
-class Point:
-    def __init__(self, x: float, y: float, z: float):
-        self.x: float = x
-        self.y: float = y
-        self.z: float = z
-
+from geometry_classes import Point3D
 
 def normalize_vector(vec):
     magnitude = np.linalg.norm(vec)
@@ -29,7 +22,7 @@ def calculate_new_coordinates(o, a, b, s):
     s_old_Minus_o_old = np.array([s.x - o.x, s.y - o.y, s.z - o.z])
     s_new = np.dot(a, s_old_Minus_o_old)
 
-    return Point(s_new[0], s_new[1], s_new[2])
+    return Point3D(s_new[0], s_new[1], s_new[2])
 
 
 def calculate_old_coordinates(o, a, b, s):
@@ -41,10 +34,10 @@ def calculate_old_coordinates(o, a, b, s):
 
     A_mult_S_new = np.dot(a, np.array([s.x, s.y, s.z]))
     s_old = np.array([A_mult_S_new[0] + o.x, A_mult_S_new[1] + o.y, A_mult_S_new[2] + o.z])
-    return Point(s_old[0], s_old[1], s_old[2])
+    return Point3D(s_old[0], s_old[1], s_old[2])
 
-def define_middle_point(p1: Point, p2: Point, p3: Point, p4: Point) -> Point:
-    middlePoint: Point = Point(
+def define_middle_point(p1: Point3D, p2: Point3D, p3: Point3D, p4: Point3D) -> Point3D:
+    middlePoint: Point3D = Point3D(
         (p1.x + p2.x + p3.x + p4.x) / 4,
         (p1.y + p2.y + p3.y + p4.y) / 4,
         (p1.z + p2.z + p3.z + p4.z) / 4 - (7 + 2.02) / 1000
@@ -53,18 +46,18 @@ def define_middle_point(p1: Point, p2: Point, p3: Point, p4: Point) -> Point:
     return middlePoint
 
 if __name__ == "__main__":
-    marker1_circle: Point = Point(92.8505 / 1000, 199.1685 / 1000, 69.1085 / 1000)
-    marker2_circle: Point = Point(125.3575 / 1000, 169.0835 / 1000, 69.0475 / 1000)
-    marker3_circle: Point = Point(155.8285 / 1000, 199.5767 / 1000, 69.153 / 1000)
-    marker4_circle: Point = Point(124.7485 / 1000, 229.9881 / 1000, 69.4205 / 1000)
-    middlePoint_circle: Point = define_middle_point(marker1_circle, marker2_circle, marker3_circle, marker4_circle)
+    marker1_circle: Point3D = Point3D(92.8505 / 1000, 199.1685 / 1000, 69.1085 / 1000)
+    marker2_circle: Point3D = Point3D(125.3575 / 1000, 169.0835 / 1000, 69.0475 / 1000)
+    marker3_circle: Point3D = Point3D(155.8285 / 1000, 199.5767 / 1000, 69.153 / 1000)
+    marker4_circle: Point3D = Point3D(124.7485 / 1000, 229.9881 / 1000, 69.4205 / 1000)
+    middlePoint_circle: Point3D = define_middle_point(marker1_circle, marker2_circle, marker3_circle, marker4_circle)
     print(f"Midle point circrle: ({middlePoint_circle.x}; {middlePoint_circle.y}; {middlePoint_circle.z})")
 
-    marker1_rectangle: Point = Point(462.4623 / 1000, 137.7025 / 1000, 69.1475 / 1000)
-    marker2_rectangle: Point = Point(557.2875 / 1000, 137.5661 / 1000, 69.4235 / 1000)
-    marker3_rectangle: Point = Point(557.0805 / 1000, 266.6615 / 1000, 70.3195 / 1000)
-    marker4_rectangle: Point = Point(463.0825 / 1000, 267.0355 / 1000, 70.0995 / 1000)
-    middlePoint_rectangle: Point = define_middle_point(marker1_rectangle, marker2_rectangle, marker3_rectangle, marker4_rectangle)
+    marker1_rectangle: Point3D = Point3D(462.4623 / 1000, 137.7025 / 1000, 69.1475 / 1000)
+    marker2_rectangle: Point3D = Point3D(557.2875 / 1000, 137.5661 / 1000, 69.4235 / 1000)
+    marker3_rectangle: Point3D = Point3D(557.0805 / 1000, 266.6615 / 1000, 70.3195 / 1000)
+    marker4_rectangle: Point3D = Point3D(463.0825 / 1000, 267.0355 / 1000, 70.0995 / 1000)
+    middlePoint_rectangle: Point3D = define_middle_point(marker1_rectangle, marker2_rectangle, marker3_rectangle, marker4_rectangle)
     print(f"Midle point rectangle: ({middlePoint_rectangle.x}; {middlePoint_rectangle.y}; {middlePoint_rectangle.z})")
 
     direction = input(
@@ -83,10 +76,10 @@ if __name__ == "__main__":
     # point_S = middlePoint_rectangle
 
     # from 2023-07-26-15-59-24_duenne_meissel_mitte.bag, coordinates of three markers
-    point_A = Point(0.591102, 0.132062, 0.479058)
-    point_O = Point(0.469526, 0.129647, 0.485062)
-    point_B = Point(0.464195, 0.301068, 0.478553)
-    point_S = Point(0.066528819491609, 0.0605050867550259, -0.41765939501656)
+    point_A = Point3D(0.591102, 0.132062, 0.479058)
+    point_O = Point3D(0.469526, 0.129647, 0.485062)
+    point_B = Point3D(0.464195, 0.301068, 0.478553)
+    point_S = Point3D(0.066528819491609, 0.0605050867550259, -0.41765939501656)
 
     if direction == "otn":
         new_coordinates_S = calculate_new_coordinates(point_O, point_A, point_B, point_S)

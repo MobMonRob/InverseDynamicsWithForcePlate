@@ -5,7 +5,7 @@ import os  # nopep8
 sys.path.append(
     "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/catkin_ws/src/force_plate_data_transceiver/scripts/")  # nopep8
 
-from geometry.define_line import Point3D
+from geometry.geometry_classes import Point3D
 from geometry.calculate_cop import get_cop_as_arguments
 import rospy
 from force_plate_data_transceiver.msg import CoP_position

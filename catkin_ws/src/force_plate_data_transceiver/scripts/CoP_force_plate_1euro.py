@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from geometry.calculate_cop import get_cop_as_arguments
-from geometry.define_line import Point3D
+from geometry.geometry_classes import Point3D
 import rospy
 from force_plate_data_transceiver.msg import CoP_position
 from vicon_data_publisher.msg import Force_plate_data

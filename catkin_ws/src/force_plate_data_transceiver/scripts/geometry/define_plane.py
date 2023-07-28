@@ -1,14 +1,7 @@
 # This code is inspired by https://kitchingroup.cheme.cmu.edu/blog/2015/01/18/Equation-of-a-plane-through-three-points/
 
 import numpy as np
-
-class Plane3D:
-    def __init__(self, a, b, c, d):
-        self.a = a
-        self.b = b
-        self.c = c
-        self.d = d
-        self.plane_equation = f"({a}) * x + ({b}) * y + ({c}) * z + ({d}) = 0"
+from geometry_classes import Plane3D
 
 def input_point(prompt):
     values = input(prompt).split()
