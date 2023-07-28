@@ -1,4 +1,5 @@
 from collections import defaultdict
+from pathlib import Path
 
 
 def removeInvalidMsgs(topics_to_frameNumbers_to_msgs: "dict[str, dict[int, list]]"):
@@ -13,7 +14,7 @@ def __removeIncompleteFrameNumberGroups(topics_to_frameNumbers_to_msgs: "dict[st
         for frameNumber, msgs in frameNumbers_to_msgs.items():
             if len(msgs) != first_length:
                 frameNumbers_to_msgs.pop(frameNumber)
-                print(f"FrameNumber_filter: Removed frameNumber {frameNumber} from topic \"{topic}\"")
+                print(f"{Path(__file__).stem}: Removed frameNumber {frameNumber} from topic \"{topic}\"")
 
 
 def __removeMsgsWithIndividualFrameNumbers(topics_to_frameNumbers_to_msgs: "dict[str, dict[int, list]]"):
@@ -22,7 +23,7 @@ def __removeMsgsWithIndividualFrameNumbers(topics_to_frameNumbers_to_msgs: "dict
         sets.append(set(frameNumbers_to_msgs.keys()))
 
     symmetric_difference: set[int] = set.symmetric_difference(*sets)
-    print(f"FrameNumber_filter: symmetric_difference = {symmetric_difference}")
+    print(f"{Path(__file__).stem}: symmetric_difference = {symmetric_difference}")
 
     for frameNumbers_to_msgs in topics_to_frameNumbers_to_msgs.values():
         for frameNumber in symmetric_difference:

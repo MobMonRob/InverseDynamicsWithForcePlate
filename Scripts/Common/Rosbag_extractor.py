@@ -1,13 +1,14 @@
 import rosbag
 from rosbag import Bag
 import os
+from pathlib import Path
 
 
 def printInfo(bagPath: str):
     with rosbag.Bag(bagPath) as bag:
         topicsInfo = bag.get_type_and_topic_info()[1]
         for topic in topicsInfo:
-            print(f"topic \"{topic}\": {topicsInfo[topic]}")
+            print(f"{Path(__file__).stem}: topic \"{topic}\": {topicsInfo[topic]}")
 
 
 def getTopicsToMsgsFromBag(bagPath: str, _topics: "set[str]") -> "dict[str, list]":
@@ -21,7 +22,7 @@ def getTopicsToMsgsFromBag(bagPath: str, _topics: "set[str]") -> "dict[str, list
             topics_to_msgs.get(_topic).append(_msg)
 
     for topic, msgs in topics_to_msgs.items():
-        print(f"Rosbag_extractor: Loaded {len(msgs)} messages of topic \"{topic}\" from bag \"{bagPath}\"")
+        print(f"{Path(__file__).stem}: Loaded {len(msgs)} messages of topic \"{topic}\" from bag \"{bagPath}\"")
 
     return topics_to_msgs
 
@@ -54,6 +55,6 @@ def getTopicsToMsgsFromDir(dirPath: str, topics: "set[str]") -> "dict[str, list]
             compound_topics_to_msgs.get(topic).extend(msgs)
 
     for topic, msgs in compound_topics_to_msgs.items():
-        print(f"Rosbag_extractor: Loaded {len(msgs)} messages of topic \"{topic}\" from {len(bagPathList)} files within dir \"{dirPath}\"")
+        print(f"{Path(__file__).stem}: Loaded {len(msgs)} messages of topic \"{topic}\" from {len(bagPathList)} files within dir \"{dirPath}\"")
 
     return compound_topics_to_msgs
