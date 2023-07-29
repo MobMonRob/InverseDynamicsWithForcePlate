@@ -14,6 +14,7 @@ import pandas as pd
 from typing import TypeVar, Generic
 from varname import nameof
 from Common.Line_plane_intersection import LinePlaneIntersection
+from Common import Bland_Altman_Plot
 
 
 def execute():
@@ -26,11 +27,10 @@ def execute():
         // // 1.1.2 Force_plate_sma berechnen
         // 1.2 Alle Subsamples mitteln
         // 1.4 CoP_force_plate_sma berechnen und zurückgeben
-    2. CoP der Überschneidung einlesen
+    // 2. CoP der Überschneidung einlesen
         // 1.1 Aus Marker_global_translation die Datensätze zu den Markern mit den Nummern 4,5,6,7 holen, Mittelwerte berechnen (fold_marker_data.py)
-        // 1.2 Für jeden Frame find_line_plane_intersection.py ausführen auf den Mittelpunkten der Marker 4,5,6,7. Die Gleichung der Ebene ist in
-            find_line_plane_intersection.py hardgecodet. Ausgabe: Punkte mit x, y, z (Überscheidung der Gerade mit der Ebene)
-    3. BAD machen CoP force plate VS. CoP Überschneidung
+        // 1.2 Für jeden Frame find_line_plane_intersection.py ausführen auf den Mittelpunkten der Marker 4,5,6,7. Die Gleichung der Ebene ist in find_line_plane_intersection.py hardgecodet. Ausgabe: Punkte mit x, y, z (Überscheidung der Gerade mit der Ebene)
+    // 3. BAD machen CoP force plate VS. CoP Überschneidung
     """
 
     dirPath: str = "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/Data/20Punkte_24.07.2023_1/"
@@ -43,18 +43,19 @@ def execute():
 
     compound_topics_to_msgs: dict[str, list] = Rosbag_extractor.getTopicsToMsgsFromBag(bagPath, topics)
     # compound_topics_to_msgs: dict[str, list] = Rosbag_extractor.getTopicsToMsgsFromDir(dirPath, topics)
+
     compound_topics_to_frameNumbers_to_msgs: dict[str, dict[int, list]] = Valid_msgs_filter.groupMsgsOnFrameNumber_topic(compound_topics_to_msgs)
     Valid_msgs_filter.removeInvalidMsgs(compound_topics_to_frameNumbers_to_msgs)
 
     # 1. CoP der Kraftmessplatte einlesen
-    # frameNumbers_to_forcePlateData: dict[int, list[Force_plate_data]] = compound_topics_to_frameNumbers_to_msgs[topic_fp]
-    # forcePlateData_mean: list[Force_plate_data] = forcePlataData_mean_subsampleLists(frameNumbers_to_forcePlateData)
+    frameNumbers_to_forcePlateData: dict[int, list[Force_plate_data]] = compound_topics_to_frameNumbers_to_msgs[topic_fp]
+    forcePlateData_mean: list[Force_plate_data] = forcePlataData_mean_subsampleLists(frameNumbers_to_forcePlateData)
 
-    # frameNumber_to_coP_force_plate_corner: dict[int, Point2D] = dict()
-    # for forcePlataData in forcePlateData_mean:
-    #     coP_middle: Point2D = ForcePlate_CoP.get_CoP_force_plate_middle(forcePlataData)
-    #     coP_corner: Point2D = ForcePlate_CoP.get_CoP_middle_to_corner(coP_middle)
-    #     frameNumber_to_coP_force_plate_corner[forcePlataData.frameNumber] = coP_corner
+    frameNumber_to_coP_force_plate_corner: dict[int, Point2D] = dict()
+    for forcePlataData in forcePlateData_mean:
+        coP_middle: Point2D = ForcePlate_CoP.get_CoP_force_plate_middle(forcePlataData)
+        coP_corner: Point2D = ForcePlate_CoP.get_CoP_middle_to_corner(coP_middle)
+        frameNumber_to_coP_force_plate_corner[forcePlataData.frameNumber] = coP_corner
     
     # 2. CoP der Überschneidung einlesen
     # Beachte: Die validen frameNumbers können unterschiedlich gewesen sein für beide topics.
@@ -78,9 +79,46 @@ def execute():
     
     plane: Plane3D = Plane3D.vicon_main_plane()
     intersector: LinePlaneIntersection = LinePlaneIntersection()
+    intersections: dict[str, Point3D] = dict()
     for frameNumber, line in frameNumbers_to_lines.items():
         intersection: Point3D = intersector.intersect(line=line, plane=plane)
-        print(intersection)
+        intersections[frameNumber] = intersection
+    # TODO: Ros node für intersection machen. Dann kann man im plotjuggler sehen wie sehr die einzelnen CoPs von der Kraftmessplatte und von Vicon an einem gemessenen Punkt schwanken. Das was mehr schwankt, ist womöglich ungenauer, denn der Meissel verändert seine Position nicht. Es kann natürlich aber sein, dass man einen konstanten Versatz hat von einer Methode zu dem tatsächlichen Punkt, den man so nicht feststellen kann. In Bland-Altman Diagramm sieht man auch generell nicht, was wie sehr schwankt.
+    # TODO: Die systematische Abweichung in der y-Achse für alle Rosbags könnte daran liegen, dass man an wenig y-Stellen misst. Denn bei der x-Achse ist der Mittelwert der Differenzen fast Null.
+    # TODO: Ausserdem: Wenn man die Kraftmessplatte mit dem Viereck vergleicht, dann bekommt man auch eine Idee, wie genau die Kraftmessplatte eigentlich ist.
+    # TODO: Normalerweise wird Bland-Altman Plot benutzt, um Methode gegen Goldstandard zu vergleichen. Hier allerdings sind beide Methoden ungenau. Und auch noch nicht klar, wie sehr ungenau. Die Kraftmessplatte ist ungenau auch, weil Gewicht recht klein (Gewicht angeben und welches die in der Dokumentation schreiben, man mindestens braucht).
+    
+    # plot x
+    data1: list[float] = []
+    data2: list[float] = []
+    for frameNumber in intersections.keys():
+        dataPoint1: Point2D = frameNumber_to_coP_force_plate_corner.get(frameNumber, None)
+        if dataPoint1 == None:
+            continue
+        dataPoint2: Point3D = intersections.get(frameNumber)
+        data1.append(dataPoint1.x)
+        data2.append(dataPoint2.x_m)
+    
+    data1 = Bland_Altman_Plot.scale(data1, 1000)
+    data2 = Bland_Altman_Plot.scale(data2, 1000)
+
+    Bland_Altman_Plot.generate_bland_altman_plot(data1=data1, data2=data2, dataName1="CoP Kraftmessplatte", dataName2="CoP Überschneidung", units1="[mm]", units2="[mm]", saveDir="/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/Scripts/Pipelines/Plots/", additionalComment="(x-Achse)")
+
+    # plot y
+    data1: list[float] = []
+    data2: list[float] = []
+    for frameNumber in intersections.keys():
+        dataPoint1: Point2D = frameNumber_to_coP_force_plate_corner.get(frameNumber, None)
+        if dataPoint1 == None:
+            continue
+        dataPoint2: Point3D = intersections.get(frameNumber)
+        data1.append(dataPoint1.y)
+        data2.append(dataPoint2.y_m)
+
+    data1 = Bland_Altman_Plot.scale(data1, 1000)
+    data2 = Bland_Altman_Plot.scale(data2, 1000)
+
+    Bland_Altman_Plot.generate_bland_altman_plot(data1=data1, data2=data2, dataName1="CoP Kraftmessplatte", dataName2="CoP Überschneidung", units1="[mm]", units2="[mm]", saveDir="/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/Scripts/Pipelines/Plots/", additionalComment="(y-Achse)")
 
     return
 

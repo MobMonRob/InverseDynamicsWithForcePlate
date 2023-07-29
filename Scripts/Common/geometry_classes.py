@@ -29,10 +29,9 @@ class Plane3D:
     d: float
 
     def vicon_main_plane() -> "Plane3D":
-        # TODO: Verschiebung entlang der z-Achse beachten.
-        point1 = np.array([-0.019 / 1000, 0.124 / 1000, -0.002 / 1000])
-        point2 = np.array([0.6, -0.037 / 1000, -0.037 / 1000])
-        point3 = np.array([-0.102 / 1000, 0.434847, 0.1321 / 1000])
+        point1 = np.array([-0.019 / 1000, 0.124 / 1000, -0.002 / 1000 + 56.5 / 1000])
+        point2 = np.array([0.6, -0.037 / 1000, -0.037 / 1000 + 56.5 / 1000])
+        point3 = np.array([-0.102 / 1000, 0.434847, 0.1321 / 1000 + 56.5 / 1000])
         
         # These two vectors are in the plane
         v1 = point3 - point1
