@@ -9,10 +9,11 @@ from Common import Valid_msgs_filter
 import statistics
 from Common.Simple_moving_average import SimpleMovingAverageOnObjects
 from Common import ForcePlate_CoP
-from Common.geometry_classes import Point2D, Point3D, Line3D
+from Common.geometry_classes import Point2D, Point3D, Line3D, Plane3D
 import pandas as pd
 from typing import TypeVar, Generic
 from varname import nameof
+from Common.Line_plane_intersection import LinePlaneIntersection
 
 
 def execute():
@@ -27,7 +28,7 @@ def execute():
         // 1.4 CoP_force_plate_sma berechnen und zurückgeben
     2. CoP der Überschneidung einlesen
         // 1.1 Aus Marker_global_translation die Datensätze zu den Markern mit den Nummern 4,5,6,7 holen, Mittelwerte berechnen (fold_marker_data.py)
-        1.2 Für jeden Frame find_line_plane_intersection.py ausführen auf den Mittelpunkten der Marker 4,5,6,7. Die Gleichung der Ebene ist in
+        // 1.2 Für jeden Frame find_line_plane_intersection.py ausführen auf den Mittelpunkten der Marker 4,5,6,7. Die Gleichung der Ebene ist in
             find_line_plane_intersection.py hardgecodet. Ausgabe: Punkte mit x, y, z (Überscheidung der Gerade mit der Ebene)
     3. BAD machen CoP force plate VS. CoP Überschneidung
     """
@@ -56,6 +57,7 @@ def execute():
     #     frameNumber_to_coP_force_plate_corner[forcePlataData.frameNumber] = coP_corner
     
     # 2. CoP der Überschneidung einlesen
+    # Beachte: Die validen frameNumbers können unterschiedlich gewesen sein für beide topics.
     frameNumbers_to_markerGlobalTranslation: dict[int, list[Marker_global_translation]] = compound_topics_to_frameNumbers_to_msgs[topic_mgt]
     msgs_mgt: list[Marker_global_translation] = []
     for msgs in frameNumbers_to_markerGlobalTranslation.values():
@@ -74,10 +76,11 @@ def execute():
         line = Line3D(firstPoint, secondPoint)
         frameNumbers_to_lines[frameNumber] = line
     
-    for line in frameNumbers_to_lines.values():
-        print(line.xTermParametrized)
-        break
-
+    plane: Plane3D = Plane3D.vicon_main_plane()
+    intersector: LinePlaneIntersection = LinePlaneIntersection()
+    for frameNumber, line in frameNumbers_to_lines.items():
+        intersection: Point3D = intersector.intersect(line=line, plane=plane)
+        print(intersection)
 
     return
 
