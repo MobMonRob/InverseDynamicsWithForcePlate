@@ -1,6 +1,6 @@
 from queue import Queue
 import copy
-from typing import TypeVar, Generic, get_args
+from typing import TypeVar, Generic
 
 class SimpleMovingAverage():
     def __init__(self, window_size: int):

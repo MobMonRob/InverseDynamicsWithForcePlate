@@ -10,6 +10,9 @@ import statistics
 from Common.Simple_moving_average import SimpleMovingAverageOnObjects
 from Common import ForcePlate_CoP
 from Common.geometry_classes import Point2D
+import pandas as pd
+from typing import TypeVar, Generic
+from varname import nameof
 
 
 def execute():
@@ -23,7 +26,7 @@ def execute():
         // 1.2 Alle Subsamples mitteln
         // 1.4 CoP_force_plate_sma berechnen und zurückgeben
     2. CoP der Überschneidung einlesen
-        1.1 Aus Marker_global_translation die Datensätze zu den Markern mit den Nummern 4,5,6,7 holen, mergen (fold_marker_data.py)
+        1.1 Aus Marker_global_translation die Datensätze zu den Markern mit den Nummern 4,5,6,7 holen, Mittelwert berechnen (fold_marker_data.py)
         1.2 Für jeden Frame find_line_plane_intersection.py ausführen auf den Mittelpunkten der Marker 4,5,6,7. Die Gleichung der Ebene ist in
             find_line_plane_intersection.py hardgecodet. Ausgabe: Punkte mit x, y, z (Überscheidung der Gerade mit der Ebene)
     3. BAD machen CoP force plate VS. CoP Überschneidung
@@ -42,17 +45,60 @@ def execute():
     compound_topics_to_frameNumbers_to_msgs: dict[str, dict[int, list]] = Valid_msgs_filter.groupMsgsOnFrameNumber_topic(compound_topics_to_msgs)
     Valid_msgs_filter.removeInvalidMsgs(compound_topics_to_frameNumbers_to_msgs)
 
-    frameNumbers_to_forcePlateData: dict[int, list[Force_plate_data]] = compound_topics_to_frameNumbers_to_msgs[topic_fp]
-    forcePlateData_mean: list[Force_plate_data] = forcePlataData_mean_subsampleLists(frameNumbers_to_forcePlateData)
+    # 1. CoP der Kraftmessplatte einlesen
+    # frameNumbers_to_forcePlateData: dict[int, list[Force_plate_data]] = compound_topics_to_frameNumbers_to_msgs[topic_fp]
+    # forcePlateData_mean: list[Force_plate_data] = forcePlataData_mean_subsampleLists(frameNumbers_to_forcePlateData)
 
-    frameNumber_to_coP_force_plate_corner: dict[int, Point2D] = dict()
-    for forcePlataData in forcePlateData_mean:
-        coP_middle: Point2D = ForcePlate_CoP.get_CoP_force_plate_middle(forcePlataData)
-        coP_corner: Point2D = ForcePlate_CoP.get_CoP_middle_to_corner(coP_middle)
-        frameNumber_to_coP_force_plate_corner[forcePlataData.frameNumber] = coP_corner
-
+    # frameNumber_to_coP_force_plate_corner: dict[int, Point2D] = dict()
+    # for forcePlataData in forcePlateData_mean:
+    #     coP_middle: Point2D = ForcePlate_CoP.get_CoP_force_plate_middle(forcePlataData)
+    #     coP_corner: Point2D = ForcePlate_CoP.get_CoP_middle_to_corner(coP_middle)
+    #     frameNumber_to_coP_force_plate_corner[forcePlataData.frameNumber] = coP_corner
+    
+    # 2. CoP der Überschneidung einlesen
+    frameNumbers_to_markerGlobalTranslation: dict[int, list[Marker_global_translation]] = compound_topics_to_frameNumbers_to_msgs[topic_mgt]
+    msgs_mgt: list[Marker_global_translation] = []
+    for msgs in frameNumbers_to_markerGlobalTranslation.values():
+        msgs_mgt.extend(msgs)
+    
+    allMarkers: pd.DataFrame = listToDataFrame(msgs_mgt)
+    firstMarkerPair: pd.DataFrame = averageMarkers(allMarkers, tuple([4, 5]))
+    secondMarkerPair: pd.DataFrame = averageMarkers(allMarkers, tuple([6, 7]))
+    print(allMarkers)
+    print(firstMarkerPair)
+    print(secondMarkerPair)
     return
 
+def averageMarkers(df: pd.DataFrame, markerNumbers: "tuple[int]") -> pd.DataFrame:
+    frameNumberColumn: str = f"{nameof(Marker_global_translation.frameNumber)}"
+    markerNumberColumn: str = f"{nameof(Marker_global_translation.markerNumber)}"
+    occludedNumberColumn: str = f"{nameof(Marker_global_translation.occluded)}"
+
+    # Filter markers of interest
+    filtered = df[df[markerNumberColumn].isin(markerNumbers)]
+    # Filter occluded == False
+    filtered = filtered[filtered[occludedNumberColumn] == False]
+
+    # Group
+    frameNumberGroup = filtered.groupby(frameNumberColumn)
+    # Filter group sizes == 2
+    filtered = filtered[frameNumberGroup[markerNumberColumn].transform("size") == 2]
+    
+    # Drop unneeded columns
+    toAverage = filtered.drop(columns=[markerNumberColumn, occludedNumberColumn])
+
+    # Calculate averages per frameNumber
+    frameNumberGroup = toAverage.groupby(frameNumberColumn)
+    averages = frameNumberGroup.mean()
+
+    return averages
+
+T = TypeVar('T')
+def listToDataFrame(theList: "list[T]") -> pd.DataFrame:
+    fieldNames: list[str] = theList[0].__slots__
+    values = [[getattr(element, fieldName) for fieldName in fieldNames] for element in theList]
+    df: pd.DataFrame = pd.DataFrame(values, columns=fieldNames)
+    return df
 
 def forcePlataData_mean_subsampleLists(frameNumbers_to_forcePlateData: "dict[int, list[Force_plate_data]]") -> "list[Force_plate_data]":
     forcePlateData_mean: list[Force_plate_data] = []
