@@ -9,33 +9,32 @@ class Point2D:
 
 @dataclass
 class Point3D:
-    x: float
-    y: float
-    z: float
+    x_m: float
+    y_m: float
+    z_m: float
 
 
-@dataclass
 class Line3D:
     def __init__(self, point1: Point3D, point2: Point3D):
         self.point1: Point3D = point1
         self.point2: Point3D = point2
-        self.vector = Point3D(point2.x - point1.x, point2.y - point1.y, point2.z - point1.z)
-        self.xTermParametrized: str = f"{self.point2.x - self.point1.x} * t + {self.point1.x}"
-        self.yTermParametrized: str = f"{self.point2.y - self.point1.y} * t + {self.point1.y}"
-        self.zTermParametrized: str = f"{self.point2.z - self.point1.z} * t + {self.point1.z}"
+        self.vector = Point3D(point2.x_m - point1.x_m, point2.y_m - point1.y_m, point2.z_m - point1.z_m)
+        self.xTermParametrized: str = f"{self.point2.x_m - self.point1.x_m} * t + {self.point1.x_m}"
+        self.yTermParametrized: str = f"{self.point2.y_m - self.point1.y_m} * t + {self.point1.y_m}"
+        self.zTermParametrized: str = f"{self.point2.z_m - self.point1.z_m} * t + {self.point1.z_m}"
         self.line_equation: str = self.__define_line_equation()
         self.parametrized_line_equation: str = self.__define_parametrized_line_equation()
 
     def __define_line_equation(self) -> str:
-        xTerm = f"({self.point1.x} - x) / ({self.point2.x - self.point1.x})"
-        yTerm = f"({self.point1.y} - y) / ({self.point2.y - self.point1.y})"
-        zTerm = f"({self.point1.z} - z) / ({self.point2.z - self.point1.z})"
+        xTerm = f"({self.point1.x_m} - x) / ({self.point2.x_m - self.point1.x_m})"
+        yTerm = f"({self.point1.y_m} - y) / ({self.point2.y_m - self.point1.y_m})"
+        zTerm = f"({self.point1.z_m} - z) / ({self.point2.z_m - self.point1.z_m})"
         return f"{xTerm} = {yTerm} = {zTerm}"
 
     def __define_parametrized_line_equation(self) -> str:
-        xTermParametrized: str = f"{self.point2.x - self.point1.x} * t + {self.point1.x}"
-        yTermParametrized: str = f"{self.point2.y - self.point1.y} * t + {self.point1.y}"
-        zTermParametrized: str = f"{self.point2.z - self.point1.z} * t + {self.point1.z}"
+        xTermParametrized: str = f"{self.point2.x_m - self.point1.x_m} * t + {self.point1.x_m}"
+        yTermParametrized: str = f"{self.point2.y_m - self.point1.y_m} * t + {self.point1.y_m}"
+        zTermParametrized: str = f"{self.point2.z_m - self.point1.z_m} * t + {self.point1.z_m}"
         return f"x = {xTermParametrized}, y = {yTermParametrized}, z = {zTermParametrized}"
 
 

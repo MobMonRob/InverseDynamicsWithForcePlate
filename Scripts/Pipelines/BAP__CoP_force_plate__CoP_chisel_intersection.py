@@ -9,7 +9,7 @@ from Common import Valid_msgs_filter
 import statistics
 from Common.Simple_moving_average import SimpleMovingAverageOnObjects
 from Common import ForcePlate_CoP
-from Common.geometry_classes import Point2D
+from Common.geometry_classes import Point2D, Point3D, Line3D
 import pandas as pd
 from typing import TypeVar, Generic
 from varname import nameof
@@ -26,7 +26,7 @@ def execute():
         // 1.2 Alle Subsamples mitteln
         // 1.4 CoP_force_plate_sma berechnen und zurückgeben
     2. CoP der Überschneidung einlesen
-        1.1 Aus Marker_global_translation die Datensätze zu den Markern mit den Nummern 4,5,6,7 holen, Mittelwert berechnen (fold_marker_data.py)
+        // 1.1 Aus Marker_global_translation die Datensätze zu den Markern mit den Nummern 4,5,6,7 holen, Mittelwerte berechnen (fold_marker_data.py)
         1.2 Für jeden Frame find_line_plane_intersection.py ausführen auf den Mittelpunkten der Marker 4,5,6,7. Die Gleichung der Ebene ist in
             find_line_plane_intersection.py hardgecodet. Ausgabe: Punkte mit x, y, z (Überscheidung der Gerade mit der Ebene)
     3. BAD machen CoP force plate VS. CoP Überschneidung
@@ -61,13 +61,50 @@ def execute():
     for msgs in frameNumbers_to_markerGlobalTranslation.values():
         msgs_mgt.extend(msgs)
     
-    allMarkers: pd.DataFrame = listToDataFrame(msgs_mgt)
-    firstMarkerPair: pd.DataFrame = averageMarkers(allMarkers, tuple([4, 5]))
-    secondMarkerPair: pd.DataFrame = averageMarkers(allMarkers, tuple([6, 7]))
-    print(allMarkers)
-    print(firstMarkerPair)
-    print(secondMarkerPair)
+    validMarkers: pd.DataFrame = removeInvalidFrames(listToDataFrame(msgs_mgt))
+    firstMarkerPair: pd.DataFrame = averageMarkers(validMarkers, tuple([4, 5]))
+    secondMarkerPair: pd.DataFrame = averageMarkers(validMarkers, tuple([6, 7]))
+    firstMarkerDict = dataFrame__to__frameNumbers_to_point3D(firstMarkerPair)
+    secondMarkerDict = dataFrame__to__frameNumbers_to_point3D(secondMarkerPair)
+    # valid assumption: firstMarkerDict and secondMarkerDict contain same keys
+    frameNumbers_to_lines: dict[int, Line3D] = dict()
+    for frameNumber in firstMarkerDict.keys():
+        firstPoint: Point3D = firstMarkerDict.get(frameNumber)
+        secondPoint: Point3D = secondMarkerDict.get(frameNumber)
+        line = Line3D(firstPoint, secondPoint)
+        frameNumbers_to_lines[frameNumber] = line
+    
+    for line in frameNumbers_to_lines.values():
+        print(line.xTermParametrized)
+        break
+
+
     return
+
+
+def dataFrame__to__frameNumbers_to_point3D(df: pd.DataFrame) -> "dict[int, Point3D]":
+    return{frameNumber: Point3D(**kwargs) for frameNumber, kwargs in df.to_dict(orient="index").items()}
+
+
+def removeInvalidFrames(df: pd.DataFrame) -> pd.DataFrame:
+    frameNumberColumn: str = f"{nameof(Marker_global_translation.frameNumber)}"
+    occludedNumberColumn: str = f"{nameof(Marker_global_translation.occluded)}"
+    validGroupLength: int
+    
+    # Calculate valid group length
+    # Assuming, first group ist correct
+    frameNumberGroup = df.groupby(frameNumberColumn)
+    for name_of_group, contents_of_group in frameNumberGroup:
+        validGroupLength = len(contents_of_group.index)
+        break
+    
+    # Filter occluded == False
+    filtered = df[df[occludedNumberColumn] == False]
+
+    frameNumberGroup = filtered.groupby(frameNumberColumn)
+    validGroupLengthFiltered = filtered[frameNumberGroup[frameNumberColumn].transform("size") == validGroupLength]
+
+    return validGroupLengthFiltered
 
 def averageMarkers(df: pd.DataFrame, markerNumbers: "tuple[int]") -> pd.DataFrame:
     frameNumberColumn: str = f"{nameof(Marker_global_translation.frameNumber)}"
@@ -76,13 +113,6 @@ def averageMarkers(df: pd.DataFrame, markerNumbers: "tuple[int]") -> pd.DataFram
 
     # Filter markers of interest
     filtered = df[df[markerNumberColumn].isin(markerNumbers)]
-    # Filter occluded == False
-    filtered = filtered[filtered[occludedNumberColumn] == False]
-
-    # Group
-    frameNumberGroup = filtered.groupby(frameNumberColumn)
-    # Filter group sizes == 2
-    filtered = filtered[frameNumberGroup[markerNumberColumn].transform("size") == 2]
     
     # Drop unneeded columns
     toAverage = filtered.drop(columns=[markerNumberColumn, occludedNumberColumn])

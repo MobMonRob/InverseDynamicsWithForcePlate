@@ -8,9 +8,11 @@ from sympy.solvers import solve
 from sympy import Symbol
 import numpy as np
 
+
 from geometry.define_line import get_lines_from_csv
 from geometry.define_plane import define_plane
 from geometry_classes import Point3D
+
 
 def define_lines_and_plane(pathToCsv):
     lines = get_lines_from_csv(pathToCsv)
