@@ -17,7 +17,7 @@ def scale(data: 'list[float]', factor: int) -> "list[float]":
 
 def generate_bland_altman_plot(data1: 'list[float]', data2: "list[float]",
                                dataName1: str, dataName2: str,
-                               units1: str, units2: str,
+                               units: str,
                                saveDir: str,
                                additionalComment: str = ""):
 
@@ -28,8 +28,8 @@ def generate_bland_altman_plot(data1: 'list[float]', data2: "list[float]",
 
     meanString = "Mittelwert"
     standardDeviationString = "$\sigma$"
-    xLabelString = f"Mittelwert zweier Messungen {units1}"
-    yLabelString = f"Differenz zweier Messungen {units2}"
+    xLabelString = f"Mittelwert zweier Messungen {units}"
+    yLabelString = f"Differenz zweier Messungen {units}"
 
     plotDescription = f"{dataName1} vs. {dataName2}"
     if len(additionalComment) > 0:
