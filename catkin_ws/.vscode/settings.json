@@ -1,9 +1,13 @@
 {
     "python.analysis.extraPaths": [
+        "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/Scripts/",
+        "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/devel/lib/python3/lib",
         "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/devel/lib/python3/dist-packages",
         "/opt/ros/noetic/lib/python3/dist-packages"
     ],
     "python.autoComplete.extraPaths": [
+        "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/Scripts/",
+        "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/devel/lib/python3/lib",
         "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/devel/lib/python3/dist-packages",
         "/opt/ros/noetic/lib/python3/dist-packages"
     ],
@@ -76,5 +80,5 @@
         "typeinfo": "cpp",
         "variant": "cpp"
     },
-    "python.analysis.typeCheckingMode": "basic"
+    "python.analysis.typeCheckingMode": "off"
 }

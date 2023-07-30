@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+#! TODO: Refactor
+
 import rospy
 from vicon_data_publisher.msg import Marker_global_translation
 from force_plate_data_transceiver.msg import CoP_position

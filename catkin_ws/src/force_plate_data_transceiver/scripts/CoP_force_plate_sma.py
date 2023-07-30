@@ -1,13 +1,8 @@
 #!/usr/bin/env python
 
-import sys  # nopep8
-import os  # nopep8
-sys.path.append(
-    "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/catkin_ws/src/force_plate_data_transceiver/scripts/")  # nopep8
-
-from geometry.geometry_classes import Point3D
-from geometry.calculate_cop import get_cop_as_arguments
 import rospy
+from Common.geometry_classes import Point3D, Point2D
+from Common import CoP_force_plate
 from force_plate_data_transceiver.msg import CoP_position
 from vicon_data_publisher.msg import Force_plate_data
 
@@ -18,19 +13,19 @@ publisher = None
 
 
 def callback(data: Force_plate_data):
-    point3d: Point3D = get_cop_as_arguments(
-        data.fx_N, data.fy_N, data.fz_N, data.mx_Nm, data.my_Nm, data.mz_Nm)
+    middle = CoP_force_plate.get_CoP_force_plate_middle(data)
+    corner = CoP_force_plate.get_CoP_middle_to_corner(middle)
+
     msg: CoP_position = CoP_position()
     msg.frameNumber = data.frameNumber
-    msg.x_m = point3d.x
-    msg.y_m = point3d.y
-    msg.z_m = point3d.z
-    if (abs(point3d.x) > 1):
+    msg.x_m = corner.x
+    msg.y_m = corner.y
+    msg.z_m = 0
+    if (abs(corner.x) > 1):
         msg.x_m = -1
-    if (abs(point3d.y) > 1):
+    if (abs(corner.y) > 1):
         msg.y_m = -1
-    if (abs(point3d.z) > 1):
-        msg.z_m = -1
+
     publisher.publish(msg)
 
 

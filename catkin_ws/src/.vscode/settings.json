@@ -1,5 +1,19 @@
 {
+    "python.analysis.extraPaths": [
+        "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/Scripts/",
+        "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/devel/lib/python3/lib",
+        "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/devel/lib/python3/dist-packages",
+        "/opt/ros/noetic/lib/python3/dist-packages"
+    ],
+    "python.autoComplete.extraPaths": [
+        "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/Scripts/",
+        "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/devel/lib/python3/lib",
+        "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/devel/lib/python3/dist-packages",
+        "/opt/ros/noetic/lib/python3/dist-packages"
+    ],
     "files.associations": {
+        "*.tcc": "cpp",
+        "vector": "cpp",
         "cctype": "cpp",
         "clocale": "cpp",
         "cmath": "cpp",
@@ -13,18 +27,20 @@
         "cwctype": "cpp",
         "array": "cpp",
         "atomic": "cpp",
+        "strstream": "cpp",
         "bit": "cpp",
-        "*.tcc": "cpp",
         "bitset": "cpp",
         "chrono": "cpp",
         "complex": "cpp",
         "condition_variable": "cpp",
         "cstdint": "cpp",
         "deque": "cpp",
+        "forward_list": "cpp",
+        "list": "cpp",
         "map": "cpp",
         "set": "cpp",
         "unordered_map": "cpp",
-        "vector": "cpp",
+        "unordered_set": "cpp",
         "exception": "cpp",
         "algorithm": "cpp",
         "functional": "cpp",
@@ -41,6 +57,8 @@
         "tuple": "cpp",
         "type_traits": "cpp",
         "utility": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp",
         "fstream": "cpp",
         "initializer_list": "cpp",
         "iomanip": "cpp",
@@ -51,24 +69,16 @@
         "mutex": "cpp",
         "new": "cpp",
         "ostream": "cpp",
+        "shared_mutex": "cpp",
         "sstream": "cpp",
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "thread": "cpp",
-        "cinttypes": "cpp",
-        "typeinfo": "cpp",
-        "strstream": "cpp",
-        "list": "cpp",
         "cfenv": "cpp",
+        "cinttypes": "cpp",
         "typeindex": "cpp",
+        "typeinfo": "cpp",
         "variant": "cpp"
     },
-    "python.autoComplete.extraPaths": [
-        "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/devel/lib/python3/dist-packages",
-        "/opt/ros/noetic/lib/python3/dist-packages"
-    ],
-    "python.analysis.extraPaths": [
-        "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/devel/lib/python3/dist-packages",
-        "/opt/ros/noetic/lib/python3/dist-packages"
-    ]
+    "python.analysis.typeCheckingMode": "off"
 }

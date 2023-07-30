@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(force_plate_data_transceiver)
+project(Common)
 
 # Use C++20 standard
 set(CMAKE_CXX_STANDARD 20)
@@ -9,11 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  vicon_data_publisher
   rospy
-  std_msgs
-  geometry_msgs
-  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -50,10 +46,9 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  CoP_position.msg
-)
+# add_message_files(
+#   FILES
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -70,10 +65,9 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -105,9 +99,9 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES force_plate_data_transceiver
-  CATKIN_DEPENDS rospy std_msgs geometry_msgs message_runtime vicon_data_publisher
+#  INCLUDE_DIRS include
+  LIBRARIES Common
+  CATKIN_DEPENDS rospy
 #  DEPENDS system_lib
 )
 
@@ -124,7 +118,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/force_plate_data_transceiver.cpp
+#   src/${PROJECT_NAME}/Common.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -135,7 +129,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/force_plate_data_transceiver_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/Common_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -159,14 +153,17 @@ include_directories(
 # all install targets should use catkin DESTINATION variables
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
 
-file(GLOB SCRIPTS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.py")
+# file(GLOB SCRIPTS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/src/Common/*.py")
 
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
-catkin_install_python(PROGRAMS
-  ${SCRIPTS}
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+# ## Mark executable scripts (Python etc.) for installation
+# ## in contrast to setup.py, you can choose the destination
+# catkin_install_python(PROGRAMS
+#   ${SCRIPTS}
+#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
+
+catkin_python_setup()
+
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
@@ -201,7 +198,7 @@ catkin_install_python(PROGRAMS
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_force_plate_data_transceiver.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_Common.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

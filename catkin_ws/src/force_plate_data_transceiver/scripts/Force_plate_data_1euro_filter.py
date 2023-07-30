@@ -3,9 +3,7 @@
 import rospy
 from vicon_data_publisher.msg import Force_plate_data
 
-import sys
-sys.path.append("/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/catkin_ws/src/force_plate_data_transceiver/scripts/")
-from geometry.one_euro_filter import OneEuroFilter
+from Common.one_euro_filter import OneEuroFilter
 
 publisher = None
 # https://gery.casiez.net/1euro/
