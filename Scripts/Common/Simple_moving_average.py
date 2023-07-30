@@ -1,6 +1,7 @@
 from queue import Queue
 import copy
 from typing import TypeVar, Generic
+from Common.Ros_msg_types.vicon_data_publisher.msg._Force_plate_data import Force_plate_data
 
 class SimpleMovingAverage():
     def __init__(self, window_size: int):
@@ -45,3 +46,16 @@ class SimpleMovingAverageOnObjects(Generic[T]):
             setattr(average, fieldName, fieldAverage)
 
         return average
+
+
+def calculate_sma(frameNumbers_to_forcePlateData_mean: "dict[int, Force_plate_data]") -> "dict[int, Force_plate_data]":
+    sma: SimpleMovingAverageOnObjects[Force_plate_data] = SimpleMovingAverageOnObjects[Force_plate_data](1000, Force_plate_data())
+    
+    frameNumbers_to_forcePlateData_sma: dict[int, Force_plate_data] = dict()
+    for frameNumber, forcePlateData in frameNumbers_to_forcePlateData_mean.items():
+        forcePlataData_sma: Force_plate_data = sma.process(forcePlateData)
+        forcePlataData_sma.frameNumber = frameNumber
+        frameNumbers_to_forcePlateData_sma[frameNumber] = forcePlataData_sma
+
+    return sma
+
