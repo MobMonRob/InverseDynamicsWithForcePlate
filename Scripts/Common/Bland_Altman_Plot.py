@@ -7,7 +7,7 @@ from math import sqrt
 from Common.geometry_classes import Point2D, Point3D
 
 
-def plot_x_and_y(frameNumber_to_CoP_force_plate_corner: "dict[int, Point2D]", frameNumber_to_CoP_marker: "dict[str, Point3D]", plotSaveDir: str):
+def plot_x_and_y(frameNumber_to_CoP_force_plate_corner: "dict[int, Point2D]", frameNumber_to_CoP_marker: "dict[str, Point3D]", marker_CoP_name: str, plotSaveDir: str):
     # plot x
     CoP_force_plate_list: list[float] = []
     CoP_marker_list: list[float] = []
@@ -20,7 +20,7 @@ def plot_x_and_y(frameNumber_to_CoP_force_plate_corner: "dict[int, Point2D]", fr
     CoP_force_plate_list = scale(CoP_force_plate_list, 1000)
     CoP_marker_list = scale(CoP_marker_list, 1000)
 
-    generate_bland_altman_plot(data1=CoP_force_plate_list, data2=CoP_marker_list, dataName1="CoP Kraftmessplatte", dataName2="CoP Überschneidung", units="[mm]", saveDir=plotSaveDir, additionalComment="(x-Achse)")
+    generate_bland_altman_plot(data1=CoP_force_plate_list, data2=CoP_marker_list, dataName1="CoP Kraftmessplatte", dataName2=marker_CoP_name, units="[mm]", saveDir=plotSaveDir, additionalComment="(x-Achse)")
 
     # plot y
     CoP_force_plate_list: list[float] = []
@@ -34,7 +34,7 @@ def plot_x_and_y(frameNumber_to_CoP_force_plate_corner: "dict[int, Point2D]", fr
     CoP_force_plate_list = scale(CoP_force_plate_list, 1000)
     CoP_marker_list = scale(CoP_marker_list, 1000)
 
-    generate_bland_altman_plot(data1=CoP_force_plate_list, data2=CoP_marker_list, dataName1="CoP Kraftmessplatte", dataName2="CoP Überschneidung", units="[mm]", saveDir=plotSaveDir, additionalComment="(y-Achse)")
+    generate_bland_altman_plot(data1=CoP_force_plate_list, data2=CoP_marker_list, dataName1="CoP Kraftmessplatte", dataName2=marker_CoP_name, units="[mm]", saveDir=plotSaveDir, additionalComment="(y-Achse)")
 
     return
 

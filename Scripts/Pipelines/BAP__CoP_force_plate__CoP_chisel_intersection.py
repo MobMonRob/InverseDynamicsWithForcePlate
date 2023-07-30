@@ -24,8 +24,8 @@ def execute():
     topic_mgt: str = "/Marker_global_translation"
     topics: set[str] = set([topic_fp, topic_mgt])
 
-    re: RosbagExtractor = RosbagExtractor.fromBag(bagPath=bagPath, topics=topics)
-    # re: RosbagExtractor = RosbagExtractor.fromDir(dirPath=dirPath, topics=topics)
+    # re: RosbagExtractor = RosbagExtractor.fromBag(bagPath=bagPath, topics=topics)
+    re: RosbagExtractor = RosbagExtractor.fromDir(dirPath=dirPath, topics=topics)
 
     # 1. CoPs der Kraftmessplatte berechnen
     frameNumbers_to_forcePlateData: dict[int, list[Force_plate_data]] = re.getframeNumberToMsgs(topic_fp)
@@ -41,7 +41,7 @@ def execute():
     Valid_msgs_filter.removeFramesNotOcurringEverywhere([frameNumber_to_CoP_force_plate_corner, frameNumber_to_intersections])
 
     # 4. Plotten
-    Bland_Altman_Plot.plot_x_and_y(frameNumber_to_CoP_force_plate_corner=frameNumber_to_CoP_force_plate_corner, frameNumber_to_CoP_marker=frameNumber_to_intersections, plotSaveDir=plotSaveDir)
+    Bland_Altman_Plot.plot_x_and_y(frameNumber_to_CoP_force_plate_corner=frameNumber_to_CoP_force_plate_corner, frameNumber_to_CoP_marker=frameNumber_to_intersections, marker_CoP_name="CoP Überschneidung", plotSaveDir=plotSaveDir)
 
     return
 
@@ -49,8 +49,8 @@ def execute():
 def calculate_intersections_CoPs(validMarkers: pd.DataFrame) -> "dict[str, Point3D]":
     markerPair1: pd.DataFrame = averageMarkers(validMarkers, tuple([4, 5]))
     markerPair2: pd.DataFrame = averageMarkers(validMarkers, tuple([6, 7]))
-    frameNumber_to_middlePoint1: dict[int, Point3D] = Utils.dataFrame__to__frameNumbers_to_point3D(markerPair1)
-    frameNumber_to_middlePoint2: dict[int, Point3D] = Utils.dataFrame__to__frameNumbers_to_point3D(markerPair2)
+    frameNumber_to_middlePoint1: dict[int, Point3D] = dataFrame__to__frameNumbers_to_point3D(markerPair1)
+    frameNumber_to_middlePoint2: dict[int, Point3D] = dataFrame__to__frameNumbers_to_point3D(markerPair2)
     # valid assumption: firstMarkerDict and secondMarkerDict contain exactly the same keys
     frameNumbers_to_lines: dict[int, Line3D] = dict()
     for frameNumber in frameNumber_to_middlePoint1.keys():
@@ -67,6 +67,10 @@ def calculate_intersections_CoPs(validMarkers: pd.DataFrame) -> "dict[str, Point
         frameNumber_to_intersections[frameNumber] = intersection
     
     return frameNumber_to_intersections
+
+
+def dataFrame__to__frameNumbers_to_point3D(df: pd.DataFrame) -> "dict[int, Point3D]":
+    return{frameNumber: Point3D(**kwargs) for frameNumber, kwargs in df.to_dict(orient="index").items()}
 
 
 def averageMarkers(df: pd.DataFrame, markerNumbers: "tuple[int]") -> pd.DataFrame:

@@ -40,10 +40,6 @@ def groupMsgsOnFrameNumber(msgs: "list") -> "dict[int, list]":
     return frameNumber_to_list
 
 
-def dataFrame__to__frameNumbers_to_point3D(df: pd.DataFrame) -> "dict[int, Point3D]":
-    return{frameNumber: Point3D(**kwargs) for frameNumber, kwargs in df.to_dict(orient="index").items()}
-
-
 def listToDataFrame(theList: "list[T]") -> pd.DataFrame:
     fieldNames: list[str] = theList[0].__slots__
     values = [[getattr(element, fieldName) for fieldName in fieldNames] for element in theList]
