@@ -4,6 +4,39 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from math import sqrt
+from Common.geometry_classes import Point2D, Point3D
+
+
+def plot_x_and_y(frameNumber_to_CoP_force_plate_corner: "dict[int, Point2D]", frameNumber_to_CoP_marker: "dict[str, Point3D]", plotSaveDir: str):
+    # plot x
+    CoP_force_plate_list: list[float] = []
+    CoP_marker_list: list[float] = []
+    for frameNumber in frameNumber_to_CoP_marker.keys():
+        CoP_force_plate: Point2D = frameNumber_to_CoP_force_plate_corner.get(frameNumber)
+        CoP_marker: Point3D = frameNumber_to_CoP_marker.get(frameNumber)
+        CoP_force_plate_list.append(CoP_force_plate.x)
+        CoP_marker_list.append(CoP_marker.x_m)
+    
+    CoP_force_plate_list = scale(CoP_force_plate_list, 1000)
+    CoP_marker_list = scale(CoP_marker_list, 1000)
+
+    generate_bland_altman_plot(data1=CoP_force_plate_list, data2=CoP_marker_list, dataName1="CoP Kraftmessplatte", dataName2="CoP Überschneidung", units="[mm]", saveDir=plotSaveDir, additionalComment="(x-Achse)")
+
+    # plot y
+    CoP_force_plate_list: list[float] = []
+    CoP_marker_list: list[float] = []
+    for frameNumber in frameNumber_to_CoP_marker.keys():
+        CoP_force_plate: Point2D = frameNumber_to_CoP_force_plate_corner.get(frameNumber)
+        CoP_marker: Point3D = frameNumber_to_CoP_marker.get(frameNumber)
+        CoP_force_plate_list.append(CoP_force_plate.y)
+        CoP_marker_list.append(CoP_marker.y_m)
+
+    CoP_force_plate_list = scale(CoP_force_plate_list, 1000)
+    CoP_marker_list = scale(CoP_marker_list, 1000)
+
+    generate_bland_altman_plot(data1=CoP_force_plate_list, data2=CoP_marker_list, dataName1="CoP Kraftmessplatte", dataName2="CoP Überschneidung", units="[mm]", saveDir=plotSaveDir, additionalComment="(y-Achse)")
+
+    return
 
 
 def scale(data: 'list[float]', factor: int) -> "list[float]":

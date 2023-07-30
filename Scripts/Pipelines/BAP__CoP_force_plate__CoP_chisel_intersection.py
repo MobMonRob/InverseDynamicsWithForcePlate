@@ -29,7 +29,7 @@ def execute():
 
     # 1. CoPs der Kraftmessplatte berechnen
     frameNumbers_to_forcePlateData: dict[int, list[Force_plate_data]] = re.getframeNumberToMsgs(topic_fp)
-    frameNumber_to_coP_force_plate_corner: dict[int, Point2D] = CoPs_force_plate.calculate_CoPs(frameNumbers_to_forcePlateData)
+    frameNumber_to_CoP_force_plate_corner: dict[int, Point2D] = CoPs_force_plate.calculate_CoPs(frameNumbers_to_forcePlateData)
     
     # 2. CoPs der Überschneidung berechnen
     frameNumber_to_markerGlobalTranslation: dict[int, list[Marker_global_translation]] = re.getframeNumberToMsgs(topic_mgt)
@@ -38,42 +38,10 @@ def execute():
     frameNumber_to_intersections: dict[str, Point3D] = calculate_intersections_CoPs(validMarkers)
     
     # 3. Validieren
-    Valid_msgs_filter.removeFramesNotOcurringEverywhere([frameNumber_to_coP_force_plate_corner, frameNumber_to_intersections])
+    Valid_msgs_filter.removeFramesNotOcurringEverywhere([frameNumber_to_CoP_force_plate_corner, frameNumber_to_intersections])
 
     # 4. Plotten
-    plot_x_and_y(frameNumber_to_coP_force_plate_corner=frameNumber_to_coP_force_plate_corner, frameNumber_to_intersections=frameNumber_to_intersections, plotSaveDir=plotSaveDir)
-
-    return
-
-
-def plot_x_and_y(frameNumber_to_coP_force_plate_corner: "dict[int, Point2D]", frameNumber_to_intersections: "dict[str, Point3D]", plotSaveDir: str):
-    # plot x
-    CoP_force_plate_list: list[float] = []
-    CoP_intersection_list: list[float] = []
-    for frameNumber in frameNumber_to_intersections.keys():
-        CoP_force_plate: Point2D = frameNumber_to_coP_force_plate_corner.get(frameNumber)
-        CoP_intersection: Point3D = frameNumber_to_intersections.get(frameNumber)
-        CoP_force_plate_list.append(CoP_force_plate.x)
-        CoP_intersection_list.append(CoP_intersection.x_m)
-    
-    CoP_force_plate_list = Bland_Altman_Plot.scale(CoP_force_plate_list, 1000)
-    CoP_intersection_list = Bland_Altman_Plot.scale(CoP_intersection_list, 1000)
-
-    Bland_Altman_Plot.generate_bland_altman_plot(data1=CoP_force_plate_list, data2=CoP_intersection_list, dataName1="CoP Kraftmessplatte", dataName2="CoP Überschneidung", units="[mm]", saveDir=plotSaveDir, additionalComment="(x-Achse)")
-
-    # plot y
-    CoP_force_plate_list: list[float] = []
-    CoP_intersection_list: list[float] = []
-    for frameNumber in frameNumber_to_intersections.keys():
-        CoP_force_plate: Point2D = frameNumber_to_coP_force_plate_corner.get(frameNumber)
-        CoP_intersection: Point3D = frameNumber_to_intersections.get(frameNumber)
-        CoP_force_plate_list.append(CoP_force_plate.y)
-        CoP_intersection_list.append(CoP_intersection.y_m)
-
-    CoP_force_plate_list = Bland_Altman_Plot.scale(CoP_force_plate_list, 1000)
-    CoP_intersection_list = Bland_Altman_Plot.scale(CoP_intersection_list, 1000)
-
-    Bland_Altman_Plot.generate_bland_altman_plot(data1=CoP_force_plate_list, data2=CoP_intersection_list, dataName1="CoP Kraftmessplatte", dataName2="CoP Überschneidung", units="[mm]", saveDir=plotSaveDir, additionalComment="(y-Achse)")
+    Bland_Altman_Plot.plot_x_and_y(frameNumber_to_CoP_force_plate_corner=frameNumber_to_CoP_force_plate_corner, frameNumber_to_CoP_marker=frameNumber_to_intersections, plotSaveDir=plotSaveDir)
 
     return
 
