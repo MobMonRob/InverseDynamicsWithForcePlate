@@ -4,9 +4,7 @@ from Common.geometry_classes import Point2D
 import statistics
 
 
-def calculate_CoPs(frameNumbers_to_forcePlateData: "dict[int, list[Force_plate_data]]") -> "dict[int, Point2D] ":
-    forcePlateData_mean: list[Force_plate_data] = __forcePlataData_mean_subsampleLists(frameNumbers_to_forcePlateData)
-
+def calculate_CoPs(forcePlateData_mean: "list[Force_plate_data]") -> "dict[int, Point2D] ":
     frameNumber_to_coP_force_plate_corner: dict[int, Point2D] = dict()
     for forcePlataData in forcePlateData_mean:
         coP_middle: Point2D = CoP_force_plate.get_CoP_force_plate_middle(forcePlataData)
@@ -16,7 +14,7 @@ def calculate_CoPs(frameNumbers_to_forcePlateData: "dict[int, list[Force_plate_d
     return frameNumber_to_coP_force_plate_corner
 
 
-def __forcePlataData_mean_subsampleLists(frameNumbers_to_forcePlateData: "dict[int, list[Force_plate_data]]") -> "list[Force_plate_data]":
+def forcePlataData_mean_subsampleLists(frameNumbers_to_forcePlateData: "dict[int, list[Force_plate_data]]") -> "list[Force_plate_data]":
     forcePlateData_mean: list[Force_plate_data] = []
 
     for frameNumber, subsampleList in frameNumbers_to_forcePlateData.items():

@@ -14,6 +14,7 @@ from Common import CoPs_force_plate
 from Common import Utils
 
 
+#! Nur aussagekräftig, wenn ausschließlich Werte im rosbag, wo der Meißel auf dem Punkt sitzt.
 def execute():
     dirPath: str = "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/Data/20Punkte_24.07.2023_1/"
     bagPath: str = f"{dirPath}2023-07-24-16-37-12.bag"
@@ -28,7 +29,8 @@ def execute():
 
     # 1. CoPs der Kraftmessplatte berechnen
     frameNumbers_to_forcePlateData: dict[int, list[Force_plate_data]] = re.getframeNumberToMsgs(topic_fp)
-    frameNumber_to_CoP_force_plate_corner: dict[int, Point2D] = CoPs_force_plate.calculate_CoPs(frameNumbers_to_forcePlateData)
+    forcePlateData_mean: list[Force_plate_data] = CoPs_force_plate.forcePlataData_mean_subsampleLists(frameNumbers_to_forcePlateData)
+    frameNumber_to_CoP_force_plate_corner: dict[int, Point2D] = CoPs_force_plate.calculate_CoPs(forcePlateData_mean)
     
     # 2. CoPs des marker tips
     frameNumber_to_markerGlobalTranslation: dict[int, list[Marker_global_translation]] = re.getframeNumberToMsgs(topic_mgt)
