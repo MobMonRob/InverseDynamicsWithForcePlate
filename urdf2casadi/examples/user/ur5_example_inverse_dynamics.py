@@ -35,7 +35,7 @@ for i in range(n_joints):
 # q_dot = [0.5, 1, 1.5, 2, 2.5, 3]
 # q_ddot = [0.25, 0.5, 0.75, 1, 1.25, 1.5]
 
-q = [math.pi, -math.pi / 2, -2.3345737645286135E-6, -math.pi / 2, 2.382993625360541E-5, math.pi]
+q = [math.pi, -2.3345737645286135E-6, -2.3345737645286135E-6, -math.pi / 2, 2.382993625360541E-5, math.pi]
 q_dot = [0, 0, 0, 0, 0, 0]
 q_ddot = [0, 0, 0, 0, 0, 0]
 
@@ -43,7 +43,7 @@ tau_num_classic = tau_sym(q, q_dot, q_ddot)
 print("The output of the RNEA from urdf2casadi: \n", tau_num_classic)
 
 forces = forces_sym(q, q_dot, q_ddot)
-print("Spatial forces from this RNEA after update: \n", forces)
+# print("Spatial forces from this RNEA after update: \n", forces)
 
 # force_before_update = forces_debug_sym(q, q_dot, q_ddot)
 # print("Spatial forces from velocities and accelerations only: \n", force_before_update)
@@ -57,8 +57,10 @@ print("############################################################")
 tau_sym_bu = ur5.get_inverse_dynamics_rnea_bottom_up(root, tip)
 
 f_sym = ur5.get_forces_bottom_up(root, tip, forces[0], gravity=[0, 0, -9.81])
+
+# TODO: Statt f_num die Kräfte und Momente [2.871, -1.971, 172,724, -17.089, -61.873, -0.089] nehmen (sie sind im lokalen Koordinatensystem der Kraftmessplatte), danach forces_force_plate_to_forces_ur5e_base, danach moments_force_plate_to_moments_ur5e_base, danach eine Spatial Kraft zusammenbauen, danach f_num diese Kraft zuweisen.
 f_num = f_sym(q, q_dot, q_ddot)
-print("Bottom Up forces: \n", f_num)
+# print("Bottom Up forces: \n", f_num)
 
 tau_sym_bu_f = ur5.get_inverse_dynamics_rnea_bottom_up_f(root, tip, f_num)
 tau_sym_bu_f_num = tau_sym_bu_f(q)
@@ -67,3 +69,33 @@ print("Bottom Up numerical inverse dynamics: \n", tau_sym_bu_f_num)
 # i_X_p_sym = ur5.get_model_calculation(root, tip)
 # i_X_p = i_X_p_sym(q)
 # print("i_X_p: \n", i_X_p)
+
+def forces_force_plate_to_forces_ur5e_base(forces: "list[float]") -> "list[float]":
+    # R is calculated only once and it is
+    R = np.array([[ 1,  0,  0], 
+                  [ 0, -1,  0], 
+                  [ 0,  0, -1]])
+    
+    forces_transformed = R.dot(forces)
+    return forces_transformed
+
+def moments_force_plate_to_moments_ur5e_base(forces_ur5e_base: "list[float]", moments: "list[float]") -> "list[float]":
+    # R is calculated only once and it is
+    R = np.array([[ 1,  0,  0], 
+                  [ 0, -1,  0], 
+                  [ 0,  0, -1]])
+    
+    # GC is position of (center of plate surface) in robot base frame
+    GC = [-1.7915 / 1000, -5.1695 / 1000, -(22.58 + 1.4) / 1000]
+    
+    OC = [0, 0, -44.78 / 1000]
+
+    GO = GC - R.dot(OC)
+
+    # K is skew-symmetric, it is
+    K = np.array([[ 0,     - GO[2],     GO[1]], 
+                  [ GO[2],       0,   - GO[0]],
+                  [-GO[1],   GO[0],         0]])
+    
+    moments_transformed = R.dot(moments) + K.dot(forces_ur5e_base)
+    return moments_transformed
