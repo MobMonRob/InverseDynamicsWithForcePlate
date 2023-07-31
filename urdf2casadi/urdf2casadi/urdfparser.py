@@ -677,7 +677,7 @@ class URDFparser(object):
             "T_fk": T_fk
         }
 
-    def get_forces_bottom_up(self, root, tip, f_root):
+    def get_forces_bottom_up(self, root, tip, f_root, gravity=None):
         """
         Calculates the generalized body forces in bottom up manner.
 
@@ -713,7 +713,11 @@ class URDFparser(object):
 
         generalized_body_forces.append(f_root)
         velocities.append(cs.mtimes(Si[0], q_dot[0]))
-        accelerations.append(cs.mtimes(Si[0], q_ddot[0]))
+        if gravity is not None:
+            ag = np.array([0., 0., 0., gravity[0], gravity[1], gravity[2]])
+            accelerations.append(cs.mtimes(i_X_p[0], -ag) + cs.mtimes(Si[0], q_ddot[0]))
+        else: 
+            accelerations.append(cs.mtimes(Si[0], q_ddot[0]))
         body_inertial_forces.append(cs.mtimes(
             Ic[0], accelerations[0])
         + cs.mtimes(
