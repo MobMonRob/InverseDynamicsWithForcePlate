@@ -1,10 +1,11 @@
+import os
 import urdf2casadi.urdfparser as u2c
 import numpy as np
 from typing import List
+import math
 
 ur5 = u2c.URDFparser()
-import os
-path_to_urdf = absPath = os.path.dirname(os.path.abspath(__file__)) + '/../urdf/ur5e.urdf' 
+path_to_urdf = absPath = os.path.dirname(os.path.abspath(__file__)) + '/../urdf/ur5e.urdf'
 ur5.from_file(path_to_urdf)
 
 root = "base_link"
@@ -17,7 +18,7 @@ print("joint information for first joint:\n", joint_list[0])
 print("\n q max:", q_max)
 print("\n q min:", q_min)
 
-tau_sym, forces_sym, force_base_sym, forces_debug_sym = ur5.get_inverse_dynamics_rnea(root, tip)
+tau_sym, forces_sym, force_base_sym, forces_debug_sym = ur5.get_inverse_dynamics_rnea(root, tip, gravity=[0, 0, -9.81])
 # tau_sym_bu, force_first_joint_sym_bu, force_base_sym_bu = ur5.get_inverse_dynamics_rnea_bottom_up(root, tip)
 
 # Generate q, q_dot, q_ddot
@@ -25,15 +26,18 @@ q = [None]*n_joints
 q_dot = [None]*n_joints
 q_ddot = [None]*n_joints
 for i in range(n_joints):
-    #to make sure the inputs are within the robot's limits:
+    # to make sure the inputs are within the robot's limits:
     q[i] = (q_max[i] - q_min[i])*np.random.rand()-(q_max[i] - q_min[i])/2
     q_dot[i] = (q_max[i] - q_min[i])*np.random.rand()-(q_max[i] - q_min[i])/2
     q_ddot[i] = (q_max[i] - q_min[i])*np.random.rand()-(q_max[i] - q_min[i])/2
 
-# q = [1, 2, 3, 4, 5 ,6]
+# q = [0, 2, 3, 4, 5, 6]
 # q_dot = [0.5, 1, 1.5, 2, 2.5, 3]
 # q_ddot = [0.25, 0.5, 0.75, 1, 1.25, 1.5]
 
+q = [math.pi, -math.pi / 2, -2.3345737645286135E-6, -math.pi / 2, 2.382993625360541E-5, math.pi]
+q_dot = [0, 0, 0, 0, 0, 0]
+q_ddot = [0, 0, 0, 0, 0, 0]
 
 tau_num_classic = tau_sym(q, q_dot, q_ddot)
 print("The output of the RNEA from urdf2casadi: \n", tau_num_classic)
