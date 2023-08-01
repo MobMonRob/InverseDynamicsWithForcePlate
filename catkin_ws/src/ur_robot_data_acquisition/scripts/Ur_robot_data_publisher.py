@@ -25,7 +25,7 @@ def main():
     rospy.init_node(f"{Path(__file__).stem}", anonymous=True)
 
     global publisher
-    publisher = rospy.Publisher('Actual_q', Actual_q, queue_size = 1000)
+    publisher = rospy.Publisher("Actual_q", Actual_q, queue_size = 1000)
 
     global receiver
     receiver = RTDEReceive(hostname="192.168.12.1", frequency=500.0, variables=["actual_q"])

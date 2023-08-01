@@ -2,8 +2,8 @@
 
 import rospy
 from vicon_data_publisher.msg import Force_plate_data
-
 from Common.one_euro_filter import OneEuroFilter
+from pathlib import Path
 
 publisher = None
 # https://gery.casiez.net/1euro/
@@ -42,16 +42,14 @@ def callback(data: Force_plate_data):
 
 #############################################
 def transceiver():
-    name = 'Force_plate_data_1euro_filter'
-
-    rospy.init_node(name, anonymous=True)
+    rospy.init_node(f"{Path(__file__).stem}", anonymous=True)
 
     global publisher
-    publisher = rospy.Publisher(name, Force_plate_data, queue_size = 1000)
+    publisher = rospy.Publisher(f"{Path(__file__).stem}", Force_plate_data, queue_size = 1000)
     
     rospy.Subscriber("Force_plate_data", Force_plate_data, callback)
 
-    rospy.loginfo(f"{name} started.")
+    rospy.loginfo(f"{Path(__file__).stem}: started.")
 
     rospy.spin()
 

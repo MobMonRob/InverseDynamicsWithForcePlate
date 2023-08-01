@@ -4,6 +4,7 @@ import rospy
 from vicon_data_publisher.msg import Force_plate_data
 from queue import Queue
 import copy
+from pathlib import Path
 
 publisher = None
 
@@ -95,13 +96,13 @@ def process_and_publish(data):
 
 #############################################
 def transceiver():
-    rospy.init_node('data_transformation', anonymous=True)
+    rospy.init_node(f"{Path(__file__).stem}", anonymous=True)
 
     global publisher
     publisher = rospy.Publisher('Force_plate_data_sma', Force_plate_data, queue_size = 1000)
     rospy.Subscriber("Force_plate_data", Force_plate_data, callback)
 
-    rospy.loginfo(f"Force_plate_data_sma_transceiver started.")
+    rospy.loginfo(f"{Path(__file__).stem}: started.")
 
     rospy.spin()
 

@@ -5,6 +5,7 @@ from Common.geometry_classes import Point3D, Point2D
 from Common import CoP_force_plate
 from data_transformation.msg import CoP_position
 from vicon_data_publisher.msg import Force_plate_data
+from pathlib import Path
 
 publisher = None
 
@@ -30,16 +31,15 @@ def callback(data: Force_plate_data):
 
 #############################################
 def transceiver():
-    name = 'CoP_force_plate_1euro'
-    rospy.init_node(name, anonymous=True)
+    rospy.init_node(f"{Path(__file__).stem}", anonymous=True)
 
     global publisher
-    publisher = rospy.Publisher(name, CoP_position, queue_size=1000)
+    publisher = rospy.Publisher(f"{Path(__file__).stem}", CoP_position, queue_size=1000)
 
     rospy.Subscriber("Force_plate_data_1euro_filter",
                      Force_plate_data, callback)
 
-    rospy.loginfo(f"{name} started.")
+    rospy.loginfo(f"{Path(__file__).stem}: started.")
 
     rospy.spin()
 

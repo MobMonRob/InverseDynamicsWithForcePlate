@@ -5,6 +5,7 @@
 import rospy
 from vicon_data_publisher.msg import Marker_global_translation
 from data_transformation.msg import CoP_position
+from pathlib import Path
 
 import sys, os
 sys.path.append("/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/catkin_ws/src/data_transformation/scripts/")
@@ -82,7 +83,7 @@ def transceiver():
     
     rospy.Subscriber("Marker_global_translation", Marker_global_translation, callback)
 
-    rospy.loginfo(f"{name} started.")
+    rospy.loginfo(f"{Path(__file__).stem}: started.")
 
     rospy.spin()
 

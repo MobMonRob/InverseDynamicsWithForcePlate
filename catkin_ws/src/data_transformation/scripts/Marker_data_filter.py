@@ -3,6 +3,7 @@
 import rospy
 from vicon_data_publisher.msg import Marker_global_translation
 from queue import Queue
+from pathlib import Path
 
 publisher1: rospy.Publisher
 publisher3: rospy.Publisher
@@ -27,7 +28,7 @@ def callback(data: Marker_global_translation):
 
 
 def transceiver():
-    rospy.init_node('Marker_data_filter', anonymous=True)
+    rospy.init_node(f"{Path(__file__).stem}", anonymous=True)
 
     global publisher1
     global publisher3
@@ -49,7 +50,7 @@ def transceiver():
     rospy.Subscriber("Marker_global_translation",
                      Marker_global_translation, callback)
 
-    rospy.loginfo(f"Marker_data_filter started.")
+    rospy.loginfo(f"{Path(__file__).stem}: started.")
 
     rospy.spin()
 
