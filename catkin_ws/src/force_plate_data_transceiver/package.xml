@@ -68,9 +68,9 @@
   <build_export_depend>geometry_msgs</build_export_depend>
   <exec_depend>geometry_msgs</exec_depend>
 
-  <build_depend>Common</build_depend>
-  <build_export_depend>Common</build_export_depend>
-  <exec_depend>Common</exec_depend>
+  <build_depend>common_scripts</build_depend>
+  <build_export_depend>common_scripts</build_export_depend>
+  <exec_depend>common_scripts</exec_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

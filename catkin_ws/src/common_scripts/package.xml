@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>Common</name>
+  <name>common_scripts</name>
   <version>0.0.0</version>
-  <description>The Common package</description>
+  <description>The common_scripts package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -11,7 +11,7 @@
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
-  <!-- Commonly used license strings: -->
+  <!-- common_scriptsly used license strings: -->
   <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
   <license>TODO</license>
 
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/Common</url> -->
+  <!-- <url type="website">http://wiki.ros.org/common_scripts</url> -->
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->

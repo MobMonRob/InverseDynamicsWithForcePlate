@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(Common)
+project(common_scripts)
 
 # Use C++20 standard
 set(CMAKE_CXX_STANDARD 20)
@@ -100,7 +100,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-  LIBRARIES Common
+  LIBRARIES common_scripts
   CATKIN_DEPENDS rospy
 #  DEPENDS system_lib
 )
@@ -118,7 +118,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/Common.cpp
+#   src/${PROJECT_NAME}/common_scripts.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -129,7 +129,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/Common_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/common_scripts_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -153,7 +153,7 @@ include_directories(
 # all install targets should use catkin DESTINATION variables
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
 
-# file(GLOB SCRIPTS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/src/Common/*.py")
+# file(GLOB SCRIPTS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/src/common_scripts/*.py")
 
 # ## Mark executable scripts (Python etc.) for installation
 # ## in contrast to setup.py, you can choose the destination
@@ -198,7 +198,7 @@ catkin_python_setup()
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_Common.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_common_scripts_scripts.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
