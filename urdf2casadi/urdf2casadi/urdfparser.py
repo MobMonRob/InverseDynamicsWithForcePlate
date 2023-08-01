@@ -10,6 +10,7 @@ import urdf2casadi.geometry.plucker as plucker
 import urdf2casadi.geometry.quaternion as quaternion
 import urdf2casadi.geometry.dual_quaternion as dual_quaternion
 
+
 class URDFparser(object):
     """Class that turns a chain from URDF to casadi functions."""
     actuated_types = ["prismatic", "revolute", "continuous"]
@@ -127,7 +128,6 @@ class URDFparser(object):
         Fd = np.diag(damping)
         return Fv, Fd
 
-
     def get_n_joints(self, root, tip):
         """Returns number of actuated joints."""
 
@@ -205,12 +205,12 @@ class URDFparser(object):
                     if prev_joint == "fixed":
                         XJT = cs.mtimes(XJT, XT_prev)
                     Si = cs.SX([
-                                joint.axis[0],
-                                joint.axis[1],
-                                joint.axis[2],
-                                0,
-                                0,
-                                0])
+                        joint.axis[0],
+                        joint.axis[1],
+                        joint.axis[2],
+                        0,
+                        0,
+                        0])
                     i_X_p.append(XJT)
                     Sis.append(Si)
                     i += 1
@@ -245,6 +245,13 @@ class URDFparser(object):
         return i_X_p, Sis, spatial_inertias
 
     def _apply_external_forces(self, external_f, f, i_X_p):
+        """Internal function for applying external forces in dynamics
+        algorithms calculations."""
+        for i in range(0, len(f)):
+            f[i] -= cs.mtimes(i_X_p[i].T, external_f[i])
+        return f
+
+    def _apply_external_forces_bottom_up(self, external_f, f, i_X_p):
         """Internal function for applying external forces in dynamics
         algorithms calculations."""
         for i in range(0, len(f)):
@@ -357,8 +364,8 @@ class URDFparser(object):
         for i in range(n_joints-1, -1, -1):
             if i != 0:
                 Ic_composite[i-1] = (Ic[i-1]
-                  + cs.mtimes(i_X_p[i].T,
-                              cs.mtimes(Ic_composite[i], i_X_p[i])))
+                                     + cs.mtimes(i_X_p[i].T,
+                                                 cs.mtimes(Ic_composite[i], i_X_p[i])))
 
         for i in range(0, n_joints):
             fh = cs.mtimes(Ic_composite[i], Si[i])
@@ -423,7 +430,7 @@ class URDFparser(object):
                     a.append(cs.SX([0., 0., 0., 0., 0., 0.]))
             else:
                 v.append(cs.mtimes(i_X_p[i], v[i-1]) + vJ)
-                a.append(cs.mtimes(i_X_p[i], a[i-1]) + cs.mtimes(plucker.motion_cross_product(v[i]),vJ))
+                a.append(cs.mtimes(i_X_p[i], a[i-1]) + cs.mtimes(plucker.motion_cross_product(v[i]), vJ))
 
             f.append(cs.mtimes(Ic[i], a[i]) + cs.mtimes(plucker.force_cross_product(v[i]), cs.mtimes(Ic[i], v[i])))
 
@@ -690,7 +697,7 @@ class URDFparser(object):
         """
         if self.robot_desc is None:
             raise ValueError('Robot description not loaded from urdf')
-        
+
         # Get joint count for the robot.
         n_joints = self.get_n_joints(root, tip)
 
@@ -705,7 +712,7 @@ class URDFparser(object):
 
         # Get Plücker transformation matrices i_X_p, joint motion subspaces Si, inertia matrices Ic
         i_X_p, Si, Ic = self._model_calculation(root, tip, q)
-        
+
         velocities = []
         accelerations = []
         body_inertial_forces = []
@@ -716,28 +723,28 @@ class URDFparser(object):
         if gravity is not None:
             ag = np.array([0., 0., 0., gravity[0], gravity[1], gravity[2]])
             accelerations.append(cs.mtimes(i_X_p[0], -ag) + cs.mtimes(Si[0], q_ddot[0]))
-        else: 
+        else:
             accelerations.append(cs.mtimes(Si[0], q_ddot[0]))
         body_inertial_forces.append(cs.mtimes(
             Ic[0], accelerations[0])
-        + cs.mtimes(
-            plucker.force_cross_product(velocities[0]), 
+            + cs.mtimes(
+            plucker.force_cross_product(velocities[0]),
             cs.mtimes(Ic[0], velocities[0])))
 
         for i in range(1, n_joints):
             vJ = cs.mtimes(Si[i], q_dot[i])
             velocities.append(cs.mtimes(i_X_p[i], velocities[i - 1]) + vJ)
             accelerations.append(
-                    cs.mtimes(i_X_p[i], accelerations[i-1])
-                    + cs.mtimes(Si[i], q_ddot[i])
-                    + cs.mtimes(plucker.motion_cross_product(velocities[i]), vJ))
-            
+                cs.mtimes(i_X_p[i], accelerations[i-1])
+                + cs.mtimes(Si[i], q_ddot[i])
+                + cs.mtimes(plucker.motion_cross_product(velocities[i]), vJ))
+
             body_inertial_forces.append(
                 cs.mtimes(Ic[i], accelerations[i])
                 + cs.mtimes(
                     plucker.force_cross_product(velocities[i]),
                     cs.mtimes(Ic[i], velocities[i])))
-            
+
             generalized_body_forces.append(
                 cs.mtimes(
                     cs.inv_minor(i_X_p[i].T),
@@ -765,6 +772,9 @@ class URDFparser(object):
 
         f.append(f_root)
 
+        # if f_ext is not None:
+        f[0] = self._apply_external_forces_bottom_up(f[0], f, i_X_p)
+
         for i in range(0, n_joints - 1):
             tau_bu[i] = cs.mtimes(Si[i].T, f[i])
             f.append(cs.mtimes(i_X_p[i], f[i]))
@@ -772,8 +782,8 @@ class URDFparser(object):
         tau_bu = cs.Function("C_bu", [q, q_dot, q_ddot, f_root], [tau_bu], self.func_opts)
         # force_first_joint = cs.Function("f_f_j", [q, q_dot, q_ddot], [f[0]], self.func_opts)
         # force_base = cs.Function("f_b", [q, q_dot, q_ddot], [cs.mtimes(i_X_p[0].T, f[0])], self.func_opts)
-        return tau_bu#, force_first_joint, force_base
-    
+        return tau_bu  # , force_first_joint, force_base
+
     def get_inverse_dynamics_rnea_bottom_up_f(self, root, tip, forces):
         """Returns the inverse dynamics as a casadi function."""
         if self.robot_desc is None:
@@ -794,7 +804,7 @@ class URDFparser(object):
 
         tau_bu = cs.Function("C_bu", [q], [tau_bu], self.func_opts)
         return tau_bu
-    
+
     def get_model_calculation(self, root, tip):
         n_joints = self.get_n_joints(root, tip)
         q = cs.SX.sym("q", n_joints)
@@ -848,12 +858,12 @@ class URDFparser(object):
                     if prev_joint == "fixed":
                         XJT = cs.mtimes(XJT, XT_prev)
                     Si = cs.SX([
-                                joint.axis[0],
-                                joint.axis[1],
-                                joint.axis[2],
-                                0,
-                                0,
-                                0])
+                        joint.axis[0],
+                        joint.axis[1],
+                        joint.axis[2],
+                        0,
+                        0,
+                        0])
                     p_X_i.append(XJT)
                     Sis.append(Si)
                     i += 1
