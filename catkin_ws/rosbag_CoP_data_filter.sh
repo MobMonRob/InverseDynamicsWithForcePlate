@@ -21,9 +21,9 @@ konsole --new-tab -e "rosbag play --wait-for-subscribers --loop ./rosbags/2023-0
 
 sleep 1s
 
-konsole --new-tab -e "rosrun force_plate_data_transceiver CoP_data_filter.py" &
+konsole --new-tab -e "rosrun data_transformation CoP_data_filter.py" &
 
 sleep 1s
 
-konsole --new-tab -e "rosrun force_plate_data_transceiver Force_plate_data_sma_transceiver.py" &
+konsole --new-tab -e "rosrun data_transformation Force_plate_data_sma_transceiver.py" &
 

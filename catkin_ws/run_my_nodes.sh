@@ -18,7 +18,7 @@ konsole --new-tab -e "rosrun vicon_data_publisher Force_plate_data_publisher" &
 
 sleep 1s
 
-konsole --new-tab -e "rosrun force_plate_data_transceiver Force_plate_data_sma_transceiver.py" &
+konsole --new-tab -e "rosrun data_transformation Force_plate_data_sma_transceiver.py" &
 
 sleep 1s
 
@@ -26,7 +26,7 @@ konsole --new-tab -e "rosrun vicon_data_publisher Marker_data_publisher" &
 
 sleep 1s
 
-konsole --new-tab -e "rosrun force_plate_data_transceiver Marker_data_filter.py" &
+konsole --new-tab -e "rosrun data_transformation Marker_data_filter.py" &
 
 sleep 1s
 

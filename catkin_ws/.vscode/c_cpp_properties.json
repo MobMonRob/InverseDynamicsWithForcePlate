@@ -11,7 +11,7 @@
         "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/moveit/moveit_planners/chomp/chomp_motion_planner/include/**",
         "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/force_plate_data_acquisition/include/**",
         "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/force_plate_data_publisher/include/**",
-        "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/force_plate_data_transceiver/include/**",
+        "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/data_transformation/include/**",
         "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/geometric_shapes/include/**",
         "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/moveit/moveit_planners/chomp/chomp_interface/include/**",
         "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/moveit_resources/prbt_ikfast_manipulator_plugin/include/**",

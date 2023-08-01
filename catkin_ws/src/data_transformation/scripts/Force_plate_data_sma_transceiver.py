@@ -95,7 +95,7 @@ def process_and_publish(data):
 
 #############################################
 def transceiver():
-    rospy.init_node('force_plate_data_transceiver', anonymous=True)
+    rospy.init_node('data_transformation', anonymous=True)
 
     global publisher
     publisher = rospy.Publisher('Force_plate_data_sma', Force_plate_data, queue_size = 1000)

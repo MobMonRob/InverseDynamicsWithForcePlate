@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(force_plate_data_transceiver)
+project(data_transformation)
 
 # Use C++20 standard
 set(CMAKE_CXX_STANDARD 20)
@@ -106,7 +106,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES force_plate_data_transceiver
+  LIBRARIES data_transformation
   CATKIN_DEPENDS rospy std_msgs geometry_msgs message_runtime vicon_data_publisher
 #  DEPENDS system_lib
 )
@@ -124,7 +124,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/force_plate_data_transceiver.cpp
+#   src/${PROJECT_NAME}/data_transformation.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -135,7 +135,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/force_plate_data_transceiver_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/data_transformation_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -201,7 +201,7 @@ catkin_install_python(PROGRAMS
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_force_plate_data_transceiver.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_data_transformation.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

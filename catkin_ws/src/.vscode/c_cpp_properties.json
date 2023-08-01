@@ -11,7 +11,7 @@
                 "/opt/ros/noetic/include/**",
                 "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/vicon_data_acquisition/include/**",
                 "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/vicon_data_publisher/include/**",
-                "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/force_plate_data_transceiver/include/**",
+                "/home/deralbert/BA/InverseDynamicsWithForcePlate/catkin_ws/src/data_transformation/include/**",
                 "/usr/include/**",
                 "/home/deralbert/BA/InverseDynamicsWithForcePlate/AmtiForcePlate/ViconLib1.12"
             ],

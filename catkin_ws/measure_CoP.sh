@@ -19,13 +19,13 @@ konsole --new-tab -e "rosrun vicon_data_publisher Force_plate_data_publisher" &
 
 sleep 1s
 
-konsole --new-tab -e "rosrun force_plate_data_transceiver Force_plate_data_sma_transceiver.py" &
+konsole --new-tab -e "rosrun data_transformation Force_plate_data_sma_transceiver.py" &
 
 sleep 1s
 
-konsole --new-tab -e "rosrun force_plate_data_transceiver CoP_force_plate_sma.py" &
+konsole --new-tab -e "rosrun data_transformation CoP_force_plate_sma.py" &
 
 sleep 1s
 
-#konsole --new-tab -e "rosrun force_plate_data_transceiver CoP_marker.py" &
+#konsole --new-tab -e "rosrun data_transformation CoP_marker.py" &
 

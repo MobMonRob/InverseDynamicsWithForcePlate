@@ -3,7 +3,7 @@
 import rospy
 from Common.geometry_classes import Point3D, Point2D
 from Common import CoP_force_plate
-from force_plate_data_transceiver.msg import CoP_position
+from data_transformation.msg import CoP_position
 from vicon_data_publisher.msg import Force_plate_data
 
 publisher = None
