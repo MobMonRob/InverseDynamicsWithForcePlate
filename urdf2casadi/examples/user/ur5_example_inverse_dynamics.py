@@ -95,8 +95,15 @@ print("Spatial forces from this RNEA after update: \n", forces)
 # print("Each_force_transformed: \n", each_force_transformed)
 
 print("############################################################")
+root = "force_plate"
+q = [math.pi, -2.3345737645286135E-6, -2.3345737645286135E-6, -math.pi / 2, 2.382993625360541E-5, math.pi]
+q_dot = [0, 0, 0, 0, 0, 0]
+q_ddot = [0, 0, 0, 0, 0, 0]
 
-# TODO: Statt f_num die Kräfte und Momente [2.871, -1.971, 172.724, -17.089, -61.873, -0.089] nehmen (sie sind im lokalen Koordinatensystem der Kraftmessplatte), danach forces_force_plate_to_forces_ur5e_base, danach moments_force_plate_to_moments_ur5e_base, danach eine Spatial Kraft zusammenbauen, danach f_num diese Kraft zuweisen.
+i_X_p_sym = ur5.get_model_calculation(root, tip)
+i_X_p = i_X_p_sym(q)
+print("i_X_p: \n", i_X_p)
+
 f_force_plate = [2.871, -1.971, 172.724]
 f_ur5e_base = forces_force_plate_to_forces_ur5e_base(f_force_plate)
 
@@ -114,7 +121,3 @@ print("Bottom Up forces: \n", f_num)
 tau_sym_bu_f = ur5.get_inverse_dynamics_rnea_bottom_up_f(root, tip, f_num)
 tau_sym_bu_f_num = tau_sym_bu_f(q)
 print("Bottom Up numerical inverse dynamics: \n", tau_sym_bu_f_num)
-
-# i_X_p_sym = ur5.get_model_calculation(root, tip)
-# i_X_p = i_X_p_sym(q)
-# print("i_X_p: \n", i_X_p)

@@ -765,6 +765,7 @@ class URDFparser(object):
         q_dot = cs.SX.sym("q_dot", n_joints)
         q_ddot = cs.SX.sym("q_ddot", n_joints)
         i_X_p, Si, _ = self._model_calculation(root, tip, q)
+        # print("\n" + i_X_p[0] + "\n")
 
         f_root = cs.SX.sym("f_root", 6)
         f = []
@@ -773,7 +774,7 @@ class URDFparser(object):
         f.append(f_root)
 
         # if f_ext is not None:
-        f[0] = self._apply_external_forces_bottom_up(f[0], f, i_X_p)
+        # f[0] = self._apply_external_forces_bottom_up(f[0], f, i_X_p)
 
         for i in range(0, n_joints - 1):
             tau_bu[i] = cs.mtimes(Si[i].T, f[i])
