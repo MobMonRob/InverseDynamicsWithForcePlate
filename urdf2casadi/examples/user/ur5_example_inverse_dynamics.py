@@ -85,7 +85,10 @@ print("Elapsed time 2: ", elapsed_time)
 print("The output of the RNEA from urdf2casadi: \n", tau_num_classic)
 
 forces = forces_sym(q, q_dot, q_ddot)
-print("Spatial forces from this RNEA after update: \n", forces)
+print("Spatial forces from RNEA after update: \n", forces)
+
+force_base_num = force_base_sym(q, q_dot, q_ddot)
+print("Force base: \n", force_base_num)
 
 # force_before_update = forces_debug_sym(q, q_dot, q_ddot)
 # print("Spatial forces from velocities and accelerations only: \n", force_before_update)
@@ -95,14 +98,17 @@ print("Spatial forces from this RNEA after update: \n", forces)
 # print("Each_force_transformed: \n", each_force_transformed)
 
 print("############################################################")
-root = "force_plate"
+root = "base_link"
 q = [math.pi, -2.3345737645286135E-6, -2.3345737645286135E-6, -math.pi / 2, 2.382993625360541E-5, math.pi]
 q_dot = [0, 0, 0, 0, 0, 0]
 q_ddot = [0, 0, 0, 0, 0, 0]
 
-i_X_p_sym = ur5.get_model_calculation(root, tip)
-i_X_p = i_X_p_sym(q)
-print("i_X_p: \n", i_X_p)
+# i_X_p_sym, length = ur5.get_model_calculation(root, tip)
+# i_X_p = i_X_p_sym(q)
+# len = length(q)
+# print(len)
+# print("i_X_p: \n", i_X_p)
+
 
 f_force_plate = [2.871, -1.971, 172.724]
 f_ur5e_base = forces_force_plate_to_forces_ur5e_base(f_force_plate)
@@ -110,13 +116,17 @@ f_ur5e_base = forces_force_plate_to_forces_ur5e_base(f_force_plate)
 m_force_plate = [-17.089, -61.873, -0.089]
 m_ur5e_base = moments_force_plate_to_moments_ur5e_base(f_ur5e_base, m_force_plate)
 
-f_spacial_ur5e_base = np.concatenate([f_ur5e_base, m_ur5e_base])
+f_spatial_ur5e_base = np.concatenate([-1 * m_ur5e_base,-1 * f_ur5e_base])
 
-tau_sym_bu = ur5.get_inverse_dynamics_rnea_bottom_up(root, tip)
+# tau_sym_bu = ur5.get_inverse_dynamics_rnea_bottom_up(root, tip)
 
-f_sym = ur5.get_forces_bottom_up(root, tip, f_spacial_ur5e_base, gravity=[0, 0, -9.81])
+f_sym, f_b_sym = ur5.get_forces_bottom_up(root, tip, f_spatial_ur5e_base, gravity=[0, 0, -9.81])
 f_num = f_sym(q, q_dot, q_ddot)
+f_b_num = f_b_sym(q, q_dot, q_ddot)
 print("Bottom Up forces: \n", f_num)
+print("Sum of inertial forces: \n", f_b_num)
+
+print()
 
 tau_sym_bu_f = ur5.get_inverse_dynamics_rnea_bottom_up_f(root, tip, f_num)
 tau_sym_bu_f_num = tau_sym_bu_f(q)

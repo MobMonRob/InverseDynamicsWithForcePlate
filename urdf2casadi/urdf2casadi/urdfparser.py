@@ -718,18 +718,22 @@ class URDFparser(object):
         body_inertial_forces = []
         generalized_body_forces = []
 
-        generalized_body_forces.append(f_root)
         velocities.append(cs.mtimes(Si[0], q_dot[0]))
+
         if gravity is not None:
             ag = np.array([0., 0., 0., gravity[0], gravity[1], gravity[2]])
             accelerations.append(cs.mtimes(i_X_p[0], -ag) + cs.mtimes(Si[0], q_ddot[0]))
         else:
             accelerations.append(cs.mtimes(Si[0], q_ddot[0]))
-        body_inertial_forces.append(cs.mtimes(
-            Ic[0], accelerations[0])
-            + cs.mtimes(
-            plucker.force_cross_product(velocities[0]),
-            cs.mtimes(Ic[0], velocities[0])))
+
+        body_inertial_forces.append(
+            cs.mtimes(Ic[0], accelerations[0])
+            +
+            cs.mtimes(plucker.force_cross_product(velocities[0]), cs.mtimes(Ic[0], velocities[0])))
+        
+        # TODO: Hier fehlt möglicherweise eine Plücker-Transformation, bin mir nicht ganz sicher.
+        # generalized_body_forces.append(cs.mtimes(i_X_p[0], f_root))
+        generalized_body_forces.append(f_root)
 
         for i in range(1, n_joints):
             vJ = cs.mtimes(Si[i], q_dot[i])
@@ -741,19 +745,19 @@ class URDFparser(object):
 
             body_inertial_forces.append(
                 cs.mtimes(Ic[i], accelerations[i])
-                + cs.mtimes(
-                    plucker.force_cross_product(velocities[i]),
-                    cs.mtimes(Ic[i], velocities[i])))
-
+                +
+                cs.mtimes(plucker.force_cross_product(velocities[i]), cs.mtimes(Ic[i], velocities[i])))
+            
             generalized_body_forces.append(
                 cs.mtimes(
                     cs.inv_minor(i_X_p[i].T),
                     generalized_body_forces[i - 1] - body_inertial_forces[i - 1]))
-
+            
         # Declare the symbolic function with input [q, q_dot, q_ddot] and the output generalized_body_forces.
         generalized_body_forces = cs.Function("forces_bottom_up", [q, q_dot, q_ddot], generalized_body_forces, self.func_opts)
+        body_inertial_forces = cs.Function("body_intertials", [q, q_dot, q_ddot], body_inertial_forces, self.func_opts)
 
-        return generalized_body_forces
+        return generalized_body_forces, body_inertial_forces
 
     def get_inverse_dynamics_rnea_bottom_up(self, root, tip):
         """Returns the inverse dynamics as a casadi function."""
