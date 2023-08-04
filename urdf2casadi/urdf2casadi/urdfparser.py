@@ -731,7 +731,8 @@ class URDFparser(object):
             +
             cs.mtimes(plucker.force_cross_product(velocities[0]), cs.mtimes(Ic[0], velocities[0])))
         
-        # * Hier ist keine Plücker-Transformation notwendig.
+        # * Hier ist keine Plücker-Transformation notwendig:
+        # // generalized_body_forces.append(cs.mtimes(i_X_p[0], f_root))
         # * Begründung: Betrachte einen Roboter mit 3 Körperelementen, 3 Gelenken und einem Endeffektor.
         # * Annahme: Es gibt keine externen Kräfte.
         # * f_2 = f_2^B - (f_2^ext) + Sum[(f_j), j sind alle Nachfolger von 2] = f_2^B -----> tau_2 = S_2^T * f_2
@@ -740,7 +741,6 @@ class URDFparser(object):
         # * Die Berechnung geht Zig-Zagweise von oben nach unten. Drehe die Richtung um.
         # * Du siehst jetzt, dass du als erstes tau_0 = S_0^T * f_0 berechnest.
         # * Danach: f_0 = f_0^B + 0^X_1 * f_1 => f_1 = inv(0^X_1)*(f_0 - f_0^B) und so weiter.
-        # generalized_body_forces.append(cs.mtimes(i_X_p[0], f_root))
         generalized_body_forces.append(f_root)
 
         for i in range(1, n_joints):
