@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from ur_robot_data_acquisition.msg import Actual_q
+from ur_robot_data_acquisition.msg._Joint_parameters import Joint_parameters
 import copy
 from pathlib import Path
 from rtde_receive import RTDEReceiveInterface as RTDEReceive
@@ -11,11 +11,13 @@ receiver: RTDEReceive
 
 #############################################
 
+
 def acquire_and_publish():
     t_start = receiver.initPeriod()
     actual_q_list: list[float] = receiver.getActualQ()
-    actual_q: Actual_q = Actual_q(actual_q_list)
-    publisher.publish(actual_q)
+    actual_qd_list: list[float] = receiver.getActualQd()
+    joint_parameters: Joint_parameters = Joint_parameters(actual_q_list, actual_qd_list)
+    publisher.publish(joint_parameters)
     receiver.waitPeriod(t_start)
     return
 
@@ -25,10 +27,10 @@ def main():
     rospy.init_node(f"{Path(__file__).stem}", anonymous=True)
 
     global publisher
-    publisher = rospy.Publisher("Actual_q", Actual_q, queue_size = 1000)
+    publisher = rospy.Publisher("Joint_parameters", Joint_parameters, queue_size=1000)
 
     global receiver
-    receiver = RTDEReceive(hostname="192.168.12.1", frequency=500.0, variables=["actual_q"])
+    receiver = RTDEReceive(hostname="192.168.12.1", frequency=500.0, variables=["actual_q", "actual_qd"])
 
     rospy.loginfo(f"{Path(__file__).stem}: started.")
 
