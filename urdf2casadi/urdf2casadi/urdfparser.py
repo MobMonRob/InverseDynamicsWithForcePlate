@@ -731,7 +731,15 @@ class URDFparser(object):
             +
             cs.mtimes(plucker.force_cross_product(velocities[0]), cs.mtimes(Ic[0], velocities[0])))
         
-        # TODO: Hier fehlt möglicherweise eine Plücker-Transformation, bin mir nicht ganz sicher.
+        # * Hier ist keine Plücker-Transformation notwendig.
+        # * Begründung: Betrachte einen Roboter mit 3 Körperelementen, 3 Gelenken und einem Endeffektor.
+        # * Annahme: Es gibt keine externen Kräfte.
+        # * f_2 = f_2^B - (f_2^ext) + Sum[(f_j), j sind alle Nachfolger von 2] = f_2^B -----> tau_2 = S_2^T * f_2
+        # * f_1 = f_1^B + 1^X_2 * f_2 -----> tau_1 = S_1^T * f_1
+        # * f_0 = f_0^B + 0^X_1 * f_1 -----> tau_0 = S_0^T * f_0
+        # * Die Berechnung geht Zig-Zagweise von oben nach unten. Drehe die Richtung um.
+        # * Du siehst jetzt, dass du als erstes tau_0 = S_0^T * f_0 berechnest.
+        # * Danach: f_0 = f_0^B + 0^X_1 * f_1 => f_1 = inv(0^X_1)*(f_0 - f_0^B) und so weiter.
         # generalized_body_forces.append(cs.mtimes(i_X_p[0], f_root))
         generalized_body_forces.append(f_root)
 
@@ -752,7 +760,7 @@ class URDFparser(object):
                 cs.mtimes(
                     cs.inv_minor(i_X_p[i].T),
                     generalized_body_forces[i - 1] - body_inertial_forces[i - 1]))
-            
+
         # Declare the symbolic function with input [q, q_dot, q_ddot] and the output generalized_body_forces.
         generalized_body_forces = cs.Function("forces_bottom_up", [q, q_dot, q_ddot], generalized_body_forces, self.func_opts)
         body_inertial_forces = cs.Function("body_intertials", [q, q_dot, q_ddot], body_inertial_forces, self.func_opts)
