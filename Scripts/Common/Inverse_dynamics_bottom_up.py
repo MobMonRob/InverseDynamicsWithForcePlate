@@ -43,8 +43,10 @@ class Inverse_dynamics_force_plate_ur5e(object):
         print("Bottom Up forces: \n", f_num)
         print("Body inertials forces: \n", f_body_inertial_num)
 
-        tau_bottom_up_sym = self.rnea.get_inverse_dynamics_rnea_bottom_up_f(self.root, self.tip, f_num)
-        tau_bottom_up_num = tau_bottom_up_sym(q)
+        print(f"f_num: {f_num}")
+
+        tau_bottom_up_sym = self.rnea.get_inverse_dynamics_rnea_bottom_up_f(self.root, self.tip)
+        tau_bottom_up_num = tau_bottom_up_sym(q, *f_num)
         print("Bottom Up numerical inverse dynamics: \n", tau_bottom_up_num)
 
         return

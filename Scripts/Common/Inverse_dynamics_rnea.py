@@ -68,13 +68,14 @@ class Inverse_dynamics_rnea(object):
         return tau, forces
 
     # RNEA von mir
-    def get_inverse_dynamics_rnea_bottom_up_f(self, root, tip, forces):
+    def get_inverse_dynamics_rnea_bottom_up_f(self, root, tip):
         """Returns the inverse dynamics as a casadi function."""
         if self.urdfparser.robot_desc is None:
             raise ValueError('Robot description not loaded from urdf')
 
         n_joints = self.urdfparser.get_n_joints(root, tip)
         q = cs.SX.sym("q", n_joints)
+        spatial_forces = [cs.SX.sym(f"spatial_force{i}", n_joints) for i in range(n_joints)]
 
         _, Si, _ = self.urdfparser._model_calculation(root, tip, q)
 
@@ -82,11 +83,12 @@ class Inverse_dynamics_rnea(object):
 
         for i in range(0, n_joints):
             print("Si[{}]: {}".format(i, cs.DM(Si[i])))
-            print("The used force is: ", forces[i])
-            tau_bu[i] = cs.mtimes(Si[i].T, forces[i])
+            print("The used force is: ", spatial_forces[i])
+            print(f"cs.mtimes(Si[i].T, forces[i]): {q}")
+            tau_bu[i] = cs.mtimes(Si[i].T, spatial_forces[i])
             print("Intermediate result for tau_bu[{}]: {}\n".format(i, tau_bu[i]))
 
-        tau_bu = cs.Function("C_bu", [q], [tau_bu], self.urdfparser.func_opts)
+        tau_bu = cs.Function("C_bu", [q] + spatial_forces, [tau_bu], self.urdfparser.func_opts)
         return tau_bu
 
     # Von mir, berechnet Kräfte bottom-up, wenn die unterste spatial Kraft gegeben ist
