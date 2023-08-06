@@ -45,4 +45,3 @@ def listToDataFrame(theList: "list[T]") -> pd.DataFrame:
     values = [[getattr(element, fieldName) for fieldName in fieldNames] for element in theList]
     df: pd.DataFrame = pd.DataFrame(values, columns=fieldNames)
     return df
-

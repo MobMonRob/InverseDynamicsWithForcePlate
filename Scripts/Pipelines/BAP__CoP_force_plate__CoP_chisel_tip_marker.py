@@ -28,21 +28,22 @@ def execute():
     re: RosbagExtractor = RosbagExtractor.fromDir(dirPath=dirPath, topics=topics)
 
     # 1. CoPs der Kraftmessplatte berechnen
-    frameNumbers_to_forcePlateData: dict[int, list[Force_plate_data]] = re.getframeNumberToMsgs(topic_fp)
+    frameNumbers_to_forcePlateData: dict[int, list[Force_plate_data]] = re.getframeNumberToRosMsgs(topic_fp)
     forcePlateData_mean: list[Force_plate_data] = CoPs_force_plate.forcePlataData_mean_subsampleLists(frameNumbers_to_forcePlateData)
     frameNumber_to_CoP_force_plate_corner: dict[int, Point2D] = CoPs_force_plate.calculate_CoPs(forcePlateData_mean)
-    
+
     # 2. CoPs des marker tips
-    frameNumber_to_markerGlobalTranslation: dict[int, list[Marker_global_translation]] = re.getframeNumberToMsgs(topic_mgt)
+    frameNumber_to_markerGlobalTranslation: dict[int, list[Marker_global_translation]] = re.getframeNumberToRosMsgs(topic_mgt)
     msgs_mgt: list[Marker_global_translation] = Utils.mergeFrameNumberToList(frameNumbers_to_list=frameNumber_to_markerGlobalTranslation)
     validMarkers: pd.DataFrame = Valid_msgs_filter.removeInvalidMarkerFrames(Utils.listToDataFrame(msgs_mgt))
     frameNumber_to_marker_tip: dict[str, Point3D] = calculateMarkerTips(validMarkers)
-    
+
     # 3. Validieren
     Valid_msgs_filter.removeFramesNotOcurringEverywhere([frameNumber_to_CoP_force_plate_corner, frameNumber_to_marker_tip])
 
     # 4. Plotten
-    Bland_Altman_Plot.plot_x_and_y(frameNumber_to_CoP_force_plate_corner=frameNumber_to_CoP_force_plate_corner, frameNumber_to_CoP_marker=frameNumber_to_marker_tip, marker_CoP_name="CoP Marker an der Spitze", plotSaveDir=plotSaveDir)
+    Bland_Altman_Plot.plot_x_and_y(frameNumber_to_CoP_force_plate_corner=frameNumber_to_CoP_force_plate_corner,
+                                   frameNumber_to_CoP_marker=frameNumber_to_marker_tip, marker_CoP_name="CoP Marker an der Spitze", plotSaveDir=plotSaveDir)
 
     return
 
@@ -54,15 +55,14 @@ def calculateMarkerTips(validMarkers: pd.DataFrame) -> "dict[str, Point3D]":
 
     # Filter markers of interest
     df = validMarkers[validMarkers[markerNumberColumn].isin([8])]
-    
+
     # Drop unneeded columns
     df = df.drop(columns=[markerNumberColumn, occludedNumberColumn])
 
-    frameNumber_to_tip: dict[int, Point3D] = {row.frameNumber : Point3D(x_m=row.x_m, y_m=row.y_m, z_m=row.z_m) for index, row in df.iterrows()}
+    frameNumber_to_tip: dict[int, Point3D] = {row.frameNumber: Point3D(x_m=row.x_m, y_m=row.y_m, z_m=row.z_m) for index, row in df.iterrows()}
 
     return frameNumber_to_tip
 
 
 if __name__ == "__main__":
     execute()
-

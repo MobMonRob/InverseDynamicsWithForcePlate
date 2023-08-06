@@ -80,5 +80,6 @@
         "typeinfo": "cpp",
         "variant": "cpp"
     },
-    "python.analysis.typeCheckingMode": "off"
+    "python.analysis.typeCheckingMode": "off",
+    "cmake.configureOnOpen": false
 }

@@ -29,21 +29,22 @@ def execute():
     re: RosbagExtractor = RosbagExtractor.fromDir(dirPath=dirPath, topics=topics)
 
     # 1. CoPs der Kraftmessplatte berechnen
-    frameNumbers_to_forcePlateData: dict[int, list[Force_plate_data]] = re.getframeNumberToMsgs(topic_fp)
+    frameNumbers_to_forcePlateData: dict[int, list[Force_plate_data]] = re.getframeNumberToRosMsgs(topic_fp)
     forcePlateData_mean: list[Force_plate_data] = CoPs_force_plate.forcePlataData_mean_subsampleLists(frameNumbers_to_forcePlateData)
     frameNumber_to_CoP_force_plate_corner: dict[int, Point2D] = CoPs_force_plate.calculate_CoPs(forcePlateData_mean)
-    
+
     # 2. CoPs der Überschneidung berechnen
-    frameNumber_to_markerGlobalTranslation: dict[int, list[Marker_global_translation]] = re.getframeNumberToMsgs(topic_mgt)
+    frameNumber_to_markerGlobalTranslation: dict[int, list[Marker_global_translation]] = re.getframeNumberToRosMsgs(topic_mgt)
     msgs_mgt: list[Marker_global_translation] = Utils.mergeFrameNumberToList(frameNumbers_to_list=frameNumber_to_markerGlobalTranslation)
     validMarkers: pd.DataFrame = Valid_msgs_filter.removeInvalidMarkerFrames(Utils.listToDataFrame(msgs_mgt))
     frameNumber_to_intersections: dict[str, Point3D] = calculate_intersections_CoPs(validMarkers)
-    
+
     # 3. Validieren
     Valid_msgs_filter.removeFramesNotOcurringEverywhere([frameNumber_to_CoP_force_plate_corner, frameNumber_to_intersections])
 
     # 4. Plotten
-    Bland_Altman_Plot.plot_x_and_y(frameNumber_to_CoP_force_plate_corner=frameNumber_to_CoP_force_plate_corner, frameNumber_to_CoP_marker=frameNumber_to_intersections, marker_CoP_name="CoP Überschneidung", plotSaveDir=plotSaveDir)
+    Bland_Altman_Plot.plot_x_and_y(frameNumber_to_CoP_force_plate_corner=frameNumber_to_CoP_force_plate_corner,
+                                   frameNumber_to_CoP_marker=frameNumber_to_intersections, marker_CoP_name="CoP Überschneidung", plotSaveDir=plotSaveDir)
 
     return
 
@@ -60,19 +61,19 @@ def calculate_intersections_CoPs(validMarkers: pd.DataFrame) -> "dict[str, Point
         middlePoint2: Point3D = frameNumber_to_middlePoint2.get(frameNumber)
         line = Line3D(middlePoint1, middlePoint2)
         frameNumbers_to_lines[frameNumber] = line
-    
+
     plane: Plane3D = Plane3D.vicon_main_plane()
     intersector: LinePlaneIntersection = LinePlaneIntersection()
     frameNumber_to_intersections: dict[str, Point3D] = dict()
     for frameNumber, line in frameNumbers_to_lines.items():
         intersection: Point3D = intersector.intersect(line=line, plane=plane)
         frameNumber_to_intersections[frameNumber] = intersection
-    
+
     return frameNumber_to_intersections
 
 
 def dataFrame__to__frameNumbers_to_point3D(df: pd.DataFrame) -> "dict[int, Point3D]":
-    return{frameNumber: Point3D(**kwargs) for frameNumber, kwargs in df.to_dict(orient="index").items()}
+    return {frameNumber: Point3D(**kwargs) for frameNumber, kwargs in df.to_dict(orient="index").items()}
 
 
 def averageMarkers(df: pd.DataFrame, markerNumbers: "tuple[int]") -> pd.DataFrame:
@@ -82,7 +83,7 @@ def averageMarkers(df: pd.DataFrame, markerNumbers: "tuple[int]") -> pd.DataFram
 
     # Filter markers of interest
     filtered = df[df[markerNumberColumn].isin(markerNumbers)]
-    
+
     # Drop unneeded columns
     toAverage = filtered.drop(columns=[markerNumberColumn, occludedNumberColumn])
 
@@ -95,4 +96,3 @@ def averageMarkers(df: pd.DataFrame, markerNumbers: "tuple[int]") -> pd.DataFram
 
 if __name__ == "__main__":
     execute()
-
