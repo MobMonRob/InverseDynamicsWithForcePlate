@@ -37,9 +37,9 @@ class Inverse_dynamics_force_plate_ur5e(object):
 
         # tau_sym_bu = ur5.get_inverse_dynamics_rnea_bottom_up(root, tip)
 
-        f_sym, f_body_inertial = self.rnea.get_forces_bottom_up(self.root, self.tip, f_spatial_ur5e_base, gravity=[0, 0, -9.81])
-        f_num = f_sym(q, q_dot, q_ddot)
-        f_body_inertial_num = f_body_inertial(q, q_dot, q_ddot)
+        f_sym, f_body_inertial = self.rnea.get_forces_bottom_up(self.root, self.tip, gravity=[0, 0, -9.81])
+        f_num = f_sym(q, q_dot, q_ddot, f_spatial_ur5e_base)
+        f_body_inertial_num = f_body_inertial(q, q_dot, q_ddot, f_spatial_ur5e_base)
         print("Bottom Up forces: \n", f_num)
         print("Body inertials forces: \n", f_body_inertial_num)
 

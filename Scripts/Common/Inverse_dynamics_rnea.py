@@ -90,7 +90,7 @@ class Inverse_dynamics_rnea(object):
         return tau_bu
 
     # Von mir, berechnet Kräfte bottom-up, wenn die unterste spatial Kraft gegeben ist
-    def get_forces_bottom_up(self, root, tip, f_root, gravity=None):
+    def get_forces_bottom_up(self, root, tip, gravity=None):
         """
         Calculates the generalized body forces in bottom up manner.
 
@@ -115,6 +115,8 @@ class Inverse_dynamics_rnea(object):
 
         # Declare symbolic verctor of angular velocities q_ddot
         q_ddot = cs.SX.sym("q_ddot", n_joints)
+
+        f_spatial_base = cs.SX.sym("f_root", n_joints)
 
         # Get Plücker transformation matrices i_X_p, joint motion subspaces Si, inertia matrices Ic
         i_X_p, Si, Ic = self.urdfparser._model_calculation(root, tip, q)
@@ -147,7 +149,7 @@ class Inverse_dynamics_rnea(object):
         # * Die Berechnung geht Zig-Zagweise von oben nach unten. Drehe die Richtung um.
         # * Du siehst jetzt, dass du als erstes tau_0 = S_0^T * f_0 berechnest.
         # * Danach: f_0 = f_0^B + 0^X_1 * f_1 => f_1 = inv(0^X_1)*(f_0 - f_0^B) und so weiter.
-        generalized_body_forces.append(f_root)
+        generalized_body_forces.append(f_spatial_base)
 
         for i in range(1, n_joints):
             vJ = cs.mtimes(Si[i], q_dot[i])
@@ -168,8 +170,8 @@ class Inverse_dynamics_rnea(object):
                     generalized_body_forces[i - 1] - body_inertial_forces[i - 1]))
 
         # Declare the symbolic function with input [q, q_dot, q_ddot] and the output generalized_body_forces.
-        generalized_body_forces = cs.Function("forces_bottom_up", [q, q_dot, q_ddot], generalized_body_forces, self.urdfparser.func_opts)
-        body_inertial_forces = cs.Function("body_intertial_forces", [q, q_dot, q_ddot], body_inertial_forces, self.urdfparser.func_opts)
+        generalized_body_forces = cs.Function("forces_bottom_up", [q, q_dot, q_ddot, f_spatial_base], generalized_body_forces, self.urdfparser.func_opts)
+        body_inertial_forces = cs.Function("body_intertial_forces", [q, q_dot, q_ddot, f_spatial_base], body_inertial_forces, self.urdfparser.func_opts)
 
         return generalized_body_forces, body_inertial_forces
 
