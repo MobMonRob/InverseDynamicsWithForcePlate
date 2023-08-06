@@ -18,9 +18,13 @@ def execute():
     q_ddot: tuple = (0, 0, 0, 0, 0, 0)
 
     print("------------top_down.calculate_torques")
-    top_down.calculate_torques(q=q, q_dot=q_dot, q_ddot=q_ddot)
+    top_down_torques = top_down.calculate_torques(q=q, q_dot=q_dot, q_ddot=q_ddot)
+    print("top_down_torques: \n", top_down_torques)
     print("------------bottom_up.calculate_print")
-    bottom_up.calculate_print(q=q, q_dot=q_dot, q_ddot=q_ddot)
+    f_force_plate = (2.871, -1.971, 172.724)
+    m_force_plate = (-17.089, -61.873, -0.09)
+    bottom_up_torques = bottom_up.calculate_torques(q=q, q_dot=q_dot, q_ddot=q_ddot, f_force_plate=f_force_plate, m_force_plate=m_force_plate)
+    print("bottom_up_torques: \n", bottom_up_torques)
     return
 
 

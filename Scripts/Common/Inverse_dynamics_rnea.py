@@ -82,11 +82,7 @@ class Inverse_dynamics_rnea(object):
         tau_bu = cs.SX.zeros(n_joints)
 
         for i in range(0, n_joints):
-            print("Si[{}]: {}".format(i, cs.DM(Si[i])))
-            print("The used force is: ", spatial_forces[i])
-            print(f"cs.mtimes(Si[i].T, forces[i]): {q}")
             tau_bu[i] = cs.mtimes(Si[i].T, spatial_forces[i])
-            print("Intermediate result for tau_bu[{}]: {}\n".format(i, tau_bu[i]))
 
         tau_bu = cs.Function("C_bu", [q] + spatial_forces, [tau_bu], self.urdfparser.func_opts)
         return tau_bu
