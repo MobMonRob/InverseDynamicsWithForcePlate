@@ -730,7 +730,7 @@ class URDFparser(object):
             cs.mtimes(Ic[0], accelerations[0])
             +
             cs.mtimes(plucker.force_cross_product(velocities[0]), cs.mtimes(Ic[0], velocities[0])))
-        
+
         # * Hier ist keine Plücker-Transformation notwendig:
         # // generalized_body_forces.append(cs.mtimes(i_X_p[0], f_root))
         # * Begründung: Betrachte einen Roboter mit 3 Körperelementen, 3 Gelenken und einem Endeffektor.
@@ -755,7 +755,7 @@ class URDFparser(object):
                 cs.mtimes(Ic[i], accelerations[i])
                 +
                 cs.mtimes(plucker.force_cross_product(velocities[i]), cs.mtimes(Ic[i], velocities[i])))
-            
+
             generalized_body_forces.append(
                 cs.mtimes(
                     cs.inv_minor(i_X_p[i].T),
