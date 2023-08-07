@@ -29,7 +29,7 @@ class Inverse_dynamics_force_plate_ur5e(object):
 
         f_num = self.f_sym(q, q_dot, q_ddot, f_spatial_ur5e_base)
         tau_bottom_up_num = self.tau_bottom_up_sym(q, *f_num)
-        return tau_bottom_up_num
+        return tuple(tau_bottom_up_num.T.full()[0])
 
     @staticmethod
     def __forces_force_plate_to_forces_ur5e_base(forces: "list[float]") -> "list[float]":
