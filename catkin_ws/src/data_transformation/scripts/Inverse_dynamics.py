@@ -63,14 +63,6 @@ def callback_joint_parameters(jp: Joint_parameters):
     bottom_up_torques: SixTuple = bottom_up.calculate_torques(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value, f_force_plate=f_force_plate, m_force_plate=m_force_plate)
     top_down_torques: SixTuple = top_down.calculate_torques(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value)
 
-    if q_ddot.value[0] > 1e3:
-        print(f"top_down_torques[0]: {top_down_torques[0]}")
-        print(f"q: {q.value}")
-        print(f"q_dot: {q_dot.value}")
-        # print(f"q_dot robot: {jp.actual_joint_velocities}")
-        print(f"q_ddot: {q_ddot.value}")
-        print(f"---")
-
     publisher_calculated_qs.publish(Joint_parameters(actual_joint_positions=q_dot.value, actual_joint_velocities=q_ddot.value))
 
     joint_torques: Joint_torques = Joint_torques(bottom_up=bottom_up_torques, top_down=top_down_torques)
@@ -113,8 +105,11 @@ def calculate_qs(time: Time, jp: Joint_parameters) -> "Union[tuple[Timed_q, Time
         previous_q = q
         return None
     
-    q_dot: Timed_q = backward_derivative_secs(q2=q, q1=previous_q)
-    # q_dot: Timed_q = Timed_q(time, jp.actual_joint_velocities)
+    # Jitter in actual_joint_positions will lead to wrong huge velocities.
+    # Ideas to fix this: 1euroFilter on actual_joint_positions OR ignore huge velocities.
+    # Current workaround: use actual_joint_velocities from the robot instead.
+    # q_dot: Timed_q = backward_derivative_secs(q2=q, q1=previous_q)
+    q_dot: Timed_q = Timed_q(time, jp.actual_joint_velocities)
     previous_q = q
 
     if previos_q_dot == None:
@@ -122,9 +117,6 @@ def calculate_qs(time: Time, jp: Joint_parameters) -> "Union[tuple[Timed_q, Time
         return None
     
     q_ddot: Timed_q = backward_derivative_secs(q2=q_dot, q1=previos_q_dot)
-    if q_ddot.value[0] > 1e3:
-        print(q_ddot.value[0])
-        print((q_dot.time - previos_q_dot.time).to_sec())
     previos_q_dot = q_dot
 
     return (q, q_dot, q_ddot)
@@ -147,7 +139,7 @@ def execute():
     global publisher_calculated_qs
     publisher_calculated_qs = rospy.Publisher(f"{Path(__file__).stem}_dbg", Joint_parameters, queue_size=1000)
 
-    # SMA reagiert womöglich zu langsam.
+    # sma reacts too slowly here.
     rospy.Subscriber("Force_plate_data", Force_plate_data, callback_force_plate_data)
     rospy.Subscriber("Joint_parameters", Joint_parameters, callback_joint_parameters)
 
