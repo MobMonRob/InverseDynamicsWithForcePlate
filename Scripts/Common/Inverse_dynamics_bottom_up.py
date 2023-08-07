@@ -25,7 +25,10 @@ class Inverse_dynamics_force_plate_ur5e(object):
     def calculate_torques(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple, f_force_plate: ThreeTuple, m_force_plate: ThreeTuple) -> SixTuple:
         f_ur5e_base = Inverse_dynamics_force_plate_ur5e.__forces_force_plate_to_forces_ur5e_base(f_force_plate)
         m_ur5e_base = Inverse_dynamics_force_plate_ur5e.__moments_force_plate_to_moments_ur5e_base(f_ur5e_base, m_force_plate)
-        f_spatial_ur5e_base = np.concatenate([-1 * m_ur5e_base, -1 * f_ur5e_base])
+
+        # Verified direction. AMTI force plate: moments rotate clockwise; urdf model: moments rotate counterclockwise.
+        # Spatial forces contain the moments first and then the forces.
+        f_spatial_ur5e_base = np.concatenate([-1 * m_ur5e_base, f_ur5e_base])
 
         f_num = self.f_sym(q, q_dot, q_ddot, f_spatial_ur5e_base)
         tau_bottom_up_num = self.tau_bottom_up_sym(q, *f_num)
