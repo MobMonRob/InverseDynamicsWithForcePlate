@@ -18,7 +18,7 @@ class Inverse_dynamics_force_plate_ur5e(object):
         root = "base_link"
         tip = "tool0"
 
-        self.f_sym, self.f_body_inertial = rnea.get_forces_bottom_up(root, tip, gravity=[0, 0, -9.81])
+        self.f_sym, self.f_body_inertial_sym = rnea.get_forces_bottom_up(root, tip, gravity=[0, 0, -9.81])
         self.tau_bottom_up_sym = rnea.get_inverse_dynamics_rnea_bottom_up_f(root, tip)
         return
 
@@ -26,8 +26,8 @@ class Inverse_dynamics_force_plate_ur5e(object):
         f_ur5e_base = Inverse_dynamics_force_plate_ur5e.__forces_force_plate_to_forces_ur5e_base(f_force_plate)
         m_ur5e_base = Inverse_dynamics_force_plate_ur5e.__moments_force_plate_to_moments_ur5e_base(f_ur5e_base, m_force_plate)
 
-        # Verified direction. AMTI force plate: moments rotate clockwise; urdf model: moments rotate counterclockwise.
-        # Spatial forces contain the moments first and then the forces.
+        # ! Verified direction. AMTI force plate: moments rotate clockwise; urdf model: moments rotate counterclockwise.
+        # ! Spatial forces contain the moments first and then the forces.
         f_spatial_ur5e_base = np.concatenate([-1 * m_ur5e_base, f_ur5e_base])
 
         f_num = self.f_sym(q, q_dot, q_ddot, f_spatial_ur5e_base)
