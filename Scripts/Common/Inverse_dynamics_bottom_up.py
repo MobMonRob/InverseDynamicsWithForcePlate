@@ -30,6 +30,8 @@ class Inverse_dynamics_force_plate_ur5e(object):
         # ! Spatial forces contain the moments first and then the forces.
         f_spatial_ur5e_base = np.concatenate([-1 * m_ur5e_base, f_ur5e_base])
 
+        # print(self.f_body_inertial_sym(q, q_dot, q_ddot, f_spatial_ur5e_base))
+
         f_num = self.f_sym(q, q_dot, q_ddot, f_spatial_ur5e_base)
         tau_bottom_up_num = self.tau_bottom_up_sym(q, *f_num)
         return tuple(tau_bottom_up_num.T.full()[0])

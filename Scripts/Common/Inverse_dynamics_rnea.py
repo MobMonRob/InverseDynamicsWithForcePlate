@@ -175,10 +175,10 @@ class Inverse_dynamics_rnea(object):
                     generalized_body_forces[i - 1] - ( - body_inertial_forces[i - 1])))
 
         # Declare the symbolic function with input [q, q_dot, q_ddot] and the output generalized_body_forces.
-        generalized_body_forces = cs.Function("forces_bottom_up", [q, q_dot, q_ddot, f_spatial_base], generalized_body_forces, self.urdfparser.func_opts)
-        body_inertial_forces = cs.Function("body_intertial_forces", [q, q_dot, q_ddot, f_spatial_base], body_inertial_forces, self.urdfparser.func_opts)
+        generalized_body_forces_func = cs.Function("forces_bottom_up", [q, q_dot, q_ddot, f_spatial_base], generalized_body_forces, self.urdfparser.func_opts)
+        body_inertial_forces_func = cs.Function("body_intertial_forces", [q, q_dot, q_ddot, f_spatial_base], body_inertial_forces, self.urdfparser.func_opts)
 
-        return generalized_body_forces, body_inertial_forces
+        return generalized_body_forces_func, body_inertial_forces_func
 
     # Zeigt die Pluecker-Matrizen (Transformationen) an. Ich denke, die Methode brauche ich nicht.
     def get_model_calculation(self, root, tip):
