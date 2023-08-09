@@ -70,9 +70,9 @@ def generate_bland_altman_plot(config: BAP_config):
     sd = np.std(diffs, axis=0)   # Standard deviation of the difference
     CI_low = md - 1.96 * sd
     CI_high = md + 1.96 * sd
-    plt.axhline(md,             color='red',   linestyle='-')
-    plt.axhline(md + 1.96 * sd, color='green', linestyle='--')
-    plt.axhline(md - 1.96 * sd, color='green', linestyle='--')
+    plt.axhline(md,             color='k',   linestyle='-')
+    plt.axhline(md + 1.96 * sd, color='k', linestyle='--')
+    plt.axhline(md - 1.96 * sd, color='k', linestyle='--')
 
     meanString = "Mittelwert"
     standardDeviationString = "$\sigma$"
