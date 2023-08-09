@@ -17,16 +17,17 @@ from Common import Utils
 #! Nur aussagekräftig, wenn ausschließlich Werte im rosbag, wo der Meißel auf dem Punkt sitzt.
 class BAP__CoP_force_plate__CoP_chisel_tip_marker:
     def __init__(self) -> None:
-        self.dirPath: str = "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/Data/2023_07_24 - 20 Punkte/"
-        self.bagPath: str = f"{self.dirPath}2023-07-24-16-37-12.bag"
-        self.plotSaveDir: str = "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/Scripts/Pipelines/Plots/"
+        rootDir: str = os.path.abspath(f"{SCRIPT_DIR}/../..")
+        self.dataDir: str = f"{rootDir}/Data/2023_07_24 - 20 Punkte/"
+        self.bagPath: str = f"{self.dataDir}2023-07-24-16-37-12.bag"
+        self.plotSaveDir: str = f"{rootDir}/Plots/"
 
         self.topic_fp: str = "/Force_plate_data_sma"
         self.topic_mgt: str = "/Marker_global_translation"
         self.topics: set[str] = set([self.topic_fp, self.topic_mgt])
 
         # self.re: RosbagExtractor = RosbagExtractor.fromBag(bagPath=self.bagPath, topics=self.topics)
-        self.re: RosbagExtractor = RosbagExtractor.fromDir(dirPath=self.dirPath, topics=self.topics)
+        self.re: RosbagExtractor = RosbagExtractor.fromDir(dirPath=self.dataDir, topics=self.topics)
         return
 
     def execute(self):

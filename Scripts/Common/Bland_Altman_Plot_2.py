@@ -113,7 +113,7 @@ def generate_bland_altman_plot(config: BAP_config):
     plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.png", format="png")
 
     # Needed for saving
-    plt.ion()
+    # plt.ion()
     plt.show()
     plt.close()
 
@@ -132,7 +132,7 @@ def __plot_sets(sets: "list[BAP_set]", colors: Iterator):
         x2 = np.asarray(set.x2)
         mean = np.mean([x1, x2], axis=0)
         diff = x1 - x2
-        plt.scatter(x=mean, y=diff, marker=".", linewidths=0.1, color=next(colors))
+        plt.scatter(x=mean, y=diff, marker="_", color=next(colors), alpha=0.05, s=20)
         means.append(mean)
         diffs.append(diff)
     means = np.concatenate(means)
