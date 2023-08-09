@@ -11,7 +11,7 @@ import collections
 
 
 class RosbagExtractor():
-    def getframeNumberToRosMsgs(self, topic: str) -> "dict[int, list]":
+    def getFrameNumberToRosMsgs(self, topic: str) -> "dict[int, list]":
         bagPaths_to_msgs: dict[str, Msgs[BagMessage]] = self.indexedMsgs.get_bagPaths_to_msgs(topic=topic)
         ros_msgs: list = list()
         for msgs in bagPaths_to_msgs.values():
@@ -22,6 +22,13 @@ class RosbagExtractor():
 
     def getIndexedBagMsgs(self) -> "IndexedBagMsgs":
         return copy(self.indexedMsgs)
+
+    def getFrameNumberToRosMsgs(self, bagPath: str, topic: str) -> "dict[int, list]":
+        msgs: BagMsgs = self.indexedMsgs.get_msgs(topic=topic, bagPath=bagPath)
+        ros_msgs: list = [bagMessge.message for bagMessge in msgs.msgs]
+        frameNumber_to_msgs: dict[int, list] = Utils.groupMsgsOnFrameNumber(ros_msgs)
+        Valid_msgs_filter.removeIncompleteFrameNumberGroups(frameNumber_to_msgs)
+        return frameNumber_to_msgs
 
     def __init__(self):
         self.topics: set[str] = []
@@ -166,7 +173,7 @@ class IndexedMsgs(Generic[T]):
         bagPaths_to_msgs: dict[str, Msgs[T]] = {_bagPath: msgs for (_topic, _bagPath), msgs in self.__topics_and_bagPaths_to_msgs.items() if _topic == topic}
         return bagPaths_to_msgs
 
-    def get_topic_to_msgs(self, bagPath: str) -> "dict[str, Msgs[T]]":
+    def get_topics_to_msgs(self, bagPath: str) -> "dict[str, Msgs[T]]":
         topics_to_msgs: dict[str, Msgs[T]] = {_topic: msgs for (_topic, _bagPath), msgs in self.__topics_and_bagPaths_to_msgs.items() if _bagPath == bagPath}
         return topics_to_msgs
 

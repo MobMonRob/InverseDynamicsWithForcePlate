@@ -29,12 +29,12 @@ def execute():
     re: RosbagExtractor = RosbagExtractor.fromDir(dirPath=dirPath, topics=topics)
 
     # 1. CoPs der Kraftmessplatte berechnen
-    frameNumbers_to_forcePlateData: dict[int, list[Force_plate_data]] = re.getframeNumberToRosMsgs(topic_fp)
+    frameNumbers_to_forcePlateData: dict[int, list[Force_plate_data]] = re.getFrameNumberToRosMsgs(topic_fp)
     forcePlateData_mean: list[Force_plate_data] = CoPs_force_plate.forcePlataData_mean_subsampleLists(frameNumbers_to_forcePlateData)
     frameNumber_to_CoP_force_plate_corner: dict[int, Point2D] = CoPs_force_plate.calculate_CoPs(forcePlateData_mean)
 
     # 2. CoPs der Überschneidung berechnen
-    frameNumber_to_markerGlobalTranslation: dict[int, list[Marker_global_translation]] = re.getframeNumberToRosMsgs(topic_mgt)
+    frameNumber_to_markerGlobalTranslation: dict[int, list[Marker_global_translation]] = re.getFrameNumberToRosMsgs(topic_mgt)
     msgs_mgt: list[Marker_global_translation] = Utils.mergeFrameNumberToList(frameNumbers_to_list=frameNumber_to_markerGlobalTranslation)
     validMarkers: pd.DataFrame = Valid_msgs_filter.removeInvalidMarkerFrames(Utils.listToDataFrame(msgs_mgt))
     frameNumber_to_intersections: dict[str, Point3D] = calculate_intersections_CoPs(validMarkers)

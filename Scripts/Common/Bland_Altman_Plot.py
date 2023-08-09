@@ -5,8 +5,10 @@ import numpy as np
 import pandas as pd
 from math import sqrt
 from Common.geometry_classes import Point2D, Point3D
+from deprecated import deprecated
 
 
+@deprecated
 def plot_x_and_y(frameNumber_to_CoP_force_plate_corner: "dict[int, Point2D]", frameNumber_to_CoP_marker: "dict[str, Point3D]", marker_CoP_name: str, plotSaveDir: str):
     # plot x
     CoP_force_plate_list: list[float] = []
@@ -16,11 +18,12 @@ def plot_x_and_y(frameNumber_to_CoP_force_plate_corner: "dict[int, Point2D]", fr
         CoP_marker: Point3D = frameNumber_to_CoP_marker.get(frameNumber)
         CoP_force_plate_list.append(CoP_force_plate.x)
         CoP_marker_list.append(CoP_marker.x_m)
-    
+
     CoP_force_plate_list = scale(CoP_force_plate_list, 1000)
     CoP_marker_list = scale(CoP_marker_list, 1000)
 
-    generate_bland_altman_plot(data1=CoP_force_plate_list, data2=CoP_marker_list, dataName1="CoP Kraftmessplatte", dataName2=marker_CoP_name, units="[mm]", saveDir=plotSaveDir, additionalComment="(x-Achse)")
+    generate_bland_altman_plot(data1=CoP_force_plate_list, data2=CoP_marker_list, dataName1="CoP Kraftmessplatte",
+                               dataName2=marker_CoP_name, units="[mm]", saveDir=plotSaveDir, additionalComment="(x-Achse)")
 
     # plot y
     CoP_force_plate_list: list[float] = []
@@ -34,7 +37,8 @@ def plot_x_and_y(frameNumber_to_CoP_force_plate_corner: "dict[int, Point2D]", fr
     CoP_force_plate_list = scale(CoP_force_plate_list, 1000)
     CoP_marker_list = scale(CoP_marker_list, 1000)
 
-    generate_bland_altman_plot(data1=CoP_force_plate_list, data2=CoP_marker_list, dataName1="CoP Kraftmessplatte", dataName2=marker_CoP_name, units="[mm]", saveDir=plotSaveDir, additionalComment="(y-Achse)")
+    generate_bland_altman_plot(data1=CoP_force_plate_list, data2=CoP_marker_list, dataName1="CoP Kraftmessplatte",
+                               dataName2=marker_CoP_name, units="[mm]", saveDir=plotSaveDir, additionalComment="(y-Achse)")
 
     return
 
@@ -42,7 +46,7 @@ def plot_x_and_y(frameNumber_to_CoP_force_plate_corner: "dict[int, Point2D]", fr
 def scale(data: 'list[float]', factor: int) -> "list[float]":
     if factor % 10 != 0:
         raise RuntimeError("factor % 10 != 0")
-    
+
     df = pd.DataFrame(data=data, columns=["data"])
     series = df["data"].apply(lambda x: float(x) * factor)
     return list(series)
@@ -120,4 +124,3 @@ def __bland_altman_plot(data1, data2, *args, **kwargs):
     plt.axhline(md + 1.96 * sd, color='green', linestyle='--')
     plt.axhline(md - 1.96 * sd, color='green', linestyle='--')
     return md, sd, mean, CI_low, CI_high
-

@@ -27,7 +27,7 @@ def execute():
     # re: RosbagExtractor = RosbagExtractor.fromDir(dirPath=dirPath, topics=topics)
 
     # 1. CoPs der Kraftmessplatte berechnen
-    frameNumbers_to_forcePlateData: dict[int, list[Force_plate_data]] = re.getframeNumberToRosMsgs(topic_fp)
+    frameNumbers_to_forcePlateData: dict[int, list[Force_plate_data]] = re.getFrameNumberToRosMsgs(topic_fp)
     forcePlateData_mean: list[Force_plate_data] = CoPs_force_plate.forcePlataData_mean_subsampleLists(frameNumbers_to_forcePlateData)
     frameNumber_to_CoP_force_plate_corner: dict[int, Point2D] = CoPs_force_plate.calculate_CoPs(forcePlateData_mean)
 
