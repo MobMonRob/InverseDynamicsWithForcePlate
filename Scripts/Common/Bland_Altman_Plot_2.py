@@ -7,7 +7,6 @@ import pandas as pd
 from math import sqrt
 from Common.geometry_classes import Point2D, Point3D
 from dataclasses import dataclass
-import itertools
 from typing import Iterator
 
 
@@ -63,7 +62,7 @@ def __scale(data: 'list[float]', factor: int) -> "list[float]":
     return list(series)
 
 
-def generate_bland_altman_plot(config: BAP_config):
+def generate_bland_altman_plot(config: BAP_config, showplot: bool = True):
     means, diffs = __plot_sets(sets=config.sets, colors=config.colors)
 
     md = np.mean(diffs)          # Mean of the difference
@@ -109,11 +108,13 @@ def generate_bland_altman_plot(config: BAP_config):
 
     sizeFactor: float = 8  # 5
     plt.gcf().set_size_inches(w=sqrt(2) * sizeFactor, h=1 * sizeFactor)
-    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.svg", format="svg")
-    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.png", format="png")
+    dpi: int = 200
+    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.svg", format="svg", dpi=dpi)
+    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.png", format="png", dpi=dpi)
 
     # Needed for saving
-    # plt.ion()
+    if not showplot:
+        plt.ion()
     plt.show()
     plt.close()
 
@@ -132,7 +133,8 @@ def __plot_sets(sets: "list[BAP_set]", colors: Iterator):
         x2 = np.asarray(set.x2)
         mean = np.mean([x1, x2], axis=0)
         diff = x1 - x2
-        plt.scatter(x=mean, y=diff, marker="_", color=next(colors), alpha=0.05, s=20)
+        # alphas = np.linspace(0.1, 0.5, len(set.x1))
+        plt.scatter(x=mean, y=diff, marker="_", color=next(colors), alpha=0.05, s=20)  # 0.05
         means.append(mean)
         diffs.append(diff)
     means = np.concatenate(means)

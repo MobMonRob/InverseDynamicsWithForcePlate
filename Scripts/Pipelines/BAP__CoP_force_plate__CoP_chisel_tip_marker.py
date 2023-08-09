@@ -26,8 +26,8 @@ class BAP__CoP_force_plate__CoP_chisel_tip_marker:
         self.topic_mgt: str = "/Marker_global_translation"
         self.topics: set[str] = set([self.topic_fp, self.topic_mgt])
 
-        # self.re: RosbagExtractor = RosbagExtractor.fromBag(bagPath=self.bagPath, topics=self.topics)
-        self.re: RosbagExtractor = RosbagExtractor.fromDir(dirPath=self.dataDir, topics=self.topics)
+        self.re: RosbagExtractor = RosbagExtractor.fromBag(bagPath=self.bagPath, topics=self.topics)
+        # self.re: RosbagExtractor = RosbagExtractor.fromDir(dirPath=self.dataDir, topics=self.topics)
         return
 
     def execute(self):
