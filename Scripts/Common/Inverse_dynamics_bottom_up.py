@@ -6,6 +6,7 @@ from typing import Tuple
 
 SixTuple = Tuple[float, float, float, float, float, float]
 ThreeTuple = Tuple[float, float, float]
+SixTupleTuple = Tuple[SixTuple, SixTuple, SixTuple, SixTuple, SixTuple, SixTuple]
 
 
 class Inverse_dynamics_force_plate_ur5e(object):
@@ -23,6 +24,15 @@ class Inverse_dynamics_force_plate_ur5e(object):
         return
 
     def calculate_torques(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple, f_force_plate: ThreeTuple, m_force_plate: ThreeTuple) -> SixTuple:
+        f_num = self.__calculate_forces(q=q, q_dot=q_dot, q_ddot=q_ddot, f_force_plate=f_force_plate, m_force_plate=m_force_plate)
+        tau_bottom_up_num = self.tau_bottom_up_sym(q, *f_num)
+        return tuple(tau_bottom_up_num.T.full()[0])
+
+    def calculate_forces(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple, f_force_plate: ThreeTuple, m_force_plate: ThreeTuple) -> SixTupleTuple:
+        f_num = self.__calculate_forces(q=q, q_dot=q_dot, q_ddot=q_ddot, f_force_plate=f_force_plate, m_force_plate=m_force_plate)
+        return tuple(tuple(force.T.full()[0]) for force in f_num)
+
+    def __calculate_forces(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple, f_force_plate: ThreeTuple, m_force_plate: ThreeTuple):
         f_ur5e_base = Inverse_dynamics_force_plate_ur5e.__forces_force_plate_to_forces_ur5e_base(f_force_plate)
         m_ur5e_base = Inverse_dynamics_force_plate_ur5e.__moments_force_plate_to_moments_ur5e_base(f_ur5e_base, m_force_plate)
 
@@ -33,8 +43,8 @@ class Inverse_dynamics_force_plate_ur5e(object):
         # print(self.f_body_inertial_sym(q, q_dot, q_ddot, f_spatial_ur5e_base))
 
         f_num = self.f_sym(q, q_dot, q_ddot, f_spatial_ur5e_base)
-        tau_bottom_up_num = self.tau_bottom_up_sym(q, *f_num)
-        return tuple(tau_bottom_up_num.T.full()[0])
+
+        return f_num
 
     def calculate_torques_from_base_force(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple, base_force: SixTuple) -> SixTuple:
         f_num = self.f_sym(q, q_dot, q_ddot, base_force)

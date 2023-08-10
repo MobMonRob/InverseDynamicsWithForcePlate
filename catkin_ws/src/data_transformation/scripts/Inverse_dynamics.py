@@ -27,7 +27,7 @@ Timed_q = Timed_T["list[float]"]
 publisher = None
 top_down: Inverse_dynamics_top_down = Inverse_dynamics_top_down()
 bottom_up: Inverse_dynamics_force_plate_ur5e = Inverse_dynamics_force_plate_ur5e()
-publisher_calculated_qs = None
+# publisher_calculated_qs = None
 
 #############################################
 
@@ -47,7 +47,7 @@ def callback_joint_parameters(jp: Joint_parameters):
     global publisher
     global top_down
     global bottom_up
-    global publisher_calculated_qs
+    # global publisher_calculated_qs
 
     # Calculate q, q_dot, q_ddot
     qs = calculate_qs(time=Time.now(), jp=jp)
@@ -63,8 +63,13 @@ def callback_joint_parameters(jp: Joint_parameters):
     m_force_plate: ThreeTuple = (mean_fpd.mx_Nm, mean_fpd.my_Nm, mean_fpd.mz_Nm)
 
     # Calculate torques
-    bottom_up_torques: SixTuple = bottom_up.calculate_torques(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value, f_force_plate=f_force_plate, m_force_plate=m_force_plate)
-    top_down_torques: SixTuple = top_down.calculate_torques(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value)
+    # bottom_up_torques: SixTuple = bottom_up.calculate_torques(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value, f_force_plate=f_force_plate, m_force_plate=m_force_plate)
+    # top_down_torques: SixTuple = top_down.calculate_torques(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value)
+
+    # Compare forces
+    index = 0
+    bottom_up_torques: SixTuple = bottom_up.calculate_forces(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value, f_force_plate=f_force_plate, m_force_plate=m_force_plate)[index]
+    top_down_torques: SixTuple = top_down.calculate_forces(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value)[index]
 
     # Validate bottom_up calculation part without force_plate.
     # Expect to see identical torques. Succeeded 11.08.2023.
@@ -72,7 +77,7 @@ def callback_joint_parameters(jp: Joint_parameters):
     # base_force: SixTuple = top_down.calculate_forces(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value)[0]
     # bottom_up_torques: SixTuple = bottom_up.calculate_torques_from_base_force(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value, base_force=base_force)
 
-    publisher_calculated_qs.publish(Joint_parameters(actual_joint_positions=q_dot.value, actual_joint_velocities=q_ddot.value))
+    # publisher_calculated_qs.publish(Joint_parameters(actual_joint_positions=q_dot.value, actual_joint_velocities=q_ddot.value))
 
     joint_torques: Joint_torques = Joint_torques(bottom_up=bottom_up_torques, top_down=top_down_torques)
 
@@ -149,8 +154,8 @@ def execute():
     global publisher
     publisher = rospy.Publisher(f"{Path(__file__).stem}", Joint_torques, queue_size=1000)
 
-    global publisher_calculated_qs
-    publisher_calculated_qs = rospy.Publisher(f"{Path(__file__).stem}_dbg", Joint_parameters, queue_size=1000)
+    # global publisher_calculated_qs
+    # publisher_calculated_qs = rospy.Publisher(f"{Path(__file__).stem}_dbg", Joint_parameters, queue_size=1000)
 
     # sma reacts too slowly here.
     rospy.Subscriber("Force_plate_data_1euro_filter", Force_plate_data, callback_force_plate_data)
