@@ -66,5 +66,5 @@ Update lib: `pip3 install -U <libname>`
 - To use it live, just start it together with the respective ros nodes when collecting data.
 - To use it on saved data, additionally:
 	- Execute `rosbag play -l <bagname>`.
-	- Perhaps start some ros nodes that will work with the topics from the rosbags.
+	- Optionally start some ros nodes that will work with the topics from the rosbags.
 
