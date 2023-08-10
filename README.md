@@ -62,9 +62,9 @@ Update lib: `pip3 install -U <libname>`
 
 #### Analyze time series visually:
 - Start PlotJuggler via `rosrun plotjuggler plotjuggler`.
-- You can use some PlotJuggler layouts safed in [catkin_ws](catkin_ws). Their filename extension is `.xml`.
-- To use it live, just start it together with the respective ros nodes when collecting data.
+- You can use some PlotJuggler layouts saved in [catkin_ws](catkin_ws). Their filename extension is `.xml`.
+- To use it live, start it together with the respective ros nodes when collecting data.
 - To use it on saved data, additionally:
 	- Execute `rosbag play -l <bagname>`.
-	- Optionally start some ros nodes that will work with the topics from the rosbags.
+	- Optionally, start some ros nodes that will work with the topics from the rosbags.
 
