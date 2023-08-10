@@ -7,7 +7,10 @@ import pandas as pd
 from math import sqrt
 from Common.geometry_classes import Point2D, Point3D
 from dataclasses import dataclass
-from typing import Iterator
+from typing import Iterator, Tuple
+import math
+import statistics
+from reloading import reloading
 
 
 @dataclass
@@ -62,7 +65,7 @@ def __scale(data: 'list[float]', factor: int) -> "list[float]":
     return list(series)
 
 
-def generate_bland_altman_plot(config: BAP_config, showplot: bool = True):
+def generate_bland_altman_plot(config: BAP_config, showplot: bool = False):
     means, diffs = __plot_sets(sets=config.sets, colors=config.colors)
 
     md = np.mean(diffs)          # Mean of the difference
@@ -113,7 +116,9 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = True):
     plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.png", format="png", dpi=dpi)
 
     # Needed for saving
-    if not showplot:
+    if showplot:
+        plt.ioff()
+    else:
         plt.ion()
     plt.show()
     plt.close()
@@ -121,6 +126,7 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = True):
     return
 
 
+@reloading
 def __plot_sets(sets: "list[BAP_set]", colors: Iterator):
     for set in sets:
         if len(set.x1) != len(set.x2):
@@ -133,11 +139,45 @@ def __plot_sets(sets: "list[BAP_set]", colors: Iterator):
         x2 = np.asarray(set.x2)
         mean = np.mean([x1, x2], axis=0)
         diff = x1 - x2
-        # alphas = np.linspace(0.1, 0.5, len(set.x1))
-        plt.scatter(x=mean, y=diff, marker="_", color=next(colors), alpha=0.05, s=20)  # 0.05
         means.append(mean)
         diffs.append(diff)
+        seg_means, seg_diffs, alphas = __segment(mean=mean, diff=diff, binSize_m=1.0, binsSize_d=0.3, maxAlpha=0.8, minAlpha=0.3)
+        plt.scatter(x=seg_means, y=seg_diffs, marker="_", color=next(colors), alpha=alphas, s=50)
     means = np.concatenate(means)
     diffs = np.concatenate(diffs)
 
     return means, diffs
+
+
+def __segment(mean, diff, binSize_m: float, binsSize_d: float, maxAlpha: float, minAlpha: float):
+    if maxAlpha < minAlpha:
+        raise RuntimeError("maxAlpha < minAlpha")
+
+    bins: dict[Tuple[int, int], list[Tuple[float, float]]] = dict()
+
+    for m, d in np.nditer([mean, diff]):
+        m_bin: int = math.floor(m / binSize_m)
+        d_bin: int = math.floor(d / binsSize_d)
+        key: Tuple[int, int] = (m_bin, d_bin)
+        bin: list[Tuple[float, float]] = bins.get(key, None)
+        if bin == None:
+            bin = list()
+            bins[key] = bin
+        value: Tuple[float, float] = (float(m), float(d))
+        bin.append(value)
+
+    max_len = float(max([len(values) for values in bins.values()]))
+
+    seg_means: list[float] = list()
+    seg_diffs: list[float] = list()
+    alphas: list[float] = list()
+
+    for key, list_md in bins.items():
+        seg_mean: float = statistics.fmean([m for m, d in list_md])
+        seg_diff: float = statistics.fmean([d for m, d in list_md])
+        seg_means.append(seg_mean)
+        seg_diffs.append(seg_diff)
+        alpha: float = (float(len(list_md)) / max_len) * (maxAlpha - minAlpha) + minAlpha
+        alphas.append(alpha)
+
+    return seg_means, seg_diffs, alphas

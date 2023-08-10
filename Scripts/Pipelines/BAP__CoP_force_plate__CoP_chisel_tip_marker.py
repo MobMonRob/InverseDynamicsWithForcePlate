@@ -26,8 +26,8 @@ class BAP__CoP_force_plate__CoP_chisel_tip_marker:
         self.topic_mgt: str = "/Marker_global_translation"
         self.topics: set[str] = set([self.topic_fp, self.topic_mgt])
 
-        self.re: RosbagExtractor = RosbagExtractor.fromBag(bagPath=self.bagPath, topics=self.topics)
-        # self.re: RosbagExtractor = RosbagExtractor.fromDir(dirPath=self.dataDir, topics=self.topics)
+        # self.re: RosbagExtractor = RosbagExtractor.fromBag(bagPath=self.bagPath, topics=self.topics)
+        self.re: RosbagExtractor = RosbagExtractor.fromDir(dirPath=self.dataDir, topics=self.topics)
         return
 
     def execute(self):
@@ -48,15 +48,16 @@ class BAP__CoP_force_plate__CoP_chisel_tip_marker:
         colors.extend(["b"] * 4)
         colors.extend(["g"] * 2)
 
-        dataName1 = "CoP Kraftmessplatte"
-        dataName2 = "CoP Marker an der Spitze"
-        units = "[mm]"
-        config_x: BAP_config = BAP_config(sets=sets_x, colors=iter(colors), dataName1=dataName1, dataName2=dataName2, units=units, additionalComment="(x-Achse)", plotSaveDir=self.plotSaveDir)
-        config_y: BAP_config = BAP_config(sets=sets_y, colors=iter(colors), dataName1=dataName1, dataName2=dataName2, units=units, additionalComment="(y-Achse)", plotSaveDir=self.plotSaveDir)
+        while True:
+            dataName1 = "CoP Kraftmessplatte"
+            dataName2 = "CoP Marker an der Spitze"
+            units = "[mm]"
+            config_x: BAP_config = BAP_config(sets=sets_x, colors=iter(colors), dataName1=dataName1, dataName2=dataName2, units=units, additionalComment="(x-Achse)", plotSaveDir=self.plotSaveDir)
+            config_y: BAP_config = BAP_config(sets=sets_y, colors=iter(colors), dataName1=dataName1, dataName2=dataName2, units=units, additionalComment="(y-Achse)", plotSaveDir=self.plotSaveDir)
 
-        # Plotten
-        generate_bland_altman_plot(config=config_x)
-        generate_bland_altman_plot(config=config_y)
+            # Plotten
+            generate_bland_altman_plot(config=config_x, showplot=True)
+            generate_bland_altman_plot(config=config_y, showplot=False)
 
         return
 
