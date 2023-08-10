@@ -4,46 +4,65 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))  # nopep8
 sys.path.append(os.path.dirname(SCRIPT_DIR))  # nopep8
 from Common.Rosbag_extractor import RosbagExtractor
 from Common.Ros_msg_types.vicon_data_publisher.msg._Force_plate_data import Force_plate_data
-from Common.Ros_msg_types.vicon_data_publisher.msg._Marker_global_translation import Marker_global_translation
-from Common import Valid_msgs_filter
 from Common.geometry_classes import Point2D, Point3D
-import pandas as pd
-from varname import nameof
-from Common import Bland_Altman_Plot
+from Common.Bland_Altman_Plot_2 import BAP_config, BAP_set, generate_bland_altman_plot, prepare_CoP_data
 from Common import CoPs_force_plate
-from Common import Utils
 
 
 #! Nur aussagekräftig, wenn ausschließlich Werte im rosbag, wo der Meißel auf dem Punkt sitzt.
-def execute():
-    dirPath: str = "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/Data/2023_07_26/"
-    bagPath: str = f"{dirPath}2023-07-26-16-16-28_Rechteck.bag"
-    plotSaveDir: str = "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/Scripts/Pipelines/Plots/"
+class BAP__CoP_force_plate__CoP_rectangle_with_sma:
+    def __init__(self) -> None:
+        rootDir: str = os.path.abspath(f"{SCRIPT_DIR}/../..")
+        self.dataDir: str = f"{rootDir}/Data/2023_07_26/"
+        self.bagPath: str = f"{self.dataDir}2023-07-26-16-16-28_Rechteck.bag"
+        self.plotSaveDir: str = f"{rootDir}/Plots/"
 
-    topic_fp: str = "/Force_plate_data_sma"
-    topics: set[str] = set([topic_fp])
+        self.topic_fp: str = "/Force_plate_data_sma"
+        self.topics: set[str] = set([self.topic_fp])
 
-    re: RosbagExtractor = RosbagExtractor.fromBag(bagPath=bagPath, topics=topics)
-    # re: RosbagExtractor = RosbagExtractor.fromDir(dirPath=dirPath, topics=topics)
+        self.re: RosbagExtractor = RosbagExtractor.fromBag(bagPath=self.bagPath, topics=self.topics)
+        return
 
-    # 1. CoPs der Kraftmessplatte berechnen
-    frameNumbers_to_forcePlateData: dict[int, list[Force_plate_data]] = re.getFrameNumberToRosMsgs(topic_fp)
-    forcePlateData_mean: list[Force_plate_data] = CoPs_force_plate.forcePlataData_mean_subsampleLists(frameNumbers_to_forcePlateData)
-    frameNumber_to_CoP_force_plate_corner: dict[int, Point2D] = CoPs_force_plate.calculate_CoPs(forcePlateData_mean)
+    def execute(self):
+        sets_x: list[BAP_set] = list()
+        sets_y: list[BAP_set] = list()
+        for bagPath in self.re.bagPaths:
+            frameNumber_to_CoP_force_plate_corner, frameNumber_to_rectangle = self.__process_bag(bagPath)
+            x, y = prepare_CoP_data(frameNumber_to_CoP_force_plate_corner, frameNumber_to_rectangle)
+            sets_x.append(x)
+            sets_y.append(y)
 
-    # 2. CoPs des rechtecks
-    CoP_rectangle: Point3D = Point3D(x_m=509.9782/1000, y_m=202.2414/1000, z_m=(69.7475-7-2.02)/1000)
-    frameNumber_to_rectangle: dict[str, Point3D] = {frameNumber: CoP_rectangle for frameNumber in frameNumber_to_CoP_force_plate_corner.keys()}
+        colors = list()
+        colors.extend(["r"])
 
-    # 3. Validieren
-    # Valid_msgs_filter.removeFramesNotOcurringEverywhere([frameNumber_to_CoP_force_plate_corner, frameNumber_to_marker_tip])
+        while True:
+            dataName1 = "CoP Kraftmessplatte"
+            dataName2 = "CoP Rechteck mit sma"
+            units = "[mm]"
+            config_x: BAP_config = BAP_config(sets=sets_x, colors=iter(colors), dataName1=dataName1, dataName2=dataName2, units=units, additionalComment="(x-Achse)", plotSaveDir=self.plotSaveDir)
+            config_y: BAP_config = BAP_config(sets=sets_y, colors=iter(colors), dataName1=dataName1, dataName2=dataName2, units=units, additionalComment="(y-Achse)", plotSaveDir=self.plotSaveDir)
 
-    # 4. Plotten
-    Bland_Altman_Plot.plot_x_and_y(frameNumber_to_CoP_force_plate_corner=frameNumber_to_CoP_force_plate_corner,
-                                   frameNumber_to_CoP_marker=frameNumber_to_rectangle, marker_CoP_name="CoP Rechteck mit sma", plotSaveDir=plotSaveDir)
+            # Plotten
+            generate_bland_altman_plot(config=config_x, showplot=True)
+            generate_bland_altman_plot(config=config_y, showplot=False)
 
-    return
+        return
+
+    def __process_bag(self, bagPath: str):
+        # 1. CoPs der Kraftmessplatte berechnen
+        frameNumbers_to_forcePlateData: dict[int, list[Force_plate_data]] = self.re.getFrameNumberToRosMsgs(bagPath=bagPath, topic=self.topic_fp)
+        forcePlateData_mean: list[Force_plate_data] = CoPs_force_plate.forcePlataData_mean_subsampleLists(frameNumbers_to_forcePlateData)
+        frameNumber_to_CoP_force_plate_corner: dict[int, Point2D] = CoPs_force_plate.calculate_CoPs(forcePlateData_mean)
+
+        # 2. CoPs des rechtecks
+        CoP_rectangle: Point3D = Point3D(x_m=509.9782/1000, y_m=202.2414/1000, z_m=(69.7475-7-2.02)/1000)
+        frameNumber_to_rectangle: dict[str, Point3D] = {frameNumber: CoP_rectangle for frameNumber in frameNumber_to_CoP_force_plate_corner.keys()}
+
+        # 3. Validieren
+        # Valid_msgs_filter.removeFramesNotOcurringEverywhere([frameNumber_to_CoP_force_plate_corner, frameNumber_to_rectangle])
+
+        return frameNumber_to_CoP_force_plate_corner, frameNumber_to_rectangle
 
 
 if __name__ == "__main__":
-    execute()
+    BAP__CoP_force_plate__CoP_rectangle_with_sma().execute()
