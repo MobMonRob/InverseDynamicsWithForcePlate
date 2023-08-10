@@ -41,11 +41,11 @@ Update lib: `pip3 install -U <libname>`
 
 
 ## Execution
-### Generate the [plots](Plots):
+#### Generate [plots](Plots):
 - `cd` into [Scripts/Pipelines](Scripts/Pipelines).
 - Execute the respective script via `python3 <scriptname>.py`.
 
-### Collect data:
+#### Collect data:
 - `cd` into [catkin_ws](catkin_ws).
 - Execute `catkin_make` once.
 - Execute `source ./devel/setup.bash`.
@@ -53,7 +53,7 @@ Update lib: `pip3 install -U <libname>`
 - Collect data via `rosbag record`.
 	- If you want to use the data afterwards, make sure to put it in the [data directory intended for this](Data).
 
-### Analyze time series visually:
+#### Analyze time series visually:
 - Start PlotJuggler via `rosrun plotjuggler plotjuggler`.
 - You can use some PlotJuggler layouts safed in [catkin_ws](catkin_ws). Their filename extension is `.xml`.
 - To use it live, just start it together with the respective ros nodes when collecting data.
