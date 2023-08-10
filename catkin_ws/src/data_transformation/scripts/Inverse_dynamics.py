@@ -66,6 +66,12 @@ def callback_joint_parameters(jp: Joint_parameters):
     bottom_up_torques: SixTuple = bottom_up.calculate_torques(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value, f_force_plate=f_force_plate, m_force_plate=m_force_plate)
     top_down_torques: SixTuple = top_down.calculate_torques(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value)
 
+    # Validate bottom_up calculation part without force_plate.
+    # Expect to see identical torques. Succeeded 11.08.2023.
+    # top_down_torques: SixTuple = top_down.calculate_torques(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value)
+    # base_force: SixTuple = top_down.calculate_forces(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value)[0]
+    # bottom_up_torques: SixTuple = bottom_up.calculate_torques_from_base_force(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value, base_force=base_force)
+
     publisher_calculated_qs.publish(Joint_parameters(actual_joint_positions=q_dot.value, actual_joint_velocities=q_ddot.value))
 
     joint_torques: Joint_torques = Joint_torques(bottom_up=bottom_up_torques, top_down=top_down_torques)

@@ -4,6 +4,7 @@ from Common.Inverse_dynamics_rnea import Inverse_dynamics_rnea
 from typing import Tuple
 
 SixTuple = Tuple[float, float, float, float, float, float]
+SixTupleTuple = Tuple[SixTuple, SixTuple, SixTuple, SixTuple, SixTuple, SixTuple]
 
 
 class Inverse_dynamics_top_down(object):
@@ -23,6 +24,6 @@ class Inverse_dynamics_top_down(object):
         tau_num = self.tau_sym(q, q_dot, q_ddot)
         return tuple(tau_num.T.full()[0])
 
-    def calculate_forces(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple) -> SixTuple:
+    def calculate_forces(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple) -> SixTupleTuple:
         forces_num = self.forces_sym(q, q_dot, q_ddot)
-        return tuple(forces_num.T.full()[0])
+        return tuple(tuple(force.T.full()[0]) for force in forces_num)
