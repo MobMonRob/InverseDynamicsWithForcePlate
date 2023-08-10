@@ -7,7 +7,7 @@ The experiments were carried out with the kind support of the employees at the [
 ## Hardware
 - Vicon motion capture system
 	- [Vicon Vero cameras](https://www.vicon.com/hardware/cameras/vero/)
-	- [Vicon Lock Lab](https://www.vicon.com/hardware/devices/lock/) as input device from the AMTI amplifier.
+	- [Vicon Lock Lab](https://www.vicon.com/hardware/devices/lock/) as input device from the AMTI amplifier
 	- [Vicon Tracker Software](https://www.vicon.com/software/tracker/)
 - [Universal Robots UR5e](https://www.universal-robots.com/products/ur5-robot/) robot
 - AMTI hardware
