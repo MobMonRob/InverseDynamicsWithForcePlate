@@ -54,17 +54,18 @@ Update lib: `pip3 install -U <libname>`
 #### Collect data with rosbag:
 - `cd` into [catkin_ws](catkin_ws).
 - Execute `catkin_make` once.
-- Execute `source ./devel/setup.bash`.
-- Start roscore and all the necessary ros nodes. For some tasks, there are already bash scripts within the directory.
+- Execute `source ./devel/setup.bash`. Rosnodes will need this command before their execution.
+- Start `roscore` and all the necessary ros nodes. For some tasks, there are already bash scripts within the directory.
 - Save data via `rosbag record`.
 	- If you want to use the data afterwards, make sure to put the bagfiles in the [data directory](Data) intended for them.
 
 
 #### Analyze time series visually with PlotJuggler:
+- Start `roscore`.
 - Start PlotJuggler via `rosrun plotjuggler plotjuggler`.
 - You can use some PlotJuggler layouts saved in [catkin_ws](catkin_ws). Their filename extension is `.xml`.
 - To use PlotJuggler live, start it together with the respective ros nodes when collecting data.
-- To use PlotJuggler on saved data, additionally:
+- To use PlotJuggler on saved data:
 	- Execute `rosbag play -l <bagname>`.
 	- Optionally, start some ros nodes that will work with the topics from the rosbags.
 
