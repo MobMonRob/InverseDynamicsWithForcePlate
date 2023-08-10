@@ -1,4 +1,9 @@
 # Inverse Dynamics with Force Plate in Robotics
+This repository contains the project files which arose within the framework of a bachelor thesis in the year 2023 in Karlsruhe, Germany. \
+The bachelor thesis took place as part of a degree at the [KIT Department of Informatics](https://www.informatik.kit.edu/english/index.php). \
+The experiments were carried out with the kind support of the employees at the [Robot and Human Motion Lab of the DHBW Karlsruhe, Germany (only in german available)](https://www.karlsruhe.dhbw.de/rahmlab/uebersicht.html) within their premises.
+
+
 ## Hardware
 - Vicon motion capture system
 	- [Vicon Vero cameras](https://www.vicon.com/hardware/cameras/vero/)
@@ -45,6 +50,7 @@ Update lib: `pip3 install -U <libname>`
 - `cd` into [Scripts/Pipelines](Scripts/Pipelines).
 - Execute the respective script via `python3 <scriptname>.py`.
 
+
 #### Collect data:
 - `cd` into [catkin_ws](catkin_ws).
 - Execute `catkin_make` once.
@@ -52,6 +58,7 @@ Update lib: `pip3 install -U <libname>`
 - Start roscore and all the necessary ros nodes. For some tasks, there are already bash scripts within the directory.
 - Collect data via `rosbag record`.
 	- If you want to use the data afterwards, make sure to put it in the [data directory intended for this](Data).
+
 
 #### Analyze time series visually:
 - Start PlotJuggler via `rosrun plotjuggler plotjuggler`.
