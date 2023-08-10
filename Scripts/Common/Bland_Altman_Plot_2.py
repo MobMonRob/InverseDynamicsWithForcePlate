@@ -132,32 +132,44 @@ def __plot_sets(sets: "list[BAP_set]", colors: Iterator):
         if len(set.x1) != len(set.x2):
             raise RuntimeError("len(set.x1) != len(set.x2)")
 
-    means = list()
-    diffs = list()
+    means_all = list()
+    diffs_all = list()
+    means_of_means = list()
+    means_of_diffs = list()
+    color_values = list()
     for set in sets:
         x1 = np.asarray(set.x1)
         x2 = np.asarray(set.x2)
-        mean = np.mean([x1, x2], axis=0)
-        diff = x1 - x2
-        means.append(mean)
-        diffs.append(diff)
-        seg_means, seg_diffs, alphas = __segment(mean=mean, diff=diff, binSize_m=1.0, binsSize_d=0.3, maxAlpha=0.8, minAlpha=0.3)
-        plt.scatter(x=seg_means, y=seg_diffs, marker="_", color=next(colors), alpha=alphas, s=50)
-    means = np.concatenate(means)
-    diffs = np.concatenate(diffs)
+        means = np.mean([x1, x2], axis=0)
+        diffs = x1 - x2
+        means_all.append(means)
+        diffs_all.append(diffs)
+        mean_of_means = np.mean(means)
+        mean_of_diffs = np.mean(diffs)
+        means_of_means.append(mean_of_means)
+        means_of_diffs.append(mean_of_diffs)
+        seg_means, seg_diffs, alphas = __segment(means=means, diffs=diffs, bin_size_m=1.0, bin_size_d=0.3, max_alpha=0.8, min_alpha=0.3)
+        color = next(colors)
+        color_values.append(color)
+        plt.scatter(x=seg_means, y=seg_diffs, marker="_", color=color, alpha=alphas, s=50)
 
-    return means, diffs
+    plt.scatter(x=means_of_means, y=means_of_diffs, marker=".", color=color_values, alpha=0.6, s=500)
+
+    means_all = np.concatenate(means_all)
+    diffs_all = np.concatenate(diffs_all)
+
+    return means_all, diffs_all
 
 
-def __segment(mean, diff, binSize_m: float, binsSize_d: float, maxAlpha: float, minAlpha: float):
-    if maxAlpha < minAlpha:
-        raise RuntimeError("maxAlpha < minAlpha")
+def __segment(means, diffs, bin_size_m: float, bin_size_d: float, max_alpha: float, min_alpha: float):
+    if max_alpha < min_alpha:
+        raise RuntimeError("max_alpha < min_alpha")
 
     bins: dict[Tuple[int, int], list[Tuple[float, float]]] = dict()
 
-    for m, d in np.nditer([mean, diff]):
-        m_bin: int = math.floor(m / binSize_m)
-        d_bin: int = math.floor(d / binsSize_d)
+    for m, d in np.nditer([means, diffs]):
+        m_bin: int = math.floor(m / bin_size_m)
+        d_bin: int = math.floor(d / bin_size_d)
         key: Tuple[int, int] = (m_bin, d_bin)
         bin: list[Tuple[float, float]] = bins.get(key, None)
         if bin == None:
@@ -177,7 +189,7 @@ def __segment(mean, diff, binSize_m: float, binsSize_d: float, maxAlpha: float, 
         seg_diff: float = statistics.fmean([d for m, d in list_md])
         seg_means.append(seg_mean)
         seg_diffs.append(seg_diff)
-        alpha: float = (float(len(list_md)) / max_len) * (maxAlpha - minAlpha) + minAlpha
+        alpha: float = (float(len(list_md)) / max_len) * (max_alpha - min_alpha) + min_alpha
         alphas.append(alpha)
 
     return seg_means, seg_diffs, alphas
