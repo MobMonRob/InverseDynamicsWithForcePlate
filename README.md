@@ -1,5 +1,5 @@
 # Inverse Dynamics with Force Plate in Robotics
-This repository contains the project files which arose within the framework of a bachelor thesis by a single [student](https://github.com/deralbert) in the year 2023 in Karlsruhe, Germany. \
+This repository contains the project files which arose within the framework of a bachelor thesis by a single [student](https://github.com/deralbert) within the time frame of four months in the year 2023 in Karlsruhe, Germany. \
 The bachelor thesis took place as part of a degree at the [KIT Department of Informatics](https://www.informatik.kit.edu/english/index.php). \
 The experiments were carried out with the kind support of the employees at the [Robot and Human Motion Lab of the DHBW Karlsruhe, Germany (only available in german)](https://www.karlsruhe.dhbw.de/rahmlab/uebersicht.html) within their premises.
 
