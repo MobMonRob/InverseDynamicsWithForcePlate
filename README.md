@@ -1,7 +1,12 @@
 # Inverse Dynamics with Force Plate in Robotics
 ## Dependencies
 - Kubuntu 20.04
-- [ROS Noetic](http://wiki.ros.org/noetic)
+- g++ 9.4.0
+- cmake 3.26.4
+- [ros-noetic-desktop-full 1.5.0](http://wiki.ros.org/noetic/Installation/Ubuntu)
+	- [ros-noetic-catkin 0.8.10](http://wiki.ros.org/catkin)
+	- [ros-noetic-rosbag 1.16.0](http://wiki.ros.org/rosbag)
+- [PlotJuggler](https://plotjuggler.io/) with ros integration [ros-noetic-plotjuggler 3.7.1](https://github.com/facontidavide/PlotJuggler/tree/3.7.1#debian-packages-for-ros-user)
 - Python 3.8.10
 - pip3 20.0.2
 
