@@ -56,7 +56,7 @@ Update lib: `pip3 install -U <libname>`
 - Execute `catkin_make` once.
 - Execute `source ./devel/setup.bash`.
 - Start roscore and all the necessary ros nodes. For some tasks, there are already bash scripts within the directory.
-- Collect data via `rosbag record`.
+- Save data via `rosbag record`.
 	- If you want to use the data afterwards, make sure to put it in the [data directory intended for this](Data).
 
 
