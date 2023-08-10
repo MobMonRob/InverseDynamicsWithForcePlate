@@ -14,10 +14,13 @@ from Common.Inverse_dynamics_top_down import Inverse_dynamics_top_down
 from typing import Union
 
 T = TypeVar('T')
+
+
 @dataclass
 class Timed_T(Generic[T]):
     time: Time
     value: T
+
 
 Timed_q = Timed_T["list[float]"]
 
@@ -77,6 +80,8 @@ def callback_joint_parameters(jp: Joint_parameters):
 
 fpd_times: "list[Time]" = list()
 fpds: "list[Force_plate_data]" = list()
+
+
 def calculate_mean_fpd() -> "Union[Force_plate_data, None]":
     global fpd_times
     global fpds
@@ -89,12 +94,14 @@ def calculate_mean_fpd() -> "Union[Force_plate_data, None]":
         field_values_list: list[float] = [getattr(forcePlateData, fieldName) for forcePlateData in fpds]
         field_mean: float = statistics.fmean(field_values_list)
         setattr(mean_fpd, fieldName, field_mean)
-    
+
     return mean_fpd
 
 
 previous_q: Timed_q = None
 previos_q_dot: Timed_q = None
+
+
 def calculate_qs(time: Time, jp: Joint_parameters) -> "Union[tuple[Timed_q, Timed_q, Timed_q], None]":
     global previous_q
     global previos_q_dot
@@ -104,7 +111,7 @@ def calculate_qs(time: Time, jp: Joint_parameters) -> "Union[tuple[Timed_q, Time
     if previous_q == None:
         previous_q = q
         return None
-    
+
     # Jitter in actual_joint_positions will lead to wrong huge velocities.
     # Ideas to fix this: 1euroFilter on actual_joint_positions OR ignore huge velocities.
     # Current workaround: use actual_joint_velocities from the robot instead.
@@ -115,7 +122,7 @@ def calculate_qs(time: Time, jp: Joint_parameters) -> "Union[tuple[Timed_q, Time
     if previos_q_dot == None:
         previos_q_dot = q_dot
         return None
-    
+
     q_ddot: Timed_q = backward_derivative_secs(q2=q_dot, q1=previos_q_dot)
     previos_q_dot = q_dot
 

@@ -165,14 +165,7 @@ class Inverse_dynamics_rnea(object):
             generalized_body_forces.append(
                 cs.mtimes(
                     cs.inv_minor(i_X_p[i].T),
-                    # ! In der klassischen RNEA-Version wird die Erdbeschleinigung mit Minus-Zeichen übergeben.
-                    # ! Danach wird das Vorzeichen im Body des RNEAs so geändert, dass die spatial Kräfte im Rückwärtspfad
-                    # ! nach unten GRÖßER werden. Das ist für die klassische RNEA-Version korrekt.
-                    # ! Im Bottom-Up-RNEA ist unten bereits die größte Kraft und sie soll KLEINER werden, wenn man nach oben geht.
-                    # ! Das innere Minus neben body_inertial_forces[i - 1] sorgt dafür, dass body_inertial_forces[i - 1]
-                    # ! nach unten zeigt. Das zweite Minus neben ( - body_inertial_forces[i - 1]) sorgt dafür, dass
-                    # ! body_inertial_forces[i - 1] von generalized_body_forces[i - 1] abgezogen wird.
-                    generalized_body_forces[i - 1] - ( - body_inertial_forces[i - 1])))
+                    generalized_body_forces[i - 1] - body_inertial_forces[i - 1]))
 
         # Declare the symbolic function with input [q, q_dot, q_ddot] and the output generalized_body_forces.
         generalized_body_forces_func = cs.Function("forces_bottom_up", [q, q_dot, q_ddot, f_spatial_base], generalized_body_forces, self.urdfparser.func_opts)

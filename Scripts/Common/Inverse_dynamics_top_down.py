@@ -16,7 +16,7 @@ class Inverse_dynamics_top_down(object):
         root = "base_link"
         tip = "tool0"
 
-        self.tau_sym, self.forces_sym = rnea.get_inverse_dynamics_rnea(root, tip, gravity=[0, 0, -9.81])
+        self.tau_sym, self.forces_sym = rnea.get_inverse_dynamics_rnea(root, tip, gravity=[0, 0, 9.81])
         return
 
     def calculate_torques(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple) -> SixTuple:

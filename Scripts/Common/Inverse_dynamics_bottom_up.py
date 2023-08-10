@@ -18,7 +18,7 @@ class Inverse_dynamics_force_plate_ur5e(object):
         root = "base_link"
         tip = "tool0"
 
-        self.f_sym, self.f_body_inertial_sym = rnea.get_forces_bottom_up(root, tip, gravity=[0, 0, -9.81])
+        self.f_sym, self.f_body_inertial_sym = rnea.get_forces_bottom_up(root, tip, gravity=[0, 0, 9.81])
         self.tau_bottom_up_sym = rnea.get_inverse_dynamics_rnea_bottom_up_f(root, tip)
         return
 
@@ -33,6 +33,11 @@ class Inverse_dynamics_force_plate_ur5e(object):
         # print(self.f_body_inertial_sym(q, q_dot, q_ddot, f_spatial_ur5e_base))
 
         f_num = self.f_sym(q, q_dot, q_ddot, f_spatial_ur5e_base)
+        tau_bottom_up_num = self.tau_bottom_up_sym(q, *f_num)
+        return tuple(tau_bottom_up_num.T.full()[0])
+
+    def calculate_torques_from_base_torques(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple, base_torques: SixTuple) -> SixTuple:
+        f_num = self.f_sym(q, q_dot, q_ddot, base_torques)
         tau_bottom_up_num = self.tau_bottom_up_sym(q, *f_num)
         return tuple(tau_bottom_up_num.T.full()[0])
 
