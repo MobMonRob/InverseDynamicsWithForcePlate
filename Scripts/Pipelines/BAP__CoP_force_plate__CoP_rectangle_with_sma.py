@@ -5,7 +5,7 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))  # nopep8
 from Common.Rosbag_extractor import RosbagExtractor
 from Common.Ros_msg_types.vicon_data_publisher.msg._Force_plate_data import Force_plate_data
 from Common.geometry_classes import Point2D, Point3D
-from Common.Bland_Altman_Plot_2 import BAP_config, BAP_set, generate_bland_altman_plot, prepare_CoP_data
+from Common.Bland_Altman_Plot import BAP_config, BAP_set, generate_bland_altman_plot, prepare_CoP_data
 from Common import CoPs_force_plate
 
 

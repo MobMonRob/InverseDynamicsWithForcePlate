@@ -10,7 +10,7 @@ from Common.geometry_classes import Point2D, Point3D, Line3D, Plane3D
 import pandas as pd
 from varname import nameof
 from Common.Line_plane_intersection import LinePlaneIntersection
-from Common.Bland_Altman_Plot_2 import BAP_config, BAP_set, generate_bland_altman_plot, prepare_CoP_data
+from Common.Bland_Altman_Plot import BAP_config, BAP_set, generate_bland_altman_plot, prepare_CoP_data
 from Common import CoPs_force_plate
 from Common import Utils
 
