@@ -68,8 +68,8 @@ def callback_joint_parameters(jp: Joint_parameters):
 
     # Compare forces
     index = 0
-    bottom_up_torques: SixTuple = bottom_up.calculate_forces(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value, f_force_plate=f_force_plate, m_force_plate=m_force_plate)[index]
-    top_down_torques: SixTuple = top_down.calculate_forces(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value)[index]
+    bottom_up_torques: SixTuple = bottom_up.calculate_spatial_forces(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value, f_force_plate=f_force_plate, m_force_plate=m_force_plate)[index]
+    top_down_torques: SixTuple = top_down.calculate_spatial_forces(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value)[index]
 
     # Validate bottom_up calculation part without force_plate.
     # Expect to see identical torques. Succeeded 11.08.2023.

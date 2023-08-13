@@ -114,7 +114,7 @@ class Inverse_dynamics_rnea(object):
         # Declare symbolic verctor of angular velocities q_ddot
         q_ddot = cs.SX.sym("q_ddot", n_joints)
 
-        f_spatial_base = cs.SX.sym("f_root", n_joints)
+        f_spatial_joint_0 = cs.SX.sym("f_root", n_joints)
 
         # Get Plücker transformation matrices i_X_p, joint motion subspaces Si, inertia matrices Ic
         i_X_p, Si, Ic = self.urdfparser._model_calculation(root, tip, q)
@@ -122,7 +122,7 @@ class Inverse_dynamics_rnea(object):
         velocities = []
         accelerations = []
         body_inertial_forces = []
-        generalized_body_forces = []
+        joint_spatial_forces = []
 
         velocities.append(cs.mtimes(Si[0], q_dot[0]))
 
@@ -147,7 +147,7 @@ class Inverse_dynamics_rnea(object):
         # * Die Berechnung geht Zig-Zagweise von oben nach unten. Drehe die Richtung um.
         # * Du siehst jetzt, dass du als erstes tau_0 = S_0^T * f_0 berechnest.
         # * Danach: f_0 = f_0^B + 0^X_1 * f_1 => f_1 = inv(0^X_1)*(f_0 - f_0^B) und so weiter.
-        generalized_body_forces.append(f_spatial_base)
+        joint_spatial_forces.append(f_spatial_joint_0)
 
         for i in range(1, n_joints):
             vJ = cs.mtimes(Si[i], q_dot[i])
@@ -162,16 +162,16 @@ class Inverse_dynamics_rnea(object):
                 +
                 cs.mtimes(plucker.force_cross_product(velocities[i]), cs.mtimes(Ic[i], velocities[i])))
 
-            generalized_body_forces.append(
+            joint_spatial_forces.append(
                 cs.mtimes(
                     cs.inv_minor(i_X_p[i].T),
-                    generalized_body_forces[i - 1] - body_inertial_forces[i - 1]))
+                    joint_spatial_forces[i - 1] - body_inertial_forces[i - 1]))
 
-        # Declare the symbolic function with input [q, q_dot, q_ddot] and the output generalized_body_forces.
-        generalized_body_forces_func = cs.Function("forces_bottom_up", [q, q_dot, q_ddot, f_spatial_base], generalized_body_forces, self.urdfparser.func_opts)
-        body_inertial_forces_func = cs.Function("body_intertial_forces", [q, q_dot, q_ddot, f_spatial_base], body_inertial_forces, self.urdfparser.func_opts)
+        # Declare the symbolic function with input [q, q_dot, q_ddot] and the output joint_spatial_forces_func.
+        joint_spatial_forces_func = cs.Function("forces_bottom_up", [q, q_dot, q_ddot, f_spatial_joint_0], joint_spatial_forces, self.urdfparser.func_opts)
+        body_inertial_forces_func = cs.Function("body_intertial_forces", [q, q_dot, q_ddot], body_inertial_forces, self.urdfparser.func_opts)
 
-        return generalized_body_forces_func, body_inertial_forces_func
+        return joint_spatial_forces_func, body_inertial_forces_func
 
     # Zeigt die Pluecker-Matrizen (Transformationen) an. Ich denke, die Methode brauche ich nicht.
     def get_model_calculation(self, root, tip):

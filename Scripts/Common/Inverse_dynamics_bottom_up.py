@@ -3,6 +3,7 @@ from urdf2casadi.urdfparser import URDFparser
 import numpy as np
 from Common.Inverse_dynamics_rnea import Inverse_dynamics_rnea
 from typing import Tuple
+from math import cos, pi
 
 SixTuple = Tuple[float, float, float, float, float, float]
 ThreeTuple = Tuple[float, float, float]
@@ -24,25 +25,33 @@ class Inverse_dynamics_force_plate_ur5e(object):
         return
 
     def calculate_torques(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple, f_force_plate: ThreeTuple, m_force_plate: ThreeTuple) -> SixTuple:
-        f_num = self.__calculate_forces(q=q, q_dot=q_dot, q_ddot=q_ddot, f_force_plate=f_force_plate, m_force_plate=m_force_plate)
+        f_num = self.__calculate_spatial_forces(q=q, q_dot=q_dot, q_ddot=q_ddot, f_force_plate=f_force_plate, m_force_plate=m_force_plate)
         tau_bottom_up_num = self.tau_bottom_up_sym(q, *f_num)
         return tuple(tau_bottom_up_num.T.full()[0])
 
-    def calculate_forces(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple, f_force_plate: ThreeTuple, m_force_plate: ThreeTuple) -> SixTupleTuple:
-        f_num = self.__calculate_forces(q=q, q_dot=q_dot, q_ddot=q_ddot, f_force_plate=f_force_plate, m_force_plate=m_force_plate)
+    def calculate_spatial_forces(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple, f_force_plate: ThreeTuple, m_force_plate: ThreeTuple) -> SixTupleTuple:
+        f_num = self.__calculate_spatial_forces(q=q, q_dot=q_dot, q_ddot=q_ddot, f_force_plate=f_force_plate, m_force_plate=m_force_plate)
         return tuple(tuple(force.T.full()[0]) for force in f_num)
 
-    def __calculate_forces(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple, f_force_plate: ThreeTuple, m_force_plate: ThreeTuple):
+    def __calculate_spatial_forces(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple, f_force_plate: ThreeTuple, m_force_plate: ThreeTuple):
         f_ur5e_base = Inverse_dynamics_force_plate_ur5e.__forces_force_plate_to_forces_ur5e_base(f_force_plate)
         m_ur5e_base = Inverse_dynamics_force_plate_ur5e.__moments_force_plate_to_moments_ur5e_base(f_ur5e_base, m_force_plate)
 
         # ! Verified direction. AMTI force plate: moments rotate clockwise; urdf model: moments rotate counterclockwise.
+        m_ur5e_base = -1 * m_ur5e_base
+
+        angle_joint_0_rad = q[0]
+        m_ur5e_joint_0 = Inverse_dynamics_force_plate_ur5e.__static_to_dynamic_joint_0(m_ur5e_base, angle_joint_0_rad)
+        f_ur5e_joint_0 = Inverse_dynamics_force_plate_ur5e.__static_to_dynamic_joint_0(f_ur5e_base, angle_joint_0_rad)
+
         # ! Spatial forces contain the moments first and then the forces.
-        f_spatial_ur5e_base = np.concatenate([-1 * m_ur5e_base, f_ur5e_base])
+        f_spatial_ur5e_joint_0 = np.concatenate([m_ur5e_joint_0, f_ur5e_joint_0])
 
-        # print(self.f_body_inertial_sym(q, q_dot, q_ddot, f_spatial_ur5e_base))
+        # rnea
+        f_num = self.f_sym(q, q_dot, q_ddot, f_spatial_ur5e_joint_0)
 
-        f_num = self.f_sym(q, q_dot, q_ddot, f_spatial_ur5e_base)
+        # TODO: ausprobieren, ob ohne f_spatial_ur5e_joint_0 tut.
+        # print(self.f_body_inertial_sym(q, q_dot, q_ddot))
 
         return f_num
 
@@ -50,6 +59,27 @@ class Inverse_dynamics_force_plate_ur5e(object):
         f_num = self.f_sym(q, q_dot, q_ddot, base_force)
         tau_bottom_up_num = self.tau_bottom_up_sym(q, *f_num)
         return tuple(tau_bottom_up_num.T.full()[0])
+
+    @staticmethod
+    def __static_to_dynamic_joint_0(forces: ThreeTuple, angle_joint_0_rad: float) -> SixTuple:
+        a: float = angle_joint_0_rad
+        # CCW is pos
+        # R = np.array([[cos(a),          cos(pi/2 + a), 0],
+        #               [cos(3*pi/2 + a), cos(a),        0],
+        #               [0,               0,             1]])
+
+        # CW is pos
+        # R = np.array([[cos(a),        cos(3*pi/2 - a), 0],
+        #               [cos(pi/2 - a), cos(a),          0],
+        #               [0,             0,               1]])
+
+        # Experimentell bestimmt, mit -1 oben
+        R = np.array([[cos(a),        cos(pi/2 - a), 0],
+                      [cos(pi/2 + a), cos(a),        0],
+                      [0,             0,             1]])
+
+        forces_transformed = R.dot(forces)
+        return forces_transformed
 
     @staticmethod
     def __forces_force_plate_to_forces_ur5e_base(forces: "list[float]") -> "list[float]":
