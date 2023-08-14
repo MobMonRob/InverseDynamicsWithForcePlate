@@ -81,5 +81,6 @@
         "variant": "cpp"
     },
     "python.analysis.typeCheckingMode": "off",
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    "cmake.sourceDirectory": "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/ViconDataAcquisition"
 }

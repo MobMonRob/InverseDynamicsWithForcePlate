@@ -1,0 +1,2 @@
+data_transformation/Spatial_force[6] joints_bottom_up
+data_transformation/Spatial_force[6] joints_top_down

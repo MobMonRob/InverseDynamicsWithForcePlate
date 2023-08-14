@@ -1,150 +1,144 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <root>
- <tabbed_widget parent="main_window" name="Main Window">
-  <Tab tab_name="tab3" containers="1">
+ <tabbed_widget name="Main Window" parent="main_window">
+  <Tab containers="1" tab_name="tab3">
    <Container>
-    <DockSplitter count="6" sizes="0.166265;0.167068;0.166265;0.167068;0.167068;0.166265" orientation="-">
-     <DockSplitter count="3" sizes="0.333181;0.333638;0.333181" orientation="|">
+    <DockSplitter count="6" sizes="0.165888;0.167056;0.165888;0.168224;0.167056;0.165888" orientation="-">
+     <DockSplitter count="3" sizes="0.333115;0.33377;0.333115" orientation="|">
       <DockArea name="...">
-       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
-        <range top="-0.032772" right="1691426855.759975" left="1691426845.759611" bottom="-0.619973"/>
+       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
+        <range top="-2.443955" bottom="-25.707985" left="1692028854.364610" right="1692028878.879340"/>
         <limitY/>
-        <curve color="#1ac938" name="/Inverse_dynamics/bottom_up.0"/>
+        <curve name="/Inverse_dynamics/joints_bottom_up.0/m_xyz__f_xyz.0" color="#1f77b4"/>
        </plot>
       </DockArea>
       <DockArea name="...">
-       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
-        <range top="0.100000" right="1691426855.759975" left="1691426845.759611" bottom="-0.100000"/>
+       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
+        <range top="8.315008" bottom="-29.764133" left="1692028854.364610" right="1692028878.879340"/>
         <limitY/>
-        <curve color="#ff7f0e" name="/Inverse_dynamics/top_down.0"/>
+        <curve name="/Inverse_dynamics/joints_top_down.0/m_xyz__f_xyz.0" color="#17becf"/>
        </plot>
       </DockArea>
       <DockArea name="...">
-       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
-        <range top="3.141675" right="1691426855.759975" left="1691426845.759611" bottom="3.141449"/>
+       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
+        <range top="3.237405" bottom="-0.591788" left="1692028854.364610" right="1692028878.879340"/>
         <limitY/>
-        <curve color="#9467bd" name="/Joint_parameters/actual_joint_velocities.0"/>
-        <curve color="#f14cc1" name="/Joint_parameters/actual_joint_positions.0"/>
-       </plot>
-      </DockArea>
-     </DockSplitter>
-     <DockSplitter count="3" sizes="0.333181;0.333638;0.333181" orientation="|">
-      <DockArea name="...">
-       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
-        <range top="64.464538" right="1691426855.759975" left="1691426845.759611" bottom="64.202148"/>
-        <limitY/>
-        <curve color="#bcbd22" name="/Inverse_dynamics/bottom_up.1"/>
-       </plot>
-      </DockArea>
-      <DockArea name="...">
-       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
-        <range top="61.026171" right="1691426855.759975" left="1691426845.759611" bottom="61.026170"/>
-        <limitY/>
-        <curve color="#1f77b4" name="/Inverse_dynamics/top_down.1"/>
-       </plot>
-      </DockArea>
-      <DockArea name="...">
-       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
-        <range top="-3.141454" right="1691426855.759975" left="1691426845.759611" bottom="-3.141660"/>
-        <limitY/>
-        <curve color="#ff7f0e" name="/Joint_parameters/actual_joint_velocities.1"/>
-        <curve color="#1f77b4" name="/Joint_parameters/actual_joint_positions.1"/>
+        <curve name="/Joint_parameters/actual_joint_positions.0" color="#1f77b4"/>
        </plot>
       </DockArea>
      </DockSplitter>
-     <DockSplitter count="3" sizes="0.333181;0.333638;0.333181" orientation="|">
+     <DockSplitter count="3" sizes="0.332459;0.335082;0.332459" orientation="|">
       <DockArea name="...">
-       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
-        <range top="8.704413" right="1691426855.759975" left="1691426845.759611" bottom="4.827336"/>
+       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
+        <range top="-15.632031" bottom="-29.221718" left="1692028854.364610" right="1692028878.879340"/>
         <limitY/>
-        <curve color="#9467bd" name="/Inverse_dynamics/bottom_up.2"/>
+        <curve name="/Inverse_dynamics/joints_bottom_up.0/m_xyz__f_xyz.1" color="#d62728"/>
        </plot>
       </DockArea>
       <DockArea name="...">
-       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
-        <range top="16.755799" right="1691426855.759975" left="1691426845.759611" bottom="16.755799"/>
+       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
+        <range top="-3.185229" bottom="-34.786132" left="1692028854.364610" right="1692028878.879340"/>
         <limitY/>
-        <curve color="#17becf" name="/Inverse_dynamics/top_down.2"/>
+        <curve name="/Inverse_dynamics/joints_top_down.0/m_xyz__f_xyz.1" color="#bcbd22"/>
        </plot>
       </DockArea>
       <DockArea name="...">
-       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
-        <range top="0.000084" right="1691426855.759975" left="1691426845.759611" bottom="-0.000139"/>
+       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
+        <range top="-1.569773" bottom="-1.571601" left="1692028854.364610" right="1692028878.879340"/>
         <limitY/>
-        <curve color="#f14cc1" name="/Joint_parameters/actual_joint_velocities.2"/>
-        <curve color="#d62728" name="/Joint_parameters/actual_joint_positions.2"/>
-       </plot>
-      </DockArea>
-     </DockSplitter>
-     <DockSplitter count="3" sizes="0.333181;0.333638;0.333181" orientation="|">
-      <DockArea name="...">
-       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
-        <range top="-18.209690" right="1691426855.759975" left="1691426845.759611" bottom="-25.556897"/>
-        <limitY/>
-        <curve color="#d62728" name="/Inverse_dynamics/bottom_up.3"/>
-       </plot>
-      </DockArea>
-      <DockArea name="...">
-       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
-        <range top="0.348937" right="1691426855.759975" left="1691426845.759611" bottom="0.348936"/>
-        <limitY/>
-        <curve color="#1ac938" name="/Inverse_dynamics/top_down.3"/>
-       </plot>
-      </DockArea>
-      <DockArea name="...">
-       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
-        <range top="-1.570561" right="1691426855.759975" left="1691426845.759611" bottom="-1.570788"/>
-        <limitY/>
-        <curve color="#9467bd" name="/Joint_parameters/actual_joint_velocities.3"/>
-        <curve color="#1ac938" name="/Joint_parameters/actual_joint_positions.3"/>
+        <curve name="/Joint_parameters/actual_joint_positions.1" color="#d62728"/>
        </plot>
       </DockArea>
      </DockSplitter>
-     <DockSplitter count="3" sizes="0.333181;0.333638;0.333181" orientation="|">
+     <DockSplitter count="3" sizes="0.332459;0.335082;0.332459" orientation="|">
       <DockArea name="...">
-       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
-        <range top="1.156080" right="1691426855.759975" left="1691426845.759611" bottom="-0.269622"/>
+       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
+        <range top="6.475573" bottom="-9.593401" left="1692028854.364610" right="1692028878.879340"/>
         <limitY/>
-        <curve color="#d62728" name="/Inverse_dynamics/bottom_up.4"/>
+        <curve name="/Inverse_dynamics/joints_bottom_up.0/m_xyz__f_xyz.2" color="#1ac938"/>
        </plot>
       </DockArea>
       <DockArea name="...">
-       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
-        <range top="-0.151704" right="1691426855.759975" left="1691426845.759611" bottom="-0.151704"/>
+       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
+        <range top="42.174770" bottom="-30.163418" left="1692028854.364610" right="1692028878.879340"/>
         <limitY/>
-        <curve color="#1ac938" name="/Inverse_dynamics/top_down.4"/>
+        <curve name="/Inverse_dynamics/joints_top_down.0/m_xyz__f_xyz.2" color="#1f77b4"/>
        </plot>
       </DockArea>
       <DockArea name="...">
-       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
-        <range top="0.000094" right="1691426855.759975" left="1691426845.759611" bottom="-0.000071"/>
+       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
+        <range top="-1.190449" bottom="-1.579365" left="1692028854.364610" right="1692028878.879340"/>
         <limitY/>
-        <curve color="#17becf" name="/Joint_parameters/actual_joint_velocities.4"/>
-        <curve color="#ff7f0e" name="/Joint_parameters/actual_joint_positions.4"/>
+        <curve name="/Joint_parameters/actual_joint_positions.2" color="#1ac938"/>
        </plot>
       </DockArea>
      </DockSplitter>
-     <DockSplitter count="3" sizes="0.333181;0.333638;0.333181" orientation="|">
+     <DockSplitter count="3" sizes="0.332459;0.335082;0.332459" orientation="|">
       <DockArea name="...">
-       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
-        <range top="-21.093908" right="1691426855.759975" left="1691426845.759611" bottom="-29.278737"/>
+       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
+        <range top="15.532535" bottom="-17.809093" left="1692028854.364610" right="1692028878.879340"/>
         <limitY/>
-        <curve color="#ff7f0e" name="/Inverse_dynamics/bottom_up.5"/>
+        <curve name="/Inverse_dynamics/joints_bottom_up.0/m_xyz__f_xyz.3" color="#ff7f0e"/>
        </plot>
       </DockArea>
       <DockArea name="...">
-       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
-        <range top="0.100000" right="1691426855.759975" left="1691426845.759611" bottom="-0.100000"/>
+       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
+        <range top="35.794752" bottom="-40.020754" left="1692028854.364610" right="1692028878.879340"/>
         <limitY/>
-        <curve color="#f14cc1" name="/Inverse_dynamics/top_down.5"/>
+        <curve name="/Inverse_dynamics/joints_top_down.0/m_xyz__f_xyz.3" color="#d62728"/>
        </plot>
       </DockArea>
       <DockArea name="...">
-       <plot style="Lines" flip_y="false" flip_x="false" mode="TimeSeries">
-        <range top="3.141878" right="1691426855.759975" left="1691426845.759611" bottom="3.141657"/>
+       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
+        <range top="0.040226" bottom="-1.603768" left="1692028854.364610" right="1692028878.879340"/>
         <limitY/>
-        <curve color="#bcbd22" name="/Joint_parameters/actual_joint_velocities.5"/>
-        <curve color="#f14cc1" name="/Joint_parameters/actual_joint_positions.5"/>
+        <curve name="/Joint_parameters/actual_joint_positions.3" color="#ff7f0e"/>
+       </plot>
+      </DockArea>
+     </DockSplitter>
+     <DockSplitter count="3" sizes="0.332459;0.335082;0.332459" orientation="|">
+      <DockArea name="...">
+       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
+        <range top="17.010700" bottom="-22.867644" left="1692028854.364610" right="1692028878.879340"/>
+        <limitY/>
+        <curve name="/Inverse_dynamics/joints_bottom_up.0/m_xyz__f_xyz.4" color="#f14cc1"/>
+       </plot>
+      </DockArea>
+      <DockArea name="...">
+       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
+        <range top="47.810271" bottom="-50.558773" left="1692028854.364610" right="1692028878.879340"/>
+        <limitY/>
+        <curve name="/Inverse_dynamics/joints_top_down.0/m_xyz__f_xyz.4" color="#1ac938"/>
+       </plot>
+      </DockArea>
+      <DockArea name="...">
+       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
+        <range top="1.603546" bottom="-0.040311" left="1692028854.364610" right="1692028878.879340"/>
+        <limitY/>
+        <curve name="/Joint_parameters/actual_joint_positions.4" color="#f14cc1"/>
+       </plot>
+      </DockArea>
+     </DockSplitter>
+     <DockSplitter count="3" sizes="0.332459;0.335082;0.332459" orientation="|">
+      <DockArea name="...">
+       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
+        <range top="-141.431709" bottom="-198.685502" left="1692028854.364610" right="1692028878.879340"/>
+        <limitY/>
+        <curve name="/Inverse_dynamics/joints_bottom_up.0/m_xyz__f_xyz.5" color="#9467bd"/>
+       </plot>
+      </DockArea>
+      <DockArea name="...">
+       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
+        <range top="-161.263000" bottom="-188.729095" left="1692028854.364610" right="1692028878.879340"/>
+        <limitY/>
+        <curve name="/Inverse_dynamics/joints_top_down.0/m_xyz__f_xyz.5" color="#ff7f0e"/>
+       </plot>
+      </DockArea>
+      <DockArea name="...">
+       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
+        <range top="3.227700" bottom="-0.081165" left="1692028854.364610" right="1692028878.879340"/>
+        <limitY/>
+        <curve name="/Joint_parameters/actual_joint_positions.5" color="#9467bd"/>
        </plot>
       </DockArea>
      </DockSplitter>

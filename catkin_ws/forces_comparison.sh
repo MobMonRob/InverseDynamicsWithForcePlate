@@ -17,7 +17,6 @@ konsole --new-tab -e "rosrun data_transformation Force_plate_data_1euro_filter.p
 
 sleep 1s
 
-# Um forces zu vergleichen, "Compare forces" einkommentieren.
 konsole --new-tab -e "rosrun data_transformation Inverse_dynamics.py" &
 
 sleep 1s

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from data_transformation.msg import Joint_torques
+from data_transformation.msg import Spatial_force, Joints_spatial_force
 from vicon_data_publisher.msg import Force_plate_data
 from ur_robot_data_acquisition.msg import Joint_parameters
 from pathlib import Path
@@ -9,7 +9,7 @@ import statistics
 from rospy import Time
 from dataclasses import dataclass
 from typing import TypeVar, Generic
-from Common.Inverse_dynamics_bottom_up import Inverse_dynamics_force_plate_ur5e, SixTuple, ThreeTuple
+from Common.Inverse_dynamics_bottom_up import Inverse_dynamics_force_plate_ur5e, SixTuple, ThreeTuple, SixTupleTuple
 from Common.Inverse_dynamics_top_down import Inverse_dynamics_top_down
 from typing import Union
 
@@ -27,7 +27,6 @@ Timed_q = Timed_T["list[float]"]
 publisher = None
 top_down: Inverse_dynamics_top_down = Inverse_dynamics_top_down()
 bottom_up: Inverse_dynamics_force_plate_ur5e = Inverse_dynamics_force_plate_ur5e()
-# publisher_calculated_qs = None
 
 #############################################
 
@@ -66,22 +65,22 @@ def callback_joint_parameters(jp: Joint_parameters):
     # bottom_up_torques: SixTuple = bottom_up.calculate_torques(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value, f_force_plate=f_force_plate, m_force_plate=m_force_plate)
     # top_down_torques: SixTuple = top_down.calculate_torques(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value)
 
-    # Compare forces
-    index = 0
-    bottom_up_torques: SixTuple = bottom_up.calculate_spatial_forces(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value, f_force_plate=f_force_plate, m_force_plate=m_force_plate)[index]
-    top_down_torques: SixTuple = top_down.calculate_spatial_forces(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value)[index]
-
     # Validate bottom_up calculation part without force_plate.
     # Expect to see identical torques. Succeeded 11.08.2023.
     # top_down_torques: SixTuple = top_down.calculate_torques(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value)
     # base_force: SixTuple = top_down.calculate_forces(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value)[0]
     # bottom_up_torques: SixTuple = bottom_up.calculate_torques_from_base_force(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value, base_force=base_force)
 
-    # publisher_calculated_qs.publish(Joint_parameters(actual_joint_positions=q_dot.value, actual_joint_velocities=q_ddot.value))
+    # Calculate forces
+    bottom_up_forces: SixTupleTuple = bottom_up.calculate_spatial_forces(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value, f_force_plate=f_force_plate, m_force_plate=m_force_plate)
+    top_down_forces: SixTupleTuple = top_down.calculate_spatial_forces(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value)
 
-    joint_torques: Joint_torques = Joint_torques(bottom_up=bottom_up_torques, top_down=top_down_torques)
+    joints_bottom_up = [Spatial_force(m_xyz__f_xyz=force) for force in bottom_up_forces]
+    joints_top_down = [Spatial_force(m_xyz__f_xyz=force) for force in top_down_forces]
 
-    publisher.publish(joint_torques)
+    joints_spatial_force: Joints_spatial_force = Joints_spatial_force(joints_bottom_up=joints_bottom_up, joints_top_down=joints_top_down)
+
+    publisher.publish(joints_spatial_force)
     fpd_times.clear()
     fpds.clear()
     return
@@ -152,10 +151,7 @@ def execute():
     rospy.init_node(f"{Path(__file__).stem}", anonymous=True)
 
     global publisher
-    publisher = rospy.Publisher(f"{Path(__file__).stem}", Joint_torques, queue_size=1000)
-
-    # global publisher_calculated_qs
-    # publisher_calculated_qs = rospy.Publisher(f"{Path(__file__).stem}_dbg", Joint_parameters, queue_size=1000)
+    publisher = rospy.Publisher(f"{Path(__file__).stem}", Joints_spatial_force, queue_size=1000)
 
     # sma reacts too slowly here.
     rospy.Subscriber("Force_plate_data_1euro_filter", Force_plate_data, callback_force_plate_data)

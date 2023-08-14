@@ -53,7 +53,8 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   CoP_position.msg
-  Joint_torques.msg
+  Spatial_force.msg
+  Joints_spatial_force.msg
 )
 
 ## Generate services in the 'srv' folder
