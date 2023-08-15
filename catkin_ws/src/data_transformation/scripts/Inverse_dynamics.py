@@ -29,7 +29,7 @@ def callback_joint_parameters(jp: Joint_parameters):
     global iv_node
     global publisher
     joints_spatial_force: Joints_spatial_force = iv_node.joint_parameters(jp, Time.now())
-    if joints_spatial_force is None:
+    if joints_spatial_force == None:
         return
     publisher.publish(joints_spatial_force)
 

@@ -5,75 +5,58 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))  # nopep8
 from Common.Inverse_dynamics_bottom_up import Inverse_dynamics_force_plate_ur5e
 from Common.Inverse_dynamics_top_down import Inverse_dynamics_top_down
 import math
-from Common.Rosbag_extractor import RosbagExtractor, IndexedBagMsgs, IndexedMsgsKey, BagMsgs
+from Common.Rosbag_extractor import RosbagExtractor, IndexedBagMsgs, IndexedMsgsKey, BagMsgs, BagMessage
 from Common.Ros_msg_types.ur_robot_data_acquisition.msg._Joint_parameters import Joint_parameters
 import rospy
 from Common.Inverse_dynamics_bottom_up import SixTuple
 import pandas as pd
+from Common.Inverse_dynamics_node import Inverse_dynamics_node
+from data_transformation.msg import Joints_spatial_force
 
 
 def execute():
     dirPath: str = "/home/deralbert/Desktop/BA/Code/InverseDynamicsWithForcePlate/Data/2023_08_04_ur5e_dynamic/"
     bagPath: str = f"{dirPath}start_position_to_dynamic_random_2023-08-04-19-08-59.bag"
 
-    # sma ist hier womöglich zu langsam...
+    # TODO: sma austauschen durch 1euro
     topic_fp: str = "/Force_plate_data_sma"
     topic_jp: str = "/Joint_parameters"
     topics: set[str] = set([topic_fp, topic_jp])
 
     # _t: genpy.Time = _t
     re: RosbagExtractor = RosbagExtractor.fromBag(bagPath=bagPath, topics=topics)
+
     bagPaths: list[str] = re.bagPaths
     indexedBagMsgs: IndexedBagMsgs = re.getIndexedBagMsgs()
 
     bagMsgs_fp: BagMsgs = indexedBagMsgs.get_msgs(topic=topic_fp, bagPath=bagPath)
     bagMsgs_jp: BagMsgs = indexedBagMsgs.get_msgs(topic=topic_jp, bagPath=bagPath)
 
-    # _, _, timestamp0 = bagMsgs_jp.msgs[0]
-    timestamp0 = bagMsgs_jp.msgs[0].timestamp
-    timestamp0: rospy.Time
+    msgs_fp: list[BagMessage] = bagMsgs_fp.msgs
+    msgs_jp: list[BagMessage] = bagMsgs_jp.msgs
 
-    fieldNames: list[str] = list()
-    for i in range(0, 6, 1):
-        fieldNames.append(f"actual_joint_position_{i}")
+    msgs_compound: list[BagMessage] = list()
+    msgs_compound.extend(msgs_fp)
+    msgs_compound.extend(msgs_jp)
 
-    rows: list[list] = list()
-    index: list[pd.Timedelta] = list()
-    for _topic, _message, _timestamp in bagMsgs_jp.msgs:
-        row: list = list()
+    msgs_compound_sorted: list[BagMessage] = sorted(msgs_compound, key=lambda x: x.timestamp)
 
-        _message: Joint_parameters
-        _timestamp: rospy.Time
-        td = pd.to_timedelta((_timestamp - timestamp0).to_nsec(), unit="nanoseconds")
-        index.append(td)
+    iv_node: Inverse_dynamics_node = Inverse_dynamics_node()
+    joints_spatial_force_list: list[Joints_spatial_force] = list()
 
-        for i in range(0, 6, 1):
-            row.append(_message.actual_joint_positions[i])
+    for topic, message, timestamp in msgs_compound_sorted:
+        if topic == topic_fp:
+            iv_node.force_plate_data(fpd=message, time=timestamp)
+            continue
+        elif topic == topic_jp:
+            joints_spatial_force: Joints_spatial_force = iv_node.joint_parameters(jp=message, time=timestamp)
+            if joints_spatial_force == None:
+                continue
+            else:
+                joints_spatial_force_list.append(joints_spatial_force)
 
-        rows.append(row)
+    print(joints_spatial_force_list[0])
 
-    df: pd.DataFrame = pd.DataFrame(data=rows, columns=fieldNames, index=index)
-    print(df)
-
-    return
-
-    print("------------top_down")
-    top_down: Inverse_dynamics_top_down = Inverse_dynamics_top_down()
-    print("------------bottom_up")
-    bottom_up: Inverse_dynamics_force_plate_ur5e = Inverse_dynamics_force_plate_ur5e()
-
-    q: tuple = (math.pi, -2.3345737645286135E-6, -2.3345737645286135E-6, -math.pi / 2, 2.382993625360541E-5, math.pi)
-    q_dot: tuple = (0, 0, 0, 0, 0, 0)
-    q_ddot: tuple = (0, 0, 0, 0, 0, 0)
-
-    print("------------top_down.calculate_torques")
-    top_down_torques = top_down.calculate_torques(q=q, q_dot=q_dot, q_ddot=q_ddot)
-    print("top_down_torques: \n", top_down_torques)
-    print("------------bottom_up.calculate_print")
-    f_force_plate = (2.871, -1.971, 172.724)
-    m_force_plate = (-17.089, -61.873, -0.09)
-    bottom_up_torques = bottom_up.calculate_torques(q=q, q_dot=q_dot, q_ddot=q_ddot, f_force_plate=f_force_plate, m_force_plate=m_force_plate)
-    print("bottom_up_torques: \n", bottom_up_torques)
     return
 
 

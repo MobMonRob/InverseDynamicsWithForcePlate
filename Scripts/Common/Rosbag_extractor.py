@@ -6,7 +6,6 @@ from Common import Valid_msgs_filter
 from Common import Utils
 from dataclasses import dataclass
 from typing import TypeVar, Generic, Union, Set
-from copy import copy
 import collections
 
 
@@ -21,7 +20,7 @@ class RosbagExtractor():
         return frameNumber_to_msgs
 
     def getIndexedBagMsgs(self) -> "IndexedBagMsgs":
-        return copy(self.indexedMsgs)
+        return self.indexedMsgs
 
     def getFrameNumberToRosMsgs(self, bagPath: str, topic: str) -> "dict[int, list]":
         msgs: BagMsgs = self.indexedMsgs.get_msgs(topic=topic, bagPath=bagPath)
