@@ -29,7 +29,8 @@ def execute():
     bagMsgs_fp: BagMsgs = indexedBagMsgs.get_msgs(topic=topic_fp, bagPath=bagPath)
     bagMsgs_jp: BagMsgs = indexedBagMsgs.get_msgs(topic=topic_jp, bagPath=bagPath)
 
-    _, _, timestamp0 = bagMsgs_jp.msgs[0]
+    # _, _, timestamp0 = bagMsgs_jp.msgs[0]
+    timestamp0 = bagMsgs_jp.msgs[0].timestamp
     timestamp0: rospy.Time
 
     fieldNames: list[str] = list()
@@ -37,13 +38,14 @@ def execute():
         fieldNames.append(f"actual_joint_position_{i}")
 
     rows: list[list] = list()
-    index: list[int] = list()
+    index: list[pd.Timedelta] = list()
     for _topic, _message, _timestamp in bagMsgs_jp.msgs:
         row: list = list()
 
         _message: Joint_parameters
         _timestamp: rospy.Time
-        index.append(_timestamp.to_nsec() - timestamp0.to_nsec())
+        td = pd.to_timedelta((_timestamp - timestamp0).to_nsec(), unit="nanoseconds")
+        index.append(td)
 
         for i in range(0, 6, 1):
             row.append(_message.actual_joint_positions[i])
