@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 import rospy
-from data_transformation.msg import Spatial_force, Joints_spatial_force
-from vicon_data_publisher.msg import Force_plate_data
-from ur_robot_data_acquisition.msg import Joint_parameters
+from Common.Ros_msg_types.data_transformation.msg import Spatial_force, Joints_spatial_force
+from Common.Ros_msg_types.vicon_data_publisher.msg import Force_plate_data
+from Common.Ros_msg_types.ur_robot_data_acquisition.msg import Joint_parameters
 import statistics
 from rospy import Time
 from dataclasses import dataclass

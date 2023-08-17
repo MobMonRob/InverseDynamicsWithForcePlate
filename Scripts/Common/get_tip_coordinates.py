@@ -1,9 +1,11 @@
 import numpy as np
-from geometry_classes import Point3D
+from Common.geometry_classes import Point3D
+
 
 def normalize_vector(vec):
     magnitude = np.linalg.norm(vec)
     return vec / magnitude
+
 
 def get_base_vectors(o, a, b):
     e1 = normalize_vector(np.array([a.x - o.x, a.y - o.y, a.z - o.z]))
@@ -16,8 +18,8 @@ def calculate_new_coordinates(o, a, b, s):
     e1, e2, e3 = get_base_vectors(o, a, b)
 
     a = np.array([[e1[0], e2[0], e3[0]],
-                      [e1[1], e2[1], e3[1]],
-                      [e1[2], e2[2], e3[2]]])
+                  [e1[1], e2[1], e3[1]],
+                  [e1[2], e2[2], e3[2]]])
 
     s_old_Minus_o_old = np.array([s.x - o.x, s.y - o.y, s.z - o.z])
     s_new = np.dot(a, s_old_Minus_o_old)
@@ -36,6 +38,7 @@ def calculate_old_coordinates(o, a, b, s):
     s_old = np.array([A_mult_S_new[0] + o.x, A_mult_S_new[1] + o.y, A_mult_S_new[2] + o.z])
     return Point3D(s_old[0], s_old[1], s_old[2])
 
+
 def define_middle_point(p1: Point3D, p2: Point3D, p3: Point3D, p4: Point3D) -> Point3D:
     middlePoint: Point3D = Point3D(
         (p1.x + p2.x + p3.x + p4.x) / 4,
@@ -44,6 +47,7 @@ def define_middle_point(p1: Point3D, p2: Point3D, p3: Point3D, p4: Point3D) -> P
     )
 
     return middlePoint
+
 
 if __name__ == "__main__":
     marker1_circle: Point3D = Point3D(92.8505 / 1000, 199.1685 / 1000, 69.1085 / 1000)

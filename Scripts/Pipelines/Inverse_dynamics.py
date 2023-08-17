@@ -4,9 +4,9 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))  # nopep8
 sys.path.append(os.path.dirname(SCRIPT_DIR))  # nopep8
 from Common.Rosbag_extractor import RosbagExtractor, IndexedBagMsgs, BagMsgs, BagMessage
 from Common.Inverse_dynamics_node import Inverse_dynamics_node
-from data_transformation.msg import Joints_spatial_force
 from Common.Bland_Altman_Plot import BAP_config, BAP_set, generate_bland_altman_plot
 from itertools import cycle
+from Common.Ros_msg_types.data_transformation.msg import Joints_spatial_force
 
 
 def execute():
