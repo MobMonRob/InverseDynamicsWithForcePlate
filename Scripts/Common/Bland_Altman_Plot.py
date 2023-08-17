@@ -11,6 +11,7 @@ from typing import Iterator, Tuple
 import math
 import statistics
 from reloading import reloading
+from pathlib import Path
 
 
 @dataclass
@@ -112,6 +113,8 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False):
     sizeFactor: float = 8  # 5
     plt.gcf().set_size_inches(w=sqrt(2) * sizeFactor, h=1 * sizeFactor)
     dpi: int = 200
+    # create plotSaveDir if not exists
+    Path(config.plotSaveDir).mkdir(parents=True, exist_ok=True)
     plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.svg", format="svg", dpi=dpi)
     plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.png", format="png", dpi=dpi)
 
