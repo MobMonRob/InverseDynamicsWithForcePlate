@@ -13,7 +13,7 @@ def execute():
     rootDir: str = os.path.abspath(f"{SCRIPT_DIR}/../..")
     dataDir: str = f"{rootDir}/Data/"
     relativeBagPath: str = f"2023_08_04_ur5e_dynamic/end_position_to_dynamic_random_2023-08-04-19-18-34.bag"
-    bagPath = f"{dataDir}{relativeBagPath}"
+    bagPath: str = f"{dataDir}{relativeBagPath}"
     # bagPath: str = f"{dataDir}2023_08_04_ur5e_static/static_south_2023-08-04-18-20-12.bag"
     plotSaveDir: str = f"{rootDir}/Plots/Inverse_dynamics/force_to_joint/{relativeBagPath}/"
 
@@ -23,10 +23,20 @@ def execute():
     topics: set[str] = set([topic_fp, topic_jp])
 
     re: RosbagExtractor = RosbagExtractor.fromBag(bagPath=bagPath, topics=topics)
-
-    # Start: msgs_compound_sorted
     bagPaths: list[str] = re.bagPaths
     indexedBagMsgs: IndexedBagMsgs = re.getIndexedBagMsgs()
+
+    msgs_compound_sorted: list[BagMessage] = create_msgs_compound_sorted(indexedBagMsgs, topic_fp, topic_jp, bagPath)
+
+    joints_spatial_force_list: list[Joints_spatial_force] = create_joints_spatial_force_list(topic_fp, topic_jp, msgs_compound_sorted)
+
+    force_to_joint_plot(joints_spatial_force_list, plotSaveDir)
+
+    return
+
+
+def create_msgs_compound_sorted(indexedBagMsgs: IndexedBagMsgs, topic_fp: str, topic_jp: str, bagPath: str) -> "list[BagMessage]":
+    # Start: msgs_compound_sorted
 
     bagMsgs_fp: BagMsgs = indexedBagMsgs.get_msgs(topic=topic_fp, bagPath=bagPath)
     bagMsgs_jp: BagMsgs = indexedBagMsgs.get_msgs(topic=topic_jp, bagPath=bagPath)
@@ -41,6 +51,10 @@ def execute():
     msgs_compound_sorted: list[BagMessage] = sorted(msgs_compound, key=lambda x: x.timestamp)
     # End: msgs_compound_sorted
 
+    return msgs_compound_sorted
+
+
+def create_joints_spatial_force_list(topic_fp: str, topic_jp: str, msgs_compound_sorted: "list[BagMessage]") -> "list[Joints_spatial_force]":
     # Start: joints_spatial_force_list
     iv_node: Inverse_dynamics_node = Inverse_dynamics_node()
     joints_spatial_force_list: list[Joints_spatial_force] = list()
@@ -55,7 +69,12 @@ def execute():
                 continue
             else:
                 joints_spatial_force_list.append(joints_spatial_force)
+    # End: joints_spatial_force_list
 
+    return joints_spatial_force_list
+
+
+def force_to_joint_plot(joints_spatial_force_list: "list[Joints_spatial_force]", plotSaveDir: str):
     # m{x, y, z}: Nm
     # f{x, y, z}: N
     # Joint{i}: (mx, my, mz, fx, mf, fz)
@@ -65,25 +84,6 @@ def execute():
     # print(joints_spatial_force_list[0].joints_bottom_up[0].m_xyz__f_xyz[0])
 
     # End: joints_spatial_force_list
-
-    # # Start: Joint0 m_xyz__f_xyz
-    # m_xyz__f_xyz__to__joints_bottom_up_0: list[list[float]] = [[] for i in range(6)]
-    # m_xyz__f_xyz__to__joints_top_down_0: list[list[float]] = [[] for i in range(6)]
-    # joint: int = 0
-    # for joints_spatial_force in joints_spatial_force_list:
-    #     bottom_up_0 = joints_spatial_force.joints_bottom_up[joint].m_xyz__f_xyz
-    #     top_down_0 = joints_spatial_force.joints_top_down[joint].m_xyz__f_xyz
-
-    #     for i in range(6):
-    #         m_xyz__f_xyz__to__joints_bottom_up_0[i].append(bottom_up_0[i])
-    #         m_xyz__f_xyz__to__joints_top_down_0[i].append(top_down_0[i])
-
-    # # in sets: alle m_xyz__f_xyz
-    # # in BAP_set alle joints[0] aller Elemente aus joints_spatial_force_list
-    # sets: list[BAP_set] = list()
-    # for i in range(6):
-    #     sets.append(BAP_set(x1=m_xyz__f_xyz__to__joints_bottom_up_0[i], x2=m_xyz__f_xyz__to__joints_top_down_0[i]))
-    # # End: Joint0 m_xyz__f_xyz
 
     # Start: force_to_joint
 
