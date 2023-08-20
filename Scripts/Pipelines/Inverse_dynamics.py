@@ -114,8 +114,8 @@ def norm_to_joint_plot(bu_df: DataFrame, td_df: DataFrame, plotSaveDir: str):
                                       units="[N]", additionalComment=f"(f für alle Gelenke)", plotSaveDir=plotSaveDir)
 
     # Plotten
-    generate_bland_altman_plot(config=config_m, showplot=False)
-    generate_bland_altman_plot(config=config_f, showplot=False)
+    generate_bland_altman_plot(config=config_m, showplot=True, plot_outliers=False)
+    generate_bland_altman_plot(config=config_f, showplot=True, plot_outliers=False)
 
     return
 

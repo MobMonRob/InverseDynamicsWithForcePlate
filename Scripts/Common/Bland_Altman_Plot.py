@@ -66,21 +66,13 @@ def __scale(data: 'list[float]', factor: int) -> "list[float]":
     return list(series)
 
 
-def generate_bland_altman_plot(config: BAP_config, showplot: bool = False):
-    means, diffs = __plot_sets(sets=config.sets, colors=config.colors)
-
-    md = np.mean(diffs)          # Mean of the difference
-    sd = np.std(diffs, axis=0)   # Standard deviation of the difference
-    CI_low = md - 1.96 * sd
-    CI_high = md + 1.96 * sd
-    plt.axhline(md,             color='k',   linestyle='-')
-    plt.axhline(md + 1.96 * sd, color='k', linestyle='--')
-    plt.axhline(md - 1.96 * sd, color='k', linestyle='--')
+def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_outliers=False):
+    md, sd, xOutPlot, diffs_lower_limit, diffs_upper_limit = __plot_sets(sets=config.sets, colors=config.colors, plot_outliers=plot_outliers)
 
     meanString = "Mittelwert"
     standardDeviationString = "$\sigma$"
-    xLabelString = f"Mittelwert zweier Messungen {config.units}"
-    yLabelString = f"Differenz zweier Messungen {config.units}"
+    xLabelString = f"Mittelwert der Methoden {config.units}"
+    yLabelString = f"Differenz der Methoden {config.units}"
 
     plotDescription = f"{config.dataName1} vs. {config.dataName2}"
     if len(config.additionalComment) > 0:
@@ -89,12 +81,19 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False):
     plt.title(r"$\mathbf{Bland-Altman-Diagramm}$" + "\n" + plotDescription)
     plt.xlabel(xLabelString)
     plt.ylabel(yLabelString)
-    plt.ylim(md - 3.5 * sd, md + 3.5 * sd)
 
-    xOutPlot = np.min(means) + (np.max(means) - np.min(means)) * 1.15
+    if not plot_outliers:
+        plt.ylim(diffs_lower_limit, diffs_upper_limit)
 
-    plt.text(xOutPlot, md + 1.96 * sd,
-             rf"+1.96{standardDeviationString}:" + "\n" + "%.4f" % CI_high,
+    limit_of_agreement_low = md - 1.96 * sd
+    limit_of_agreement_high = md + 1.96 * sd
+
+    plt.axhline(md, color='k', linestyle='-')
+    plt.axhline(limit_of_agreement_high, color='k', linestyle='--')
+    plt.axhline(limit_of_agreement_low, color='k', linestyle='--')
+
+    plt.text(xOutPlot, limit_of_agreement_high,
+             rf"+1.96{standardDeviationString}:" + "\n" + "%.4f" % limit_of_agreement_high,
              ha="center",
              va="center",
              )
@@ -103,12 +102,17 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False):
              ha="center",
              va="center",
              )
-    plt.text(xOutPlot, md - 1.96 * sd,
-             rf"-1.96{standardDeviationString}:" + "\n" + "%.4f" % CI_low,
+    plt.text(xOutPlot, limit_of_agreement_low,
+             rf"-1.96{standardDeviationString}:" + "\n" + "%.4f" % limit_of_agreement_low,
              ha="center",
              va="center",
              )
     plt.subplots_adjust(right=0.85)
+
+    # plt.grid(True)
+
+    plt.legend([i for i in range(len(config.sets))],
+               loc="upper right", title="Gelenke")
 
     sizeFactor: float = 8  # 5
     plt.gcf().set_size_inches(w=sqrt(2) * sizeFactor, h=1 * sizeFactor)
@@ -129,39 +133,91 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False):
     return
 
 
+def __calculate_limits(data: "list[float]") -> Tuple[float, float]:
+    mean = np.mean(data)
+    std = np.std(data)
+    ci = 1.96 * std
+    ci_visible_factor = 1.0 + 1.0 / 3.0
+    lower_limit = mean - ci_visible_factor * ci
+    upper_limit = mean + ci_visible_factor * ci
+    return lower_limit, upper_limit
+
+
 @reloading
-def __plot_sets(sets: "list[BAP_set]", colors: Iterator):
+def __plot_sets(sets: "list[BAP_set]", colors: Iterator, plot_outliers: bool):
     for set in sets:
         if len(set.x1) != len(set.x2):
             raise RuntimeError("len(set.x1) != len(set.x2)")
 
-    means_all = list()
-    diffs_all = list()
-    means_of_means = list()
-    means_of_diffs = list()
-    color_values = list()
+    means_all: list[list[float]] = list()
+    diffs_all: list[list[float]] = list()
+    seg_means_all: list[list[float]] = list()
+    seg_diffs_all: list[list[float]] = list()
+    alphas_all: list[list[float]] = list()
+    means_of_means: list[float] = list()
+    means_of_diffs: list[float] = list()
     for set in sets:
         x1 = np.asarray(set.x1)
         x2 = np.asarray(set.x2)
         means = np.mean([x1, x2], axis=0)
-        diffs = x1 - x2
         means_all.append(means)
+        diffs = x1 - x2
         diffs_all.append(diffs)
         mean_of_means = np.mean(means)
         mean_of_diffs = np.mean(diffs)
         means_of_means.append(mean_of_means)
         means_of_diffs.append(mean_of_diffs)
+
         seg_means, seg_diffs, alphas = __segment(means=means, diffs=diffs, bin_size_m=1.0, bin_size_d=0.3, max_alpha=0.8, min_alpha=0.3)
+
+        seg_means_all.append(seg_means)
+        seg_diffs_all.append(seg_diffs)
+        alphas_all.append(alphas)
+
+    diffs_all_flat = np.concatenate(diffs_all)
+    md_data = np.mean(diffs_all_flat)  # Mean of the difference
+    sd_data = np.std(diffs_all_flat)   # Standard deviation of the difference
+    diffs_lower_limit, diffs_upper_limit = __calculate_limits(diffs_all_flat)
+
+    limited_seg_means_all = seg_means_all
+    limited_seg_diffs_all = seg_diffs_all
+    if not plot_outliers:
+        limited_seg_means_all = list()
+        limited_seg_diffs_all = list()
+        for seg_means, seg_diffs in zip(seg_means_all, seg_diffs_all):
+            limited_means = list()
+            limited_diffs = list()
+            m_ll, m_ul = __calculate_limits(seg_means)
+            d_ll, d_ul = __calculate_limits(seg_diffs)
+            for m, d in zip(seg_means, seg_diffs):
+                # Remove means global outliers.
+                if not (diffs_lower_limit < d < diffs_upper_limit):
+                    continue
+                # Remove means local outliers.
+                if not (m_ll < m < m_ul):
+                    continue
+                # Remove diffs local outliers.
+                if not (d_ll < d < d_ul):
+                    continue
+                limited_means.append(m)
+                limited_diffs.append(d)
+            limited_seg_means_all.append(limited_means)
+            limited_seg_diffs_all.append(limited_diffs)
+
+    color_values = list()
+    for set, means, diffs, alphas in zip(sets, limited_seg_means_all, limited_seg_diffs_all, alphas_all):
         color = next(colors)
         color_values.append(color)
-        plt.scatter(x=seg_means, y=seg_diffs, marker="_", color=color, alpha=alphas, s=50)
+        plt.scatter(x=means, y=diffs, marker="_", color=color, alpha=alphas, s=50)
 
     plt.scatter(x=means_of_means, y=means_of_diffs, marker=".", color=color_values, alpha=0.6, s=500)
 
-    means_all = np.concatenate(means_all)
-    diffs_all = np.concatenate(diffs_all)
+    limited_seg_means_all_flat = np.concatenate(limited_seg_means_all)
+    limited_seg_means_all_flat_min = np.min(limited_seg_means_all_flat)
+    limited_seg_means_all_flat_max = np.max(limited_seg_means_all_flat)
+    xOutPlot = limited_seg_means_all_flat_min + (limited_seg_means_all_flat_max - limited_seg_means_all_flat_min) * 1.15
 
-    return means_all, diffs_all
+    return md_data, sd_data, xOutPlot, diffs_lower_limit, diffs_upper_limit
 
 
 def __segment(means, diffs, bin_size_m: float, bin_size_d: float, max_alpha: float, min_alpha: float):
