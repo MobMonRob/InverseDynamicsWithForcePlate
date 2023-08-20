@@ -1,4 +1,6 @@
-# Inspired by https://stackoverflow.com/a/70652576/7817074
+# Inspired by
+# - https://stackoverflow.com/a/70652576/7817074
+# - https://github.com/jaketmp/pyCompare
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -12,6 +14,7 @@ import math
 import statistics
 from reloading import reloading
 from pathlib import Path
+from scipy import stats
 
 
 @dataclass
@@ -67,8 +70,6 @@ def __scale(data: 'list[float]', factor: int) -> "list[float]":
 
 
 def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_outliers=False):
-    md, sd, xOutPlot, diffs_lower_limit, diffs_upper_limit = __plot_sets(sets=config.sets, colors=config.colors, plot_outliers=plot_outliers)
-
     meanString = "Mittelwert"
     standardDeviationString = "$\sigma$"
     xLabelString = f"Mittelwert der Methoden {config.units}"
@@ -82,11 +83,14 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_
     plt.xlabel(xLabelString)
     plt.ylabel(yLabelString)
 
+    md, sd, xOutPlot, diffs_lower_limit, diffs_upper_limit, observations = __plot_sets(sets=config.sets, colors=config.colors, plot_outliers=plot_outliers)
+
     if not plot_outliers:
         plt.ylim(diffs_lower_limit, diffs_upper_limit)
 
-    limit_of_agreement_low = md - 1.96 * sd
-    limit_of_agreement_high = md + 1.96 * sd
+    limit_of_agreement = 1.96
+    limit_of_agreement_low = md - limit_of_agreement * sd
+    limit_of_agreement_high = md + limit_of_agreement * sd
 
     plt.axhline(md, color='k', linestyle='-')
     plt.axhline(limit_of_agreement_high, color='k', linestyle='--')
@@ -108,6 +112,21 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_
              va="center",
              )
     plt.subplots_adjust(right=0.85)
+
+    ci_lower, ci_mean, ci_upper = __calculateConfidenceIntervals(md=md, sd=sd, observations=observations)
+
+    ci_color = "tab:brown"
+    plt.axhspan(ci_lower[0],
+                ci_lower[1],
+                facecolor=ci_color, alpha=0.3)
+
+    plt.axhspan(ci_mean[0],
+                ci_mean[1],
+                facecolor=ci_color, alpha=0.3)
+
+    plt.axhspan(ci_upper[0],
+                ci_upper[1],
+                facecolor=ci_color, alpha=0.3)
 
     # plt.grid(True)
 
@@ -131,6 +150,28 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_
     plt.close()
 
     return
+
+
+def __calculateConfidenceIntervals(md: float, sd: float, observations: int):
+    """
+    Approximate method by Bland and Altman.
+    """
+
+    limitOfAgreement: float = 1.96
+    confidenceInterval: float = 0.95
+
+    ci_mean = stats.t.interval(confidenceInterval, observations-1, loc=md, scale=sd/np.sqrt(observations))
+
+    seLoA = ((1/observations) + (limitOfAgreement**2 / (2 * (observations - 1)))) * (sd**2)
+    loARange = np.sqrt(seLoA) * stats.t._ppf((1-confidenceInterval)/2., observations-1)
+
+    ci_upper = ((md + limitOfAgreement*sd) + loARange,
+                (md + limitOfAgreement*sd) - loARange)
+
+    ci_lower = ((md - limitOfAgreement*sd) + loARange,
+                (md - limitOfAgreement*sd) - loARange)
+
+    return ci_lower, ci_mean, ci_upper
 
 
 def __calculate_limits(data: "list[float]") -> Tuple[float, float]:
@@ -217,7 +258,7 @@ def __plot_sets(sets: "list[BAP_set]", colors: Iterator, plot_outliers: bool):
     limited_seg_means_all_flat_max = np.max(limited_seg_means_all_flat)
     xOutPlot = limited_seg_means_all_flat_min + (limited_seg_means_all_flat_max - limited_seg_means_all_flat_min) * 1.15
 
-    return md_data, sd_data, xOutPlot, diffs_lower_limit, diffs_upper_limit
+    return md_data, sd_data, xOutPlot, diffs_lower_limit, diffs_upper_limit, len(diffs_all_flat)
 
 
 def __segment(means, diffs, bin_size_m: float, bin_size_d: float, max_alpha: float, min_alpha: float):

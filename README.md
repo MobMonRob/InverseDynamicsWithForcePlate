@@ -43,6 +43,7 @@ Update lib: `pip3 install -U <libname>`
 - rospy 1.16.0
 - [urdf2casadi](https://github.com/mahaarbo/urdf2casadi/tree/fc4232d7a095f078be0a3435cee3c1d4ef1cb8a0)
 - reloading 1.1.2
+- scipy 1.10.1
 
 
 ## Execution
