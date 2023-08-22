@@ -36,7 +36,7 @@ def execute():
 
     joints_spatial_force_list: list[Joints_spatial_force] = create_joints_spatial_force_list(topic_fp, topic_jp, msgs_compound_sorted)
 
-    # force_to_joint_plot(joints_spatial_force_list, plotSaveDir)
+    force_to_joint_plot(joints_spatial_force_list, plotSaveDir)
 
     bu_df, td_df = create_bu_td_forces_joints_to_values(joints_spatial_force_list)
     norm_to_joint_plot(bu_df, td_df, plotSaveDir)
@@ -223,6 +223,9 @@ def force_to_joint_plot(joints_spatial_force_list: "list[Joints_spatial_force]",
 
     plotSaveDir = f"{plotSaveDir}force_to_joint/"
 
+    color_to_label = {c: i for (i, c) in enumerate(colors_joints)}
+    legend: BAP_legend = BAP_legend(title="Gelenke", color_to_label=color_to_label)
+
     for force_component_index in range(6):
         force_name: str = forces_names[force_component_index]
         force_units: str = forces_units[force_component_index]
@@ -235,7 +238,7 @@ def force_to_joint_plot(joints_spatial_force_list: "list[Joints_spatial_force]",
                                         units=units, additionalComment=f"({force_name} für alle Gelenke)", plotSaveDir=plotSaveDir)
 
         # Plotten
-        generate_bland_altman_plot(config=config, showplot=False)
+        generate_bland_altman_plot(config=config, showplot=False, plot_outliers=False, legend=legend)
 
     return
 
