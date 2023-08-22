@@ -3,6 +3,7 @@
 # - https://github.com/jaketmp/pyCompare
 
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import matplotlib.cm as cm
 import numpy as np
 import pandas as pd
@@ -22,6 +23,12 @@ class BAP_set(object):
     # len(x1) == len(x2)
     x1: "list[float]"
     x2: "list[float]"
+
+
+@dataclass
+class BAP_legend(object):
+    title: str
+    color_to_label: dict
 
 
 @dataclass
@@ -69,7 +76,7 @@ def __scale(data: 'list[float]', factor: int) -> "list[float]":
     return list(series)
 
 
-def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_outliers=False):
+def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_outliers: bool = False, legend: BAP_legend = None):
     meanString = "Mittelwert"
     standardDeviationString = "$\sigma$"
     xLabelString = f"Mittelwert der Methoden {config.units}"
@@ -130,8 +137,9 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_
 
     # plt.grid(True)
 
-    plt.legend([i for i in range(len(config.sets))],
-               loc="upper right", title="Gelenke")
+    if legend != None:
+        patches = [mpatches.Patch(color=c, label=l) for c, l in legend.color_to_label.items()]
+        plt.legend(handles=patches, loc="best", title=legend.title)
 
     sizeFactor: float = 8  # 5
     plt.gcf().set_size_inches(w=sqrt(2) * sizeFactor, h=1 * sizeFactor)

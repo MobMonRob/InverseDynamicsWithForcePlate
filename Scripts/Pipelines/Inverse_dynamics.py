@@ -4,7 +4,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))  # nopep8
 sys.path.append(os.path.dirname(SCRIPT_DIR))  # nopep8
 from Common.Rosbag_extractor import RosbagExtractor, IndexedBagMsgs, BagMsgs, BagMessage
 from Common.Inverse_dynamics_node import Inverse_dynamics_node
-from Common.Bland_Altman_Plot import BAP_config, BAP_set, generate_bland_altman_plot
+from Common.Bland_Altman_Plot import BAP_config, BAP_set, BAP_legend, generate_bland_altman_plot
 from itertools import cycle, product
 from Common.Ros_msg_types.data_transformation.msg import Joints_spatial_force, Spatial_force
 from typing import Tuple
@@ -113,9 +113,12 @@ def norm_to_joint_plot(bu_df: DataFrame, td_df: DataFrame, plotSaveDir: str):
     config_f: BAP_config = BAP_config(sets=sets_f, colors=iter(colors_joints), dataName1=dataName1, dataName2=dataName2,
                                       units="[N]", additionalComment=f"(f für alle Gelenke)", plotSaveDir=plotSaveDir)
 
+    color_to_label = {c: i for (i, c) in enumerate(colors_joints)}
+    legend: BAP_legend = BAP_legend(title="Gelenke", color_to_label=color_to_label)
+
     # Plotten
-    generate_bland_altman_plot(config=config_m, showplot=True, plot_outliers=False)
-    generate_bland_altman_plot(config=config_f, showplot=True, plot_outliers=False)
+    generate_bland_altman_plot(config=config_m, showplot=True, plot_outliers=False, legend=legend)
+    generate_bland_altman_plot(config=config_f, showplot=True, plot_outliers=False, legend=legend)
 
     return
 
