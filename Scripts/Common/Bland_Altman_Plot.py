@@ -79,8 +79,8 @@ def __scale(data: 'list[float]', factor: int) -> "list[float]":
 def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_outliers: bool = False, legend: BAP_legend = None):
     meanString = "Mittelwert"
     standardDeviationString = "$\sigma$"
-    xLabelString = f"Mittelwert der Methoden {config.units}"
-    yLabelString = f"Differenz der Methoden {config.units}"
+    xLabelString = f"Mittelwerte der Messmethoden {config.units}"
+    yLabelString = f"Differenzen der Messmethoden {config.units}"
 
     plotDescription = f"{config.dataName1} vs. {config.dataName2}"
     if len(config.additionalComment) > 0:
