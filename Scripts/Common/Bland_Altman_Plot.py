@@ -282,7 +282,7 @@ def __plot_sets(sets: "list[BAP_set]", colors: Iterator, plot_outliers: bool):
         color_values.append(color)
         plt.scatter(x=means, y=diffs, marker="o", edgecolors="none", color=color, alpha=alphas, s=marker_size)
 
-    plt.scatter(x=means_of_means, y=means_of_diffs, marker="o", edgecolors="none", color=color_values, alpha=0.7, s=marker_size*3**2)
+    plt.scatter(x=means_of_means, y=means_of_diffs, marker="o", edgecolors="black", color=color_values, alpha=0.7, s=marker_size*3**2)
 
     xOutPlot = limited_seg_means_all_flat_min + (limited_seg_means_all_flat_max - limited_seg_means_all_flat_min) * 1.15
 
