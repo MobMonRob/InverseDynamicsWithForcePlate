@@ -21,25 +21,28 @@ def execute():
     relativeBagPath: str = f"2023_08_04_ur5e_dynamic/start_position_to_dynamic_random_2023-08-04-19-08-59.bag"
     bagPath: str = f"{dataDir}{relativeBagPath}"
     # bagPath: str = f"{dataDir}2023_08_04_ur5e_static/static_south_2023-08-04-18-20-12.bag"
-    plotSaveDir: str = f"{rootDir}/Plots/Inverse_dynamics/{relativeBagPath}/"
+    plotSaveDir: str = f"{rootDir}/Plots/Inverse_dynamics/{relativeBagPath}"
 
     # TODO: sma austauschen durch 1euro
-    topic_fp: str = "/Force_plate_data"
+    topics_fp: list[str] = ["/Force_plate_data", "/Force_plate_data_sma"]
     topic_jp: str = "/Joint_parameters"
-    topics: set[str] = set([topic_fp, topic_jp])
 
-    re: RosbagExtractor = RosbagExtractor.fromBag(bagPath=bagPath, topics=topics)
-    bagPaths: list[str] = re.bagPaths
-    indexedBagMsgs: IndexedBagMsgs = re.getIndexedBagMsgs()
+    for topic_fp in topics_fp:
+        plotSaveDir_with_topic: str = f"{plotSaveDir}{topic_fp}/"
+        topics: set[str] = set([topic_fp, topic_jp])
 
-    msgs_compound_sorted: list[BagMessage] = create_msgs_compound_sorted(indexedBagMsgs, topic_fp, topic_jp, bagPath)
+        re: RosbagExtractor = RosbagExtractor.fromBag(bagPath=bagPath, topics=topics)
+        bagPaths: list[str] = re.bagPaths
+        indexedBagMsgs: IndexedBagMsgs = re.getIndexedBagMsgs()
 
-    joints_spatial_force_list: list[Joints_spatial_force] = create_joints_spatial_force_list(topic_fp, topic_jp, msgs_compound_sorted)
+        msgs_compound_sorted: list[BagMessage] = create_msgs_compound_sorted(indexedBagMsgs, topic_fp, topic_jp, bagPath)
 
-    force_to_joint_plot(joints_spatial_force_list, plotSaveDir)
+        joints_spatial_force_list: list[Joints_spatial_force] = create_joints_spatial_force_list(topic_fp, topic_jp, msgs_compound_sorted)
 
-    bu_df, td_df = create_bu_td_forces_joints_to_values(joints_spatial_force_list)
-    norm_to_joint_plot(bu_df, td_df, plotSaveDir)
+        force_to_joint_plot(joints_spatial_force_list, plotSaveDir_with_topic)
+
+        bu_df, td_df = create_bu_td_forces_joints_to_values(joints_spatial_force_list)
+        norm_to_joint_plot(bu_df, td_df, plotSaveDir_with_topic)
 
     return
 
@@ -117,8 +120,8 @@ def norm_to_joint_plot(bu_df: DataFrame, td_df: DataFrame, plotSaveDir: str):
     legend: BAP_legend = BAP_legend(title="Gelenke", color_to_label=color_to_label)
 
     # Plotten
-    generate_bland_altman_plot(config=config_m, showplot=True, plot_outliers=False, legend=legend)
-    generate_bland_altman_plot(config=config_f, showplot=True, plot_outliers=False, legend=legend)
+    generate_bland_altman_plot(config=config_m, showplot=False, plot_outliers=False, legend=legend)
+    generate_bland_altman_plot(config=config_f, showplot=False, plot_outliers=False, legend=legend)
 
     return
 
