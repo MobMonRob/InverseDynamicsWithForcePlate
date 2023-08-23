@@ -16,6 +16,7 @@ import statistics
 from reloading import reloading
 from pathlib import Path
 from scipy import stats
+import sys
 
 
 @dataclass
@@ -77,6 +78,12 @@ def __scale(data: 'list[float]', factor: int) -> "list[float]":
 
 
 def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_outliers: bool = False, legend: BAP_legend = None):
+
+    # Those need to be set before invocation of __plot_sets().
+    sizeFactor: float = 8  # 5
+    plt.gcf().set_size_inches(w=sqrt(2) * sizeFactor, h=1 * sizeFactor)
+    plt.gcf().set_dpi(300)
+
     meanString = "Mittelwert"
     standardDeviationString = "$\sigma$"
     xLabelString = f"Mittelwerte der Messmethoden {config.units}"
@@ -141,21 +148,19 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_
         patches = [mpatches.Patch(color=c, label=l) for c, l in legend.color_to_label.items()]
         plt.legend(handles=patches, loc="best", title=legend.title)
 
-    sizeFactor: float = 8  # 5
-    plt.gcf().set_size_inches(w=sqrt(2) * sizeFactor, h=1 * sizeFactor)
-    dpi: int = 200
     # create plotSaveDir if not exists
     Path(config.plotSaveDir).mkdir(parents=True, exist_ok=True)
-    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.svg", format="svg", dpi=dpi)
-    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.png", format="png", dpi=dpi)
+    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.svg", format="svg")
+    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.png", format="png")
 
     # Needed for saving
     if showplot:
         plt.ioff()
+        plt.show()
+        plt.close()
     else:
-        plt.ion()
-    plt.show()
-    plt.close()
+        plt.ioff()
+        plt.close()
 
     return
 
@@ -192,7 +197,7 @@ def __calculate_limits(data: "list[float]") -> Tuple[float, float]:
     return lower_limit, upper_limit
 
 
-@reloading
+# @reloading
 def __plot_sets(sets: "list[BAP_set]", colors: Iterator, plot_outliers: bool):
     for set in sets:
         if len(set.x1) != len(set.x2):
@@ -200,9 +205,6 @@ def __plot_sets(sets: "list[BAP_set]", colors: Iterator, plot_outliers: bool):
 
     means_all: list[list[float]] = list()
     diffs_all: list[list[float]] = list()
-    seg_means_all: list[list[float]] = list()
-    seg_diffs_all: list[list[float]] = list()
-    alphas_all: list[list[float]] = list()
     means_of_means: list[float] = list()
     means_of_diffs: list[float] = list()
     for set in sets:
@@ -217,56 +219,99 @@ def __plot_sets(sets: "list[BAP_set]", colors: Iterator, plot_outliers: bool):
         means_of_means.append(mean_of_means)
         means_of_diffs.append(mean_of_diffs)
 
-        seg_means, seg_diffs, alphas = __segment(means=means, diffs=diffs, bin_size_m=1.0, bin_size_d=0.3, max_alpha=0.8, min_alpha=0.3)
-
-        seg_means_all.append(seg_means)
-        seg_diffs_all.append(seg_diffs)
-        alphas_all.append(alphas)
-
     diffs_all_flat = np.concatenate(diffs_all)
     md_data = np.mean(diffs_all_flat)  # Mean of the difference
     sd_data = np.std(diffs_all_flat)   # Standard deviation of the difference
     diffs_lower_limit, diffs_upper_limit = __calculate_limits(diffs_all_flat)
 
-    limited_seg_means_all = seg_means_all
-    limited_seg_diffs_all = seg_diffs_all
+    limited_means_all = means_all
+    limited_diffs_all = diffs_all
     if not plot_outliers:
-        limited_seg_means_all = list()
-        limited_seg_diffs_all = list()
-        for seg_means, seg_diffs in zip(seg_means_all, seg_diffs_all):
-            limited_means = list()
-            limited_diffs = list()
-            m_ll, m_ul = __calculate_limits(seg_means)
-            d_ll, d_ul = __calculate_limits(seg_diffs)
-            for m, d in zip(seg_means, seg_diffs):
-                # Remove means global outliers.
-                if not (diffs_lower_limit < d < diffs_upper_limit):
-                    continue
-                # Remove means local outliers.
-                if not (m_ll < m < m_ul):
-                    continue
-                # Remove diffs local outliers.
-                if not (d_ll < d < d_ul):
-                    continue
-                limited_means.append(m)
-                limited_diffs.append(d)
-            limited_seg_means_all.append(limited_means)
-            limited_seg_diffs_all.append(limited_diffs)
+        limited_means_all, limited_diffs_all = remove_outliers(limited_means_all, limited_diffs_all, diffs_lower_limit, diffs_upper_limit)
+
+    limited_means_all_flat = np.concatenate(limited_means_all)
+    limited_diffs_all_flat = np.concatenate(limited_diffs_all)
+    resolution: float = 100
+    # Equal to aspect ratio of: plt.gcf().set_size_inches(w=sqrt(2) * sizeFactor, h=1 * sizeFactor)
+    d_to_m_ratio = sqrt(2)
+    bin_size_m = (np.max(limited_means_all_flat) - np.min(limited_means_all_flat)) / (resolution * d_to_m_ratio)
+    bin_size_d = (np.max(limited_diffs_all_flat) - np.min(limited_diffs_all_flat)) / resolution
+    # print(f"binSizes: {bin_size_m}, {bin_size_d}")
+    limited_seg_means_all: list[list[float]] = list()
+    limited_seg_diffs_all: list[list[float]] = list()
+    alphas_all: list[list[float]] = list()
+    for means, diffs in zip(limited_means_all, limited_diffs_all):
+        seg_means, seg_diffs, alphas = __segment(means=means, diffs=diffs, bin_size_m=bin_size_m, bin_size_d=bin_size_d, max_alpha=0.8, min_alpha=0.3)
+
+        limited_seg_means_all.append(seg_means)
+        limited_seg_diffs_all.append(seg_diffs)
+        alphas_all.append(alphas)
+
+    limited_seg_means_all_flat = np.concatenate(limited_seg_means_all)
+    limited_seg_means_all_flat_min = np.min(limited_seg_means_all_flat)
+    limited_seg_means_all_flat_max = np.max(limited_seg_means_all_flat)
+
+    limited_seg_diffs_all_flat = np.concatenate(limited_seg_diffs_all)
+    limited_seg_diffs_all_flat_min = np.min(limited_seg_diffs_all_flat)
+    limited_seg_diffs_all_flat_max = np.max(limited_seg_diffs_all_flat)
+
+    # Start: Calculate marker_size
+    plot_extreme_means = [limited_seg_means_all_flat_min, limited_seg_means_all_flat_min, limited_seg_means_all_flat_max, limited_seg_means_all_flat_max]
+    plot_extreme_diffs = [limited_seg_diffs_all_flat_min, limited_seg_diffs_all_flat_max, limited_seg_diffs_all_flat_min, limited_seg_diffs_all_flat_max]
+
+    ax = plt.subplot()
+
+    # Update plot size to get correct bin_size_display_dots.
+    ax.scatter(x=plot_extreme_means, y=plot_extreme_diffs, marker="o", edgecolors="none", color="black", alpha=0.0, s=30)
+    plt.gcf().canvas.draw()
+
+    dpi = plt.gcf().get_dpi()
+
+    bin_size_display_dots = ax.transData.transform((bin_size_m, bin_size_d))-ax.transData.transform((0, 0))
+    bin_size_display_inches = bin_size_display_dots / dpi
+    inches_per_point = 1.0 / 72.0
+    bin_size_display_points = bin_size_display_inches / inches_per_point
+    marker_radius = np.min(bin_size_display_points)
+    marker_size = marker_radius ** 2
+    # Marker size is correct only for marker="o"
+    # Stop: # Start: Calculate marker_size
 
     color_values = list()
     for set, means, diffs, alphas in zip(sets, limited_seg_means_all, limited_seg_diffs_all, alphas_all):
         color = next(colors)
         color_values.append(color)
-        plt.scatter(x=means, y=diffs, marker="_", color=color, alpha=alphas, s=50)
+        plt.scatter(x=means, y=diffs, marker="o", edgecolors="none", color=color, alpha=alphas, s=marker_size)
 
-    plt.scatter(x=means_of_means, y=means_of_diffs, marker=".", color=color_values, alpha=0.6, s=500)
+    plt.scatter(x=means_of_means, y=means_of_diffs, marker="o", edgecolors="none", color=color_values, alpha=0.7, s=marker_size*3**2)
 
-    limited_seg_means_all_flat = np.concatenate(limited_seg_means_all)
-    limited_seg_means_all_flat_min = np.min(limited_seg_means_all_flat)
-    limited_seg_means_all_flat_max = np.max(limited_seg_means_all_flat)
     xOutPlot = limited_seg_means_all_flat_min + (limited_seg_means_all_flat_max - limited_seg_means_all_flat_min) * 1.15
 
     return md_data, sd_data, xOutPlot, diffs_lower_limit, diffs_upper_limit, len(diffs_all_flat)
+
+
+def remove_outliers(means_all: "list[list[float]]", diffs_all: "list[list[float]]", diffs_lower_limit: float, diffs_upper_limit: float) -> "Tuple[list[list[float]], list[list[float]]]":
+    limited_means_all: "list[list[float]]" = list()
+    limited_diffs_all: "list[list[float]]" = list()
+    for means, diffs in zip(means_all, diffs_all):
+        limited_means: list[float] = list()
+        limited_diffs: list[float] = list()
+        m_ll, m_ul = __calculate_limits(means)
+        d_ll, d_ul = __calculate_limits(diffs)
+        for m, d in zip(means, diffs):
+            # Remove means global outliers.
+            if not (diffs_lower_limit < d < diffs_upper_limit):
+                continue
+                # Remove means local outliers.
+            if not (m_ll < m < m_ul):
+                continue
+                # Remove diffs local outliers.
+            if not (d_ll < d < d_ul):
+                continue
+            limited_means.append(m)
+            limited_diffs.append(d)
+        limited_means_all.append(limited_means)
+        limited_diffs_all.append(limited_diffs)
+    return limited_means_all, limited_diffs_all
 
 
 def __segment(means, diffs, bin_size_m: float, bin_size_d: float, max_alpha: float, min_alpha: float):
@@ -295,6 +340,9 @@ def __segment(means, diffs, bin_size_m: float, bin_size_d: float, max_alpha: flo
     for key, list_md in bins.items():
         seg_mean: float = statistics.fmean([m for m, d in list_md])
         seg_diff: float = statistics.fmean([d for m, d in list_md])
+        # # Test proper alignment
+        # seg_mean: float = float(key[0]) * bin_size_m
+        # seg_diff: float = float(key[1]) * bin_size_d
         seg_means.append(seg_mean)
         seg_diffs.append(seg_diff)
         alpha: float = (float(len(list_md)) / max_len) * (max_alpha - min_alpha) + min_alpha
