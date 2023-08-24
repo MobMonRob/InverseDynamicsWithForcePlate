@@ -55,6 +55,7 @@ add_message_files(
   CoP_position.msg
   Spatial_force.msg
   Joints_spatial_force.msg
+  Joints_spatial_force_normed.msg
 )
 
 ## Generate services in the 'srv' folder

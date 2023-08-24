@@ -11,15 +11,17 @@ sleep 3s
 
 # rosrun [packageName] [nodeName] 
 
-konsole --new-tab -e "rosrun vicon_data_publisher Force_plate_data_publisher" &
+# rosbag play -l <bagfile>
+
+konsole --new-tab -e "rosrun data_transformation Force_plate_data_1euro_filter.py" &
 
 sleep 1s
 
-konsole --new-tab -e "rosrun data_transformation Force_plate_data_sma_transceiver.py" &
+konsole --new-tab -e "rosrun data_transformation Inverse_dynamics.py" &
 
 sleep 1s
 
-konsole --new-tab -e "rosrun ur_robot_data_acquisition Ur_robot_data_publisher.py" &
+konsole --new-tab -e "rosrun data_transformation Id_normed.py" &
 
 sleep 1s
 

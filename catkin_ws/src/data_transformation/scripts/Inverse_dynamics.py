@@ -44,7 +44,8 @@ def execute():
     publisher = rospy.Publisher(f"{Path(__file__).stem}", Joints_spatial_force, queue_size=1000)
 
     # sma reacts too slowly here.
-    rospy.Subscriber("Force_plate_data_1euro_filter", Force_plate_data, callback_force_plate_data)
+    # Force_plate_data_1euro_filter
+    rospy.Subscriber("Force_plate_data", Force_plate_data, callback_force_plate_data)
     rospy.Subscriber("Joint_parameters", Joint_parameters, callback_joint_parameters)
 
     rospy.loginfo(f"{Path(__file__).stem}: started.")
