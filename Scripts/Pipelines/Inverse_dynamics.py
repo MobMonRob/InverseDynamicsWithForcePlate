@@ -121,7 +121,7 @@ def norm_to_joint_plot(bu_df: DataFrame, td_df: DataFrame, plotSaveDir: str):
 
     # Plotten
     generate_bland_altman_plot(config=config_m, showplot=False, plot_outliers=False, legend=legend)
-    generate_bland_altman_plot(config=config_f, showplot=False, plot_outliers=True, legend=legend)
+    generate_bland_altman_plot(config=config_f, showplot=False, plot_outliers=False, legend=legend)
 
     return
 
