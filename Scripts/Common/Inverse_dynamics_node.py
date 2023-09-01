@@ -25,9 +25,10 @@ Timed_q = Timed_T["list[float]"]
 
 
 class Inverse_dynamics_node:
+    top_down: Inverse_dynamics_top_down = Inverse_dynamics_top_down()
+    bottom_up: Inverse_dynamics_force_plate_ur5e = Inverse_dynamics_force_plate_ur5e()
+
     def __init__(self):
-        self.top_down: Inverse_dynamics_top_down = Inverse_dynamics_top_down()
-        self.bottom_up: Inverse_dynamics_force_plate_ur5e = Inverse_dynamics_force_plate_ur5e()
         self.fpd_times: "list[Time]" = list()
         self.fpds: "list[Force_plate_data]" = list()
         self.previous_q: Timed_q = None
@@ -71,8 +72,9 @@ class Inverse_dynamics_node:
         # bottom_up_torques: SixTuple = bottom_up.calculate_torques_from_base_force(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value, base_force=base_force)
 
         # Calculate forces
-        bottom_up_forces: SixTupleTuple = self.bottom_up.calculate_spatial_forces(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value, f_force_plate=f_force_plate, m_force_plate=m_force_plate)
-        top_down_forces: SixTupleTuple = self.top_down.calculate_spatial_forces(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value)
+        bottom_up_forces: SixTupleTuple = Inverse_dynamics_node.bottom_up.calculate_spatial_forces(
+            q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value, f_force_plate=f_force_plate, m_force_plate=m_force_plate)
+        top_down_forces: SixTupleTuple = Inverse_dynamics_node.top_down.calculate_spatial_forces(q=q.value, q_dot=q_dot.value, q_ddot=q_ddot.value)
 
         joints_bottom_up = [Spatial_force(m_xyz__f_xyz=force) for force in bottom_up_forces]
         joints_top_down = [Spatial_force(m_xyz__f_xyz=force) for force in top_down_forces]

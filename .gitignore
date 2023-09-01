@@ -1,3 +1,6 @@
+# Casadi generated
+jit_tmp*.c
+
 *.kate-swp
 
 cmake-build-debug/

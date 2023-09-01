@@ -1,5 +1,4 @@
 # Casadi generated
-
 jit_tmp*.c
 
 # https://github.com/github/gitignore/blob/main/ROS.gitignore

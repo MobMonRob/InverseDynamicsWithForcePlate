@@ -12,6 +12,7 @@ import pandas as pd
 from pandas import DataFrame
 import numpy as np
 from numpy.linalg import norm
+from rospy import Time
 
 
 def execute():
@@ -27,17 +28,16 @@ def execute():
     topics_fp: list[str] = ["/Force_plate_data", "/Force_plate_data_sma"]
     topic_jp: str = "/Joint_parameters"
 
+    topics: set[str] = set([*topics_fp, topic_jp])
+    re: RosbagExtractor = RosbagExtractor.fromBag(bagPath=bagPath, topics=topics)
+    indexedBagMsgs: IndexedBagMsgs = re.getIndexedBagMsgs()
+
     for topic_fp in topics_fp:
         plotSaveDir_with_topic: str = f"{plotSaveDir}{topic_fp}/"
-        topics: set[str] = set([topic_fp, topic_jp])
-
-        re: RosbagExtractor = RosbagExtractor.fromBag(bagPath=bagPath, topics=topics)
-        bagPaths: list[str] = re.bagPaths
-        indexedBagMsgs: IndexedBagMsgs = re.getIndexedBagMsgs()
 
         msgs_compound_sorted: list[BagMessage] = create_msgs_compound_sorted(indexedBagMsgs, topic_fp, topic_jp, bagPath)
 
-        joints_spatial_force_list: list[Joints_spatial_force] = create_joints_spatial_force_list(topic_fp, topic_jp, msgs_compound_sorted)
+        joints_spatial_force_list: list[Joints_spatial_force] = [sf for time, sf in create_timed_joints_spatial_force_list(topic_fp, topic_jp, msgs_compound_sorted)]
 
         force_to_joint_plot(joints_spatial_force_list, plotSaveDir_with_topic)
 
@@ -145,10 +145,10 @@ def create_msgs_compound_sorted(indexedBagMsgs: IndexedBagMsgs, topic_fp: str, t
     return msgs_compound_sorted
 
 
-def create_joints_spatial_force_list(topic_fp: str, topic_jp: str, msgs_compound_sorted: "list[BagMessage]") -> "list[Joints_spatial_force]":
+def create_timed_joints_spatial_force_list(topic_fp: str, topic_jp: str, msgs_compound_sorted: "list[BagMessage]") -> "list[Tuple[Time, Joints_spatial_force]]":
     # Start: joints_spatial_force_list
     iv_node: Inverse_dynamics_node = Inverse_dynamics_node()
-    joints_spatial_force_list: list[Joints_spatial_force] = list()
+    timed_joints_spatial_force_list: list[(Time, Joints_spatial_force)] = list()
 
     for topic, message, timestamp in msgs_compound_sorted:
         if topic == topic_fp:
@@ -159,10 +159,10 @@ def create_joints_spatial_force_list(topic_fp: str, topic_jp: str, msgs_compound
             if joints_spatial_force == None:
                 continue
             else:
-                joints_spatial_force_list.append(joints_spatial_force)
+                timed_joints_spatial_force_list.append((timestamp, joints_spatial_force))
     # End: joints_spatial_force_list
 
-    return joints_spatial_force_list
+    return timed_joints_spatial_force_list
 
 
 def force_to_joint(joints_spatial_force_list: "list[Joints_spatial_force]", plotSaveDir: str) -> "Tuple[list[list[list[float]]], list[list[list[float]]]]":
