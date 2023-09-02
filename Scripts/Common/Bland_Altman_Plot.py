@@ -80,14 +80,15 @@ def __scale(data: 'list[float]', factor: int) -> "list[float]":
 def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_outliers: bool = False, legend: BAP_legend = None):
 
     # Those need to be set before invocation of __plot_sets().
-    sizeFactor: float = 8  # 5
+    sizeFactor: float = 6  # 8 | Größer <=> Kleinere Schrift
     plt.gcf().set_size_inches(w=sqrt(2) * sizeFactor, h=1 * sizeFactor)
     plt.gcf().set_dpi(300)
+    plt.rcParams['figure.constrained_layout.use'] = True
 
     meanString = "Mittelwert"
     standardDeviationString = "$\sigma$"
-    xLabelString = f"Mittelwerte der Messmethoden {config.units}"
-    yLabelString = f"Differenzen der Messmethoden {config.units}"
+    xLabelString = f"Mittelwerte der Messmethoden [{config.units}]"
+    yLabelString = f"Differenzen der Messmethoden [{config.units}]"
 
     plotDescription = f"{config.dataName1} vs. {config.dataName2}"
     if len(config.additionalComment) > 0:
@@ -111,38 +112,37 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_
     plt.axhline(limit_of_agreement_low, color='k', linestyle='--')
 
     plt.text(xOutPlot, limit_of_agreement_high,
-             rf"+1.96{standardDeviationString}:" + "\n" + "%.4f" % limit_of_agreement_high,
-             ha="center",
+             rf"+1.96{standardDeviationString}:" + f"\n{limit_of_agreement_high:.1f} {config.units}",
+             ha="left",
              va="center",
              )
     plt.text(xOutPlot, md,
-             rf'{meanString}:' + "\n" + "%.4f" % md,
-             ha="center",
+             rf'{meanString}:' + f"\n{md:.1f} {config.units}",
+             ha="left",
              va="center",
              )
     plt.text(xOutPlot, limit_of_agreement_low,
-             rf"-1.96{standardDeviationString}:" + "\n" + "%.4f" % limit_of_agreement_low,
-             ha="center",
+             rf"-1.96{standardDeviationString}:" + f"\n{limit_of_agreement_low:.1f} {config.units}",
+             ha="left",
              va="center",
              )
-    plt.subplots_adjust(right=0.85)
 
-    ci_lower, ci_mean, ci_upper = __calculateConfidenceIntervals(md=md, sd=sd, observations=observations)
+    # ci_lower, ci_mean, ci_upper = __calculateConfidenceIntervals(md=md, sd=sd, observations=observations)
 
-    ci_color = "tab:brown"
-    plt.axhspan(ci_lower[0],
-                ci_lower[1],
-                facecolor=ci_color, alpha=0.3)
+    # ci_color = "tab:brown"
+    # plt.axhspan(ci_lower[0],
+    #             ci_lower[1],
+    #             facecolor=ci_color, alpha=0.3)
 
-    plt.axhspan(ci_mean[0],
-                ci_mean[1],
-                facecolor=ci_color, alpha=0.3)
+    # plt.axhspan(ci_mean[0],
+    #             ci_mean[1],
+    #             facecolor=ci_color, alpha=0.3)
 
-    plt.axhspan(ci_upper[0],
-                ci_upper[1],
-                facecolor=ci_color, alpha=0.3)
+    # plt.axhspan(ci_upper[0],
+    #             ci_upper[1],
+    #             facecolor=ci_color, alpha=0.3)
 
-    # plt.grid(True)
+    plt.grid(visible=True, which="both", linestyle=':', color='k', alpha=0.5)
 
     if legend != None:
         patches = [mpatches.Patch(color=c, label=l) for c, l in legend.color_to_label.items()]
@@ -150,8 +150,8 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_
 
     # create plotSaveDir if not exists
     Path(config.plotSaveDir).mkdir(parents=True, exist_ok=True)
-    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.svg", format="svg")
-    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.png", format="png")
+    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.svg", format="svg", pad_inches=0.0, bbox_inches="tight", transparent=True)
+    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.png", format="png", pad_inches=0.0, bbox_inches="tight", transparent=True)
 
     # Needed for saving
     if showplot:
@@ -284,7 +284,7 @@ def __plot_sets(sets: "list[BAP_set]", colors: Iterator, plot_outliers: bool):
 
     plt.scatter(x=means_of_means, y=means_of_diffs, marker="o", edgecolors="black", color=color_values, alpha=0.7, s=marker_size*3**2)
 
-    xOutPlot = limited_seg_means_all_flat_min + (limited_seg_means_all_flat_max - limited_seg_means_all_flat_min) * 1.15
+    xOutPlot = limited_seg_means_all_flat_min + (limited_seg_means_all_flat_max - limited_seg_means_all_flat_min) * 1.065  # 1.15
 
     return md_data, sd_data, xOutPlot, diffs_lower_limit, diffs_upper_limit, len(diffs_all_flat)
 

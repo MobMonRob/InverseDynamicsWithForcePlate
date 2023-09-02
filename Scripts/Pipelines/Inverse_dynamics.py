@@ -107,14 +107,14 @@ def norm_to_joint_plot(bu_df: DataFrame, td_df: DataFrame, plotSaveDir: str):
     colors_joints = list()
     colors_joints.extend(["b", "g", "r", "c", "m", "y"])
 
-    dataName1 = f"bottom_up"
-    dataName2 = f"top_down"
+    dataName1 = f"BURNEA"
+    dataName2 = f"RNEA"
     plotSaveDir = f"{plotSaveDir}norm_to_joint/"
 
     config_m: BAP_config = BAP_config(sets=sets_m, colors=iter(colors_joints), dataName1=dataName1, dataName2=dataName2,
-                                      units="[Nm]", additionalComment=f"(m für alle Gelenke)", plotSaveDir=plotSaveDir)
+                                      units="Nm", additionalComment=f"(M für alle Gelenke)", plotSaveDir=plotSaveDir)
     config_f: BAP_config = BAP_config(sets=sets_f, colors=iter(colors_joints), dataName1=dataName1, dataName2=dataName2,
-                                      units="[N]", additionalComment=f"(f für alle Gelenke)", plotSaveDir=plotSaveDir)
+                                      units="N", additionalComment=f"(F für alle Gelenke)", plotSaveDir=plotSaveDir)
 
     color_to_label = {c: i for (i, c) in enumerate(colors_joints)}
     legend: BAP_legend = BAP_legend(title="Gelenke", color_to_label=color_to_label)
@@ -221,7 +221,7 @@ def force_to_joint_plot(joints_spatial_force_list: "list[Joints_spatial_force]",
     colors_joints = list()
     colors_joints.extend(["b", "g", "r", "c", "m", "y"])
 
-    forces_names: list[str] = ["mx", "my", "mz", "fx", "fy", "fz"]
+    forces_names: list[str] = ["Mx", "My", "Mz", "Fx", "Fy", "Fz"]
     forces_units: list[str] = ["Nm", "Nm", "Nm", "N", "N", "N"]
 
     plotSaveDir = f"{plotSaveDir}force_to_joint/"
@@ -234,9 +234,9 @@ def force_to_joint_plot(joints_spatial_force_list: "list[Joints_spatial_force]",
         force_units: str = forces_units[force_component_index]
         sets_joint_to_datapoints = force_component__to__sets_joints_to_datapoints[force_component_index]
 
-        dataName1 = f"bottom_up"
-        dataName2 = f"top_down"
-        units = f"[{force_units}]"
+        dataName1 = f"BURNEA"
+        dataName2 = f"RNEA"
+        units = f"{force_units}"
         config: BAP_config = BAP_config(sets=sets_joint_to_datapoints, colors=iter(colors_joints), dataName1=dataName1, dataName2=dataName2,
                                         units=units, additionalComment=f"({force_name} für alle Gelenke)", plotSaveDir=plotSaveDir)
 

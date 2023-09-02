@@ -36,9 +36,9 @@ class BAP__CoP_force_plate__CoP_rectangle_without_sma:
         colors.extend(["r"])
 
         # while True:
-        dataName1 = "CoP Kraftmessplatte"
-        dataName2 = "CoP Rechteck ohne sma"
-        units = "[mm]"
+        dataName1 = "CoP’s Kraftmessplatte"
+        dataName2 = "CoP’s Rechteck ohne sma"
+        units = "mm"
         config_x: BAP_config = BAP_config(sets=sets_x, colors=iter(colors), dataName1=dataName1, dataName2=dataName2, units=units, additionalComment="(x-Achse)", plotSaveDir=self.plotSaveDir)
         config_y: BAP_config = BAP_config(sets=sets_y, colors=iter(colors), dataName1=dataName1, dataName2=dataName2, units=units, additionalComment="(y-Achse)", plotSaveDir=self.plotSaveDir)
 
