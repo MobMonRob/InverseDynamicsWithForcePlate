@@ -17,6 +17,9 @@ from math import sqrt
 from copy import deepcopy
 from multiprocessing import Pool
 from rospy import Time
+from reloading import reloading
+from time import sleep
+import matplotlib.pyplot as plt
 
 
 def execute():
@@ -28,7 +31,8 @@ def execute():
     # bagPath: str = f"{dataDir}2023_08_04_ur5e_static/static_south_2023-08-04-18-20-12.bag"
     plotSaveDir: str = f"{rootDir}/Plots/Monte_Carlo/{relativeBagPath}"
 
-    topics_fp: list[str] = ["/Force_plate_data", "/Force_plate_data_sma"]
+    # "/Force_plate_data",
+    topics_fp: list[str] = ["/Force_plate_data_sma"]
     topic_jp: str = "/Joint_parameters"
 
     topics: set[str] = set([*topics_fp, topic_jp])
@@ -44,27 +48,59 @@ def execute():
         bagMsgs_jp: BagMsgs = indexedBagMsgs.get_msgs(topic=topic_jp, bagPath=bagPath)
         msgs_jp: list[BagMessage] = bagMsgs_jp.msgs
 
-        randomized_msgs_compound: list[BagMessage] = list()
-        randomized_msgs_compound.extend(msgs_fp)
-        randomized_msgs_compound.extend(msgs_jp)
-        compound_enumerated = list(enumerate(randomized_msgs_compound))
-        msgs_compound_enumerated_sorted: list[BagMessage] = sorted(compound_enumerated, key=lambda x: x[1].timestamp)
+        msgs_compound: list[BagMessage] = list()
+        msgs_compound.extend(msgs_fp)
+        msgs_compound.extend(msgs_jp)
+        compound_enumerated = list(enumerate(msgs_compound))
+        msgs_compound_enumerated_sorted: list[Tuple[int, BagMessage]] = sorted(compound_enumerated, key=lambda x: x[1].timestamp)
 
-        permutation = [i for i, msg in msgs_compound_enumerated_sorted]
-        randomized_msgs_compound_sorted = [msg for i, msg in msgs_compound_enumerated_sorted]
+        permutation: list[int] = [i for i, msg in msgs_compound_enumerated_sorted]
+        msgs_compound_sorted: list[BagMessage] = [msg for i, msg in msgs_compound_enumerated_sorted]
 
-        print(f"len: {len(randomized_msgs_compound_sorted)}")
+        timed_jsps: list[Tuple[Time, Joints_spatial_force]] = create_timed_joints_spatial_force_list(topic_fp, topic_jp, msgs_compound_sorted)
 
-        monte_carlo_set_count: int = 10
+        monte_carlo_set_count: int = 1000
 
         params = [(topic_jp, topic_fp, msgs_fp, msgs_jp, permutation, i) for i in range(monte_carlo_set_count)]
 
-        output: list[list[Tuple[Time, Joints_spatial_force]]]
+        mc_sets_to_timed_jsps: list[list[Tuple[Time, Joints_spatial_force]]]
         with Pool() as pool:
-            output = pool.starmap(monte_carlo_set, params)
+            mc_sets_to_timed_jsps = pool.starmap(monte_carlo_set, params)
 
-        for message_list in output:
+        for message_list in mc_sets_to_timed_jsps:
             print(message_list[0][1].joints_bottom_up[0].m_xyz__f_xyz[3])
+
+        while True:
+            plot(mc_sets_to_timed_jsps, timed_jsps)
+            sleep(2)
+
+    return
+
+
+@reloading
+def plot(mc_sets_to_timed_jsps: "list[list[Tuple[Time, Joints_spatial_force]]]", timed_jsps: "list[Tuple[Time, Joints_spatial_force]]"):
+    mz_index: int = 2  # 2
+    joint_range = range(6)
+
+    first_time: Time = timed_jsps[0][0]
+    times: list[float] = [(timed_jsp[0]-first_time).to_sec() for timed_jsp in timed_jsps]
+    joints_to_mzs: list[list[float]] = [[timed_jsp[1].joints_bottom_up[joint].m_xyz__f_xyz[mz_index]
+                                         for timed_jsp in timed_jsps] for joint in joint_range]
+
+    joints_to_mc_set_to_mzs: list[list[list[float]]] = [[[timed_jsp[1].joints_bottom_up[joint].m_xyz__f_xyz[mz_index]
+                                                          for timed_jsp in mc_set] for mc_set in mc_sets_to_timed_jsps] for joint in joint_range]
+
+    joints_to_max_mzs: list[list[float]] = [np.max(mc_set_to_mzs, axis=0) for mc_set_to_mzs in joints_to_mc_set_to_mzs]
+
+    joints_to_min_mzs: list[list[float]] = [np.min(mc_set_to_mzs, axis=0) for mc_set_to_mzs in joints_to_mc_set_to_mzs]
+
+    for joint in joint_range:
+        print(f"plot joint: {joint}")
+        plt.title(f"Joint: {joint}")
+        plt.plot(times, joints_to_mzs[joint], color="b")
+        plt.fill_between(times, joints_to_min_mzs[joint], joints_to_max_mzs[joint], color='r', alpha=0.5)
+        plt.grid(visible=True, which="both", linestyle=':', color='k', alpha=0.5)
+        plt.show()
 
     return
 
