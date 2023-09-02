@@ -84,6 +84,7 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_
     plt.gcf().set_size_inches(w=sqrt(2) * sizeFactor, h=1 * sizeFactor)
     plt.gcf().set_dpi(300)
     plt.rcParams['figure.constrained_layout.use'] = True
+    # plt.tight_layout(pad=0.0, h_pad=0.0, w_pad=0.0)
 
     meanString = "Mittelwert"
     standardDeviationString = "$\sigma$"
@@ -150,8 +151,8 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_
 
     # create plotSaveDir if not exists
     Path(config.plotSaveDir).mkdir(parents=True, exist_ok=True)
-    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.svg", format="svg", pad_inches=0.0, bbox_inches="tight", transparent=True)
-    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.png", format="png", pad_inches=0.0, bbox_inches="tight", transparent=True)
+    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.svg", format="svg", transparent=True, pad_inches=0.005, bbox_inches="tight")
+    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.png", format="png", transparent=True, pad_inches=0.005, bbox_inches="tight")
 
     # Needed for saving
     if showplot:
