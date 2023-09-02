@@ -80,11 +80,11 @@ def __scale(data: 'list[float]', factor: int) -> "list[float]":
 def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_outliers: bool = False, legend: BAP_legend = None):
 
     # Those need to be set before invocation of __plot_sets().
-    sizeFactor: float = 6  # 8 | Größer <=> Kleinere Schrift
+    sizeFactor: float = 5  # 8 | Größer <=> Kleinere Schrift
     plt.gcf().set_size_inches(w=sqrt(2) * sizeFactor, h=1 * sizeFactor)
     plt.gcf().set_dpi(300)
-    plt.rcParams['figure.constrained_layout.use'] = True
-    # plt.tight_layout(pad=0.0, h_pad=0.0, w_pad=0.0)
+    # plt.rcParams['figure.constrained_layout.use'] = True
+    plt.tight_layout(pad=0.0, h_pad=0.0, w_pad=0.0)
 
     meanString = "Mittelwert"
     standardDeviationString = "$\sigma$"
@@ -95,9 +95,9 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_
     if len(config.additionalComment) > 0:
         plotDescription = plotDescription + f" {config.additionalComment}"
 
-    plt.title(r"$\mathbf{Bland-Altman-Diagramm}$" + "\n" + plotDescription)
-    plt.xlabel(xLabelString)
-    plt.ylabel(yLabelString)
+    # plt.title(r"$\mathbf{Bland-Altman-Diagramm}$" + "\n" + plotDescription)
+    plt.xlabel(xLabelString, labelpad=0.0)
+    plt.ylabel(yLabelString, labelpad=0.0)
 
     md, sd, xOutPlot, diffs_lower_limit, diffs_upper_limit, observations = __plot_sets(sets=config.sets, colors=config.colors, plot_outliers=plot_outliers)
 
@@ -151,8 +151,8 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_
 
     # create plotSaveDir if not exists
     Path(config.plotSaveDir).mkdir(parents=True, exist_ok=True)
-    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.svg", format="svg", transparent=True, pad_inches=0.005, bbox_inches="tight")
-    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.png", format="png", transparent=True, pad_inches=0.005, bbox_inches="tight")
+    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.svg", format="svg", transparent=True, pad_inches=0.01, bbox_inches="tight")
+    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.png", format="png", transparent=True, pad_inches=0.01, bbox_inches="tight")
 
     # Needed for saving
     if showplot:
