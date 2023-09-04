@@ -20,6 +20,7 @@ from rospy import Time
 from reloading import reloading
 from time import sleep
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 
 def execute():
@@ -59,7 +60,9 @@ def execute():
 
         timed_jsps: list[Tuple[Time, Joints_spatial_force]] = create_timed_joints_spatial_force_list(topic_fp, topic_jp, msgs_compound_sorted)
 
-        monte_carlo_set_count: int = 1000
+        #! For saving: at least 100.
+        #! 1000 leads to out of memory issues in the current implementation.
+        monte_carlo_set_count: int = 10
 
         params = [(topic_jp, topic_fp, msgs_fp, msgs_jp, permutation, i) for i in range(monte_carlo_set_count)]
 
@@ -70,15 +73,15 @@ def execute():
         for message_list in mc_sets_to_timed_jsps:
             print(message_list[0][1].joints_bottom_up[0].m_xyz__f_xyz[3])
 
-        while True:
-            plot(mc_sets_to_timed_jsps, timed_jsps)
-            sleep(2)
+        # while True:
+        plot(mc_sets_to_timed_jsps, timed_jsps, plotSaveDir=plotSaveDir_with_topic)
+        # sleep(2)
 
     return
 
 
 @reloading
-def plot(mc_sets_to_timed_jsps: "list[list[Tuple[Time, Joints_spatial_force]]]", timed_jsps: "list[Tuple[Time, Joints_spatial_force]]"):
+def plot(mc_sets_to_timed_jsps: "list[list[Tuple[Time, Joints_spatial_force]]]", timed_jsps: "list[Tuple[Time, Joints_spatial_force]]", plotSaveDir: str):
     mz_index: int = 2  # 2
     joint_range = range(6)
 
@@ -94,13 +97,31 @@ def plot(mc_sets_to_timed_jsps: "list[list[Tuple[Time, Joints_spatial_force]]]",
 
     joints_to_min_mzs: list[list[float]] = [np.min(mc_set_to_mzs, axis=0) for mc_set_to_mzs in joints_to_mc_set_to_mzs]
 
+    plotSaveDir += "mz/"
+
     for joint in joint_range:
-        print(f"plot joint: {joint}")
-        plt.title(f"Joint: {joint}")
+        sizeFactor: float = 5  # 8 | Größer <=> Kleinere Schrift
+        plt.gcf().set_size_inches(w=sqrt(2) * sizeFactor, h=1 * sizeFactor)
+        plt.gcf().set_dpi(300)
+        # plt.rcParams['figure.constrained_layout.use'] = True
+        plt.tight_layout(pad=0.0, h_pad=0.0, w_pad=0.0)
+
+        description: str = f"joint_{joint}"
+        plt.xlabel("Zeit [s]", labelpad=0.0)
+        plt.ylabel("Drehmoment [Nm]", labelpad=0.0)
+
         plt.plot(times, joints_to_mzs[joint], color="b")
         plt.fill_between(times, joints_to_min_mzs[joint], joints_to_max_mzs[joint], color='r', alpha=0.5)
+
         plt.grid(visible=True, which="both", linestyle=':', color='k', alpha=0.5)
-        plt.show()
+
+        # create plotSaveDir if not exists
+        Path(plotSaveDir).mkdir(parents=True, exist_ok=True)
+        plt.savefig(f"{plotSaveDir}{description}.svg", format="svg", transparent=True, pad_inches=0.01, bbox_inches="tight")
+        plt.savefig(f"{plotSaveDir}{description}.png", format="png", transparent=True, pad_inches=0.01, bbox_inches="tight")
+
+        plt.ioff()
+        plt.close()
 
     return
 
