@@ -8,7 +8,7 @@ class Inverse_dynamics_rnea(object):
     def __init__(self, urdfparser: URDFparser):
         self.urdfparser: URDFparser = urdfparser
 
-    # Von der Dame, von mir modifiziert
+    # RNEA: Von der Dame, von mir modifiziert
     def get_inverse_dynamics_rnea(self, root, tip,
                                   gravity=None, f_ext=None):
         """Returns the inverse dynamics as a casadi function."""
@@ -67,9 +67,9 @@ class Inverse_dynamics_rnea(object):
 
         return tau, forces
 
-    # RNEA von mir
+    # BURNEA: joint spatial forces -> taus (mz)
     def get_inverse_dynamics_rnea_bottom_up_f(self, root, tip):
-        """Returns the inverse dynamics as a casadi function."""
+        """Returns the calculation of the tau values from the spatial forces as a casadi function."""
         if self.urdfparser.robot_desc is None:
             raise ValueError('Robot description not loaded from urdf')
 
@@ -87,17 +87,25 @@ class Inverse_dynamics_rnea(object):
         tau_bu = cs.Function("C_bu", [q] + spatial_forces, [tau_bu], self.urdfparser.func_opts)
         return tau_bu
 
-    # Von mir, berechnet Kräfte bottom-up, wenn die unterste spatial Kraft gegeben ist
+    # BURNEA: joint spatial forces
     def get_forces_bottom_up(self, root, tip, gravity=None):
         """
-        Calculates the generalized body forces in bottom up manner.
+        Calculates the joint spatial forces in a bottom up manner.
+        External forces are not considered.
+        Spatial forces are represented as such a tuple: (Mx, My, Mz, Fx, Fy, Fz)
 
         Parameters:
-            root (string): Name of the base link.
-            tip (string): Name of the endeffector.
+            - root (string): Name of the base link.
+            - tip (string): Name of the endeffector.
+            - gravity (None or [0, 0, 9.81]): Gravity constant.
 
         Returns:
-            generalized_body_forces (set of doubles): A set of generalized body forces for each body in the kinematic chain as a CasADi function.
+            joint_spatial_forces_func: A CasADi function which calculates the spatial forces of each joint at a point in time.
+            The parameters for joint_spatial_forces_func are:
+            - q (6-tuple of float): Position of each joint.
+            - q_dot (6-tuple of float): Velocity of each joint.
+            - q_ddot (6-tuple of float): Acceleration of each joint.
+            - f_spatial_ur5e_joint_0 (6-tuple of float): Spatial force within the lowest joint.
         """
         if self.urdfparser.robot_desc is None:
             raise ValueError('Robot description not loaded from urdf')
