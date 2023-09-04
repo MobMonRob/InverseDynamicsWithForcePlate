@@ -8,7 +8,7 @@ from pathlib import Path
 
 publisher = None
 
-window_size = 1000
+window_size = 100
 queue = Queue(window_size)
 average = Force_plate_data()
 offset = Force_plate_data()
@@ -16,10 +16,13 @@ previous = Force_plate_data()
 
 #############################################
 
+
 def callback(data):
     process_and_publish(data)
 
 #############################################
+
+
 def process_and_publish(data):
     global average
     global offset
@@ -95,16 +98,19 @@ def process_and_publish(data):
     publisher.publish(average)
 
 #############################################
+
+
 def transceiver():
     rospy.init_node(f"{Path(__file__).stem}", anonymous=True)
 
     global publisher
-    publisher = rospy.Publisher('Force_plate_data_sma', Force_plate_data, queue_size = 1000)
+    publisher = rospy.Publisher('Force_plate_data_sma', Force_plate_data, queue_size=1000)
     rospy.Subscriber("Force_plate_data", Force_plate_data, callback)
 
     rospy.loginfo(f"{Path(__file__).stem}: started.")
 
     rospy.spin()
+
 
 #############################################
 if __name__ == '__main__':

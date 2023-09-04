@@ -5,6 +5,8 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))  # nopep8
 from Common.Rosbag_extractor import RosbagExtractor, IndexedBagMsgs, BagMsgs, BagMessage
 from Common.Inverse_dynamics_node import Inverse_dynamics_node
 from Common.Bland_Altman_Plot import BAP_config, BAP_set, BAP_legend, generate_bland_altman_plot
+from Common.Simple_moving_average import SimpleMovingAverageOnObjects
+from Common.Ros_msg_types.vicon_data_publisher.msg._Force_plate_data import Force_plate_data
 from itertools import cycle, product
 from Common.Ros_msg_types.data_transformation.msg import Joints_spatial_force, Spatial_force
 from typing import Tuple
@@ -35,7 +37,12 @@ def execute():
     for topic_fp in topics_fp:
         plotSaveDir_with_topic: str = f"{plotSaveDir}{topic_fp}/"
 
-        msgs_compound_sorted: list[BagMessage] = create_msgs_compound_sorted(indexedBagMsgs, topic_fp, topic_jp, bagPath)
+        # Workaround to calculate sma with window size 100 afterwards.
+        calculate_sma: bool = False
+        if topic_fp == "/Force_plate_data_sma":
+            topic_fp = "/Force_plate_data"
+            calculate_sma = True
+        msgs_compound_sorted: list[BagMessage] = create_msgs_compound_sorted(indexedBagMsgs, topic_fp, topic_jp, bagPath, calculate_sma)
 
         joints_spatial_force_list: list[Joints_spatial_force] = [sf for time, sf in create_timed_joints_spatial_force_list(topic_fp, topic_jp, msgs_compound_sorted)]
 
@@ -126,13 +133,17 @@ def norm_to_joint_plot(bu_df: DataFrame, td_df: DataFrame, plotSaveDir: str):
     return
 
 
-def create_msgs_compound_sorted(indexedBagMsgs: IndexedBagMsgs, topic_fp: str, topic_jp: str, bagPath: str) -> "list[BagMessage]":
+def create_msgs_compound_sorted(indexedBagMsgs: IndexedBagMsgs, topic_fp: str, topic_jp: str, bagPath: str, calculate_sma: bool = False) -> "list[BagMessage]":
     # Start: msgs_compound_sorted
+    sma: SimpleMovingAverageOnObjects[Force_plate_data] = SimpleMovingAverageOnObjects[Force_plate_data](window_size=100, sample=Force_plate_data())
 
     bagMsgs_fp: BagMsgs = indexedBagMsgs.get_msgs(topic=topic_fp, bagPath=bagPath)
     bagMsgs_jp: BagMsgs = indexedBagMsgs.get_msgs(topic=topic_jp, bagPath=bagPath)
 
     msgs_fp: list[BagMessage] = bagMsgs_fp.msgs
+    if calculate_sma == True:
+        msgs_fp = [BagMessage(topic=topic, message=sma.process(message), timestamp=timestamp) for topic, message, timestamp in msgs_fp]
+
     msgs_jp: list[BagMessage] = bagMsgs_jp.msgs
 
     msgs_compound: list[BagMessage] = list()
