@@ -50,7 +50,7 @@ class Inverse_dynamics_force_plate_ur5e(object):
         # rnea
         f_num = self.f_sym(q, q_dot, q_ddot, f_spatial_ur5e_joint_0)
 
-        # TODO: ausprobieren, ob ohne f_spatial_ur5e_joint_0 tut.
+        # TODO: ausprobieren, ob ohne ungenutzten parameter f_spatial_ur5e_joint_0 tut.
         # print(self.f_body_inertial_sym(q, q_dot, q_ddot))
 
         return f_num
