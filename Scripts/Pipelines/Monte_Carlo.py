@@ -93,30 +93,30 @@ def plot(mc_sets_to_timed_jsps: "list[list[Tuple[Time, Joints_spatial_force]]]",
     for (component_index, component_name), ylabel in zip(enumerate(["mx", "my", "mz", "fx", "fy", "fz"]), ylabels):
         first_time: Time = timed_jsps[0][0]
         times: list[float] = [(timed_jsp[0]-first_time).to_sec() for timed_jsp in timed_jsps]
-        joints_to_mzs: list[list[float]] = [[timed_jsp[1].joints_bottom_up[joint].m_xyz__f_xyz[component_index]
-                                            for timed_jsp in timed_jsps] for joint in joint_range]
+        joints_to_component: list[list[float]] = [[timed_jsp[1].joints_bottom_up[joint].m_xyz__f_xyz[component_index]
+                                                   for timed_jsp in timed_jsps] for joint in joint_range]
 
-        joints_to_mc_set_to_mzs: list[list[list[float]]] = [[[timed_jsp[1].joints_bottom_up[joint].m_xyz__f_xyz[component_index]
-                                                            for timed_jsp in mc_set] for mc_set in mc_sets_to_timed_jsps] for joint in joint_range]
+        joints_to_mc_set_to_component: list[list[list[float]]] = [[[timed_jsp[1].joints_bottom_up[joint].m_xyz__f_xyz[component_index]
+                                                                    for timed_jsp in mc_set] for mc_set in mc_sets_to_timed_jsps] for joint in joint_range]
 
-        joints_to_max_mzs: list[list[float]] = [np.max(mc_set_to_mzs, axis=0) for mc_set_to_mzs in joints_to_mc_set_to_mzs]
+        joints_to_max_component: list[list[float]] = [np.max(mc_set_to_mzs, axis=0) for mc_set_to_mzs in joints_to_mc_set_to_component]
 
-        joints_to_min_mzs: list[list[float]] = [np.min(mc_set_to_mzs, axis=0) for mc_set_to_mzs in joints_to_mc_set_to_mzs]
+        joints_to_min_component: list[list[float]] = [np.min(mc_set_to_mzs, axis=0) for mc_set_to_mzs in joints_to_mc_set_to_component]
 
         adjusted_plotSaveDir: str = f"{plotSaveDir}{component_name}/"
 
         for joint in joint_range:
             description: str = f"joint_{joint}"
-            mzs = joints_to_mzs[joint]
-            min_mzs = joints_to_min_mzs[joint]
-            max_mzs = joints_to_max_mzs[joint]
+            mzs = joints_to_component[joint]
+            min_mzs = joints_to_min_component[joint]
+            max_mzs = joints_to_max_component[joint]
 
             plot_mc_time_series(adjusted_plotSaveDir, description, ylabel, times, mzs, min_mzs, max_mzs)
 
     return
 
 
-def plot_mc_time_series(plotSaveDir: str, description: str, ylabel: str, times: "list[float]", mzs, min_mzs: "list[float]", max_mzs: "list[float]"):
+def plot_mc_time_series(plotSaveDir: str, description: str, ylabel: str, times: "list[float]", component, min_component: "list[float]", max_component: "list[float]"):
     sizeFactor: float = 5  # 8 | Größer <=> Kleinere Schrift
     plt.gcf().set_size_inches(w=sqrt(2) * sizeFactor, h=1 * sizeFactor)
     plt.gcf().set_dpi(300)
@@ -126,8 +126,8 @@ def plot_mc_time_series(plotSaveDir: str, description: str, ylabel: str, times: 
     plt.xlabel("Zeit [s]", labelpad=0.0)
     plt.ylabel(ylabel, labelpad=0.0)
 
-    plt.plot(times, mzs, color="b")
-    plt.fill_between(times, min_mzs, max_mzs, color='r', alpha=0.5)
+    plt.plot(times, component, color="b")
+    plt.fill_between(times, min_component, max_component, color='r', alpha=0.5)
 
     plt.grid(visible=True, which="both", linestyle=':', color='k', alpha=0.5)
 
