@@ -134,17 +134,21 @@ def norm_to_joint_plot(bu_df: DataFrame, td_df: DataFrame, plotSaveDir: str):
 
 
 def create_msgs_compound_sorted(indexedBagMsgs: IndexedBagMsgs, topic_fp: str, topic_jp: str, bagPath: str, calculate_sma: bool = False) -> "list[BagMessage]":
+    window_size = 100
+
     # Start: msgs_compound_sorted
-    sma: SimpleMovingAverageOnObjects[Force_plate_data] = SimpleMovingAverageOnObjects[Force_plate_data](window_size=100, sample=Force_plate_data())
+    sma: SimpleMovingAverageOnObjects[Force_plate_data] = SimpleMovingAverageOnObjects[Force_plate_data](window_size=window_size, sample=Force_plate_data())
 
     bagMsgs_fp: BagMsgs = indexedBagMsgs.get_msgs(topic=topic_fp, bagPath=bagPath)
     bagMsgs_jp: BagMsgs = indexedBagMsgs.get_msgs(topic=topic_jp, bagPath=bagPath)
 
     msgs_fp: list[BagMessage] = bagMsgs_fp.msgs
+    msgs_jp: list[BagMessage] = bagMsgs_jp.msgs
+
     if calculate_sma == True:
         msgs_fp = [BagMessage(topic=topic, message=sma.process(message), timestamp=timestamp) for topic, message, timestamp in msgs_fp]
-
-    msgs_jp: list[BagMessage] = bagMsgs_jp.msgs
+        msgs_fp = msgs_fp[window_size:len(msgs_fp)]
+        msgs_jp = msgs_jp[window_size:len(msgs_jp)]
 
     msgs_compound: list[BagMessage] = list()
     msgs_compound.extend(msgs_fp)

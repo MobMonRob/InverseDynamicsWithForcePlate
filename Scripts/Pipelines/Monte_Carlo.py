@@ -61,7 +61,7 @@ def execute():
         #! For saving: at least 100.
         #! 1000 leads to out of memory issues in the current implementation.
         #! Fast and easy fix idea: do only in batches of 100. Then calculate min and max per batch before resuming.
-        monte_carlo_set_count: int = 200
+        monte_carlo_set_count: int = 300
         max_norm = 10
 
         for name, func in [("rand_f", randomize_fp_f), ("rand_m", randomize_fp_m)]:
@@ -118,7 +118,7 @@ def plot(mc_sets_to_timed_jsps: "list[list[Tuple[Time, Joints_spatial_force]]]",
 
 def plot_mc_time_series(plotSaveDir: str, description: str, ylabel: str, times: "list[float]", component, min_component: "list[float]", max_component: "list[float]"):
     sizeFactor: float = 5  # 8 | Größer <=> Kleinere Schrift
-    plt.gcf().set_size_inches(w=sqrt(2) * sizeFactor, h=1 * sizeFactor)
+    plt.gcf().set_size_inches(w=2 * sizeFactor, h=1 * sizeFactor)
     plt.gcf().set_dpi(300)
     # plt.rcParams['figure.constrained_layout.use'] = True
     plt.tight_layout(pad=0.0, h_pad=0.0, w_pad=0.0)
@@ -128,6 +128,14 @@ def plot_mc_time_series(plotSaveDir: str, description: str, ylabel: str, times: 
 
     plt.plot(times, component, color="b")
     plt.fill_between(times, min_component, max_component, color='r', alpha=0.5)
+
+    x_min = np.min(times)
+    x_max = np.max(times)
+    plt.xlim(left=x_min, right=x_max)
+
+    y_min = np.min((min_component, component))
+    y_max = np.max((component, max_component))
+    plt.ylim(bottom=y_min, top=y_max)
 
     plt.grid(visible=True, which="both", linestyle=':', color='k', alpha=0.5)
 
