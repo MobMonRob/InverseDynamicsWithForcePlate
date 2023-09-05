@@ -26,45 +26,47 @@ from itertools import product
 def execute():
     rootDir: str = os.path.abspath(f"{SCRIPT_DIR}/../..")
     dataDir: str = f"{rootDir}/Data/"
-    # relativeBagPath: str = f"2023_08_04_ur5e_dynamic/end_position_to_dynamic_random_2023-08-04-19-18-34.bag"
-    relativeBagPath: str = f"2023_08_04_ur5e_dynamic/start_position_to_dynamic_random_2023-08-04-19-08-59.bag"
-    bagPath: str = f"{dataDir}{relativeBagPath}"
-    # bagPath: str = f"{dataDir}2023_08_04_ur5e_static/static_south_2023-08-04-18-20-12.bag"
-    plotSaveDir: str = f"{rootDir}/Plots/Time_Series/{relativeBagPath}/"
 
-    topic_fp: str = "/Force_plate_data"
-    topic_jp: str = "/Joint_parameters"
+    relativeBagPaths: str = ["2023_08_04_ur5e_dynamic/start_position_to_dynamic_random_2023-08-04-19-08-59.bag", "2023_08_04_ur5e_static/static_west_2023-08-04-18-21-52.bag"]
 
-    topics: set[str] = set([topic_fp, topic_jp])
-    re: RosbagExtractor = RosbagExtractor.fromBag(bagPath=bagPath, topics=topics)
-    indexedBagMsgs: IndexedBagMsgs = re.getIndexedBagMsgs()
+    for relativeBagPath in relativeBagPaths:
+        bagPath: str = f"{dataDir}{relativeBagPath}"
+        # bagPath: str = f"{dataDir}2023_08_04_ur5e_static/static_south_2023-08-04-18-20-12.bag"
+        plotSaveDir: str = f"{rootDir}/Plots/Time_Series/{relativeBagPath}/"
 
-    msgs_compound_sorted: list[BagMessage] = Inverse_dynamics.create_msgs_compound_sorted(indexedBagMsgs, topic_fp, topic_jp, bagPath, calculate_sma=True)
+        topic_fp: str = "/Force_plate_data"
+        topic_jp: str = "/Joint_parameters"
 
-    timed_jsps: list[Tuple[Time, Joints_spatial_force]] = Inverse_dynamics.create_timed_joints_spatial_force_list(topic_fp, topic_jp, msgs_compound_sorted)
+        topics: set[str] = set([topic_fp, topic_jp])
+        re: RosbagExtractor = RosbagExtractor.fromBag(bagPath=bagPath, topics=topics)
+        indexedBagMsgs: IndexedBagMsgs = re.getIndexedBagMsgs()
 
-    ###
-    components_ylabel: list[str] = (["Drehmoment [Nm]"] * 3) + (["Kraft [N]"] * 3)
-    components_name: list[str] = ["mx", "my", "mz", "fx", "fy", "fz"]
-    component_range = range(6)
-    joint_range = range(6)
-    joints_x_components = tuple(product(joint_range, component_range))
+        msgs_compound_sorted: list[BagMessage] = Inverse_dynamics.create_msgs_compound_sorted(indexedBagMsgs, topic_fp, topic_jp, bagPath, calculate_sma=True)
 
-    first_time: Time = timed_jsps[0][0]
-    times: list[float] = [(timed_jsp[0]-first_time).to_sec() for timed_jsp in timed_jsps]
-    # bu und td Reihen. Beide in separaten Datenreihen. Aber im selben Diagramm.
-    # joint unf force jeweils in separaten Diagrammen.
-    bu_joint_component_to_values: dict[(int, int), list[float]] = {(joint, component): [timed_jsp[1].joints_bottom_up[joint].m_xyz__f_xyz[component] for timed_jsp in timed_jsps]
-                                                                   for joint, component in joints_x_components}
-    td_joint_component_to_values: dict[(int, int), list[float]] = {(joint, component): [timed_jsp[1].joints_top_down[joint].m_xyz__f_xyz[component] for timed_jsp in timed_jsps]
-                                                                   for joint, component in joints_x_components}
+        timed_jsps: list[Tuple[Time, Joints_spatial_force]] = Inverse_dynamics.create_timed_joints_spatial_force_list(topic_fp, topic_jp, msgs_compound_sorted)
 
-    for joint_i, component_i in joints_x_components:
-        component_ylabel: str = components_ylabel[component_i]
-        component_name: str = components_name[component_i]
-        joint_name: str = f"Joint_{joint_i}"
-        plot_time_series(plotSaveDir=f"{plotSaveDir}{joint_name}/", description=component_name, ylabel=component_ylabel,
-                         times=times, bu=bu_joint_component_to_values[(joint_i, component_i)], td=td_joint_component_to_values[(joint_i, component_i)])
+        ###
+        components_ylabel: list[str] = (["Drehmoment [Nm]"] * 3) + (["Kraft [N]"] * 3)
+        components_name: list[str] = ["mx", "my", "mz", "fx", "fy", "fz"]
+        component_range = range(6)
+        joint_range = range(6)
+        joints_x_components = tuple(product(joint_range, component_range))
+
+        first_time: Time = timed_jsps[0][0]
+        times: list[float] = [(timed_jsp[0]-first_time).to_sec() for timed_jsp in timed_jsps]
+        # bu und td Reihen. Beide in separaten Datenreihen. Aber im selben Diagramm.
+        # joint unf force jeweils in separaten Diagrammen.
+        bu_joint_component_to_values: dict[(int, int), list[float]] = {(joint, component): [timed_jsp[1].joints_bottom_up[joint].m_xyz__f_xyz[component] for timed_jsp in timed_jsps]
+                                                                       for joint, component in joints_x_components}
+        td_joint_component_to_values: dict[(int, int), list[float]] = {(joint, component): [timed_jsp[1].joints_top_down[joint].m_xyz__f_xyz[component] for timed_jsp in timed_jsps]
+                                                                       for joint, component in joints_x_components}
+
+        for joint_i, component_i in joints_x_components:
+            component_ylabel: str = components_ylabel[component_i]
+            component_name: str = components_name[component_i]
+            joint_name: str = f"Joint_{joint_i}"
+            plot_time_series(plotSaveDir=f"{plotSaveDir}{joint_name}/", description=component_name, ylabel=component_ylabel,
+                             times=times, bu=bu_joint_component_to_values[(joint_i, component_i)], td=td_joint_component_to_values[(joint_i, component_i)])
 
     return
 
