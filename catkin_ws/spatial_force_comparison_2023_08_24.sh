@@ -13,7 +13,7 @@ sleep 3s
 
 # rosbag play -l <bagfile>
 
-konsole --new-tab -e "rosrun data_transformation Force_plate_data_1euro_filter.py" &
+konsole --new-tab -e "rosrun data_transformation Force_plate_data_sma_transceiver.py" &
 
 sleep 1s
 

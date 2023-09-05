@@ -17,7 +17,7 @@ class Inverse_dynamics_force_plate_ur5e(object):
         ur5e.from_file(path_to_urdf)
         rnea: Inverse_dynamics_rnea = Inverse_dynamics_rnea(ur5e)
 
-        root = "base_link"
+        root = "dummy_link"
         tip = "tool0"
 
         self.f_sym, self.f_body_inertial_sym = rnea.get_forces_bottom_up(root, tip, gravity=[0, 0, 9.81])
@@ -27,11 +27,11 @@ class Inverse_dynamics_force_plate_ur5e(object):
     def calculate_torques(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple, f_force_plate: ThreeTuple, m_force_plate: ThreeTuple) -> SixTuple:
         f_num = self.__calculate_spatial_forces(q=q, q_dot=q_dot, q_ddot=q_ddot, f_force_plate=f_force_plate, m_force_plate=m_force_plate)
         tau_bottom_up_num = self.tau_bottom_up_sym(q, *f_num)
-        return tuple(tau_bottom_up_num.T.full()[0])
+        return tuple(tau_bottom_up_num.T.full()[0])[1:]
 
     def calculate_spatial_forces(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple, f_force_plate: ThreeTuple, m_force_plate: ThreeTuple) -> SixTupleTuple:
         f_num = self.__calculate_spatial_forces(q=q, q_dot=q_dot, q_ddot=q_ddot, f_force_plate=f_force_plate, m_force_plate=m_force_plate)
-        return tuple(tuple(force.T.full()[0]) for force in f_num)
+        return tuple(tuple(force.T.full()[0]) for force in f_num)[1:]
 
     def __calculate_spatial_forces(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple, f_force_plate: ThreeTuple, m_force_plate: ThreeTuple):
         f_ur5e_base = Inverse_dynamics_force_plate_ur5e.__forces_force_plate_to_forces_ur5e_base(f_force_plate)
@@ -40,15 +40,16 @@ class Inverse_dynamics_force_plate_ur5e(object):
         # ! Verified direction. AMTI force plate: moments rotate clockwise; urdf model: moments rotate counterclockwise.
         m_ur5e_base = -1 * m_ur5e_base
 
-        angle_joint_0_rad = q[0]
-        m_ur5e_joint_0 = Inverse_dynamics_force_plate_ur5e.__static_to_dynamic_joint_0(m_ur5e_base, angle_joint_0_rad)
-        f_ur5e_joint_0 = Inverse_dynamics_force_plate_ur5e.__static_to_dynamic_joint_0(f_ur5e_base, angle_joint_0_rad)
+        # angle_joint_0_rad = q[0]
+        # m_ur5e_joint_0 = Inverse_dynamics_force_plate_ur5e.__static_to_dynamic_joint_0(m_ur5e_base, angle_joint_0_rad)
+        # f_ur5e_joint_0 = Inverse_dynamics_force_plate_ur5e.__static_to_dynamic_joint_0(f_ur5e_base, angle_joint_0_rad)
 
-        # ! Spatial forces contain the moments first and then the forces.
-        f_spatial_ur5e_joint_0 = np.concatenate([m_ur5e_joint_0, f_ur5e_joint_0])
+        # # ! Spatial forces contain the moments first and then the forces.
+        # f_spatial_ur5e_joint_0 = np.concatenate([m_ur5e_joint_0, f_ur5e_joint_0])
+        f_spatial_ur5e_body_0 = np.concatenate([m_ur5e_base, f_ur5e_base])
 
         # rnea
-        f_num = self.f_sym(q, q_dot, q_ddot, f_spatial_ur5e_joint_0)
+        f_num = self.f_sym([0.0] + list(q), [0.0] + list(q_dot), [0.0] + list(q_ddot), f_spatial_ur5e_body_0)
 
         # TODO: ausprobieren, ob ohne ungenutzten parameter f_spatial_ur5e_joint_0 tut.
         # print(self.f_body_inertial_sym(q, q_dot, q_ddot))
@@ -56,7 +57,7 @@ class Inverse_dynamics_force_plate_ur5e(object):
         return f_num
 
     def calculate_torques_from_base_force(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple, base_force: SixTuple) -> SixTuple:
-        f_num = self.f_sym(q, q_dot, q_ddot, base_force)
+        f_num = self.f_sym([0.0] + list(q), [0.0] + list(q_dot), [0.0] + list(q_ddot), base_force)
         tau_bottom_up_num = self.tau_bottom_up_sym(q, *f_num)
         return tuple(tau_bottom_up_num.T.full()[0])
 

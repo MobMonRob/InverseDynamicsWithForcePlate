@@ -8,7 +8,10 @@ class Inverse_dynamics_rnea(object):
     def __init__(self, urdfparser: URDFparser):
         self.urdfparser: URDFparser = urdfparser
 
+    #! TODO: root, tip übergeben in Konstruktor, n_joints als public variable.
+
     # RNEA: Von der Dame, von mir modifiziert
+
     def get_inverse_dynamics_rnea(self, root, tip,
                                   gravity=None, f_ext=None):
         """Returns the inverse dynamics as a casadi function."""
@@ -63,7 +66,7 @@ class Inverse_dynamics_rnea(object):
                 f[i-1] = f[i-1] + cs.mtimes(i_X_p[i].T, f[i])
 
         tau = cs.Function("C", [q, q_dot, q_ddot], [tau], self.urdfparser.func_opts)
-        forces = cs.Function("forces", [q, q_dot, q_ddot], [f[0], f[1], f[2], f[3], f[4], f[5]], self.urdfparser.func_opts)
+        forces = cs.Function("forces", [q, q_dot, q_ddot], [f[i] for i in range(n_joints)], self.urdfparser.func_opts)
 
         return tau, forces
 
@@ -75,7 +78,9 @@ class Inverse_dynamics_rnea(object):
 
         n_joints = self.urdfparser.get_n_joints(root, tip)
         q = cs.SX.sym("q", n_joints)
-        spatial_forces = [cs.SX.sym(f"spatial_force{i}", n_joints) for i in range(n_joints)]
+
+        # 6 is the dimension of a spatial force vector.
+        spatial_forces = [cs.SX.sym(f"spatial_force{i}", 6) for i in range(n_joints)]
 
         _, Si, _ = self.urdfparser._model_calculation(root, tip, q)
 
@@ -105,7 +110,7 @@ class Inverse_dynamics_rnea(object):
             - q (6-tuple of float): Position of each joint.
             - q_dot (6-tuple of float): Velocity of each joint.
             - q_ddot (6-tuple of float): Acceleration of each joint.
-            - f_spatial_ur5e_joint_0 (6-tuple of float): Spatial force within the lowest joint.
+            - f_spatial_body_0 (6-tuple of float): Spatial force within the lowest body.
         """
         if self.urdfparser.robot_desc is None:
             raise ValueError('Robot description not loaded from urdf')
@@ -122,28 +127,29 @@ class Inverse_dynamics_rnea(object):
         # Declare symbolic verctor of angular velocities q_ddot
         q_ddot = cs.SX.sym("q_ddot", n_joints)
 
-        f_spatial_joint_0 = cs.SX.sym("f_root", n_joints)
+        # 6 is the dimension of a spatial force vector.
+        f_spatial_body_0 = cs.SX.sym("f_root", 6)
 
         # Get Plücker transformation matrices i_X_p, joint motion subspaces Si, inertia matrices Ic
         i_X_p, Si, Ic = self.urdfparser._model_calculation(root, tip, q)
 
-        velocities = []
-        accelerations = []
-        body_inertial_forces = []
-        joint_spatial_forces = []
+        body_velocities = [None] * n_joints
+        body_accelerations = [None] * n_joints
+        body_inertial_forces = [None] * n_joints
+        joint_spatial_forces = [None] * n_joints
 
-        velocities.append(cs.mtimes(Si[0], q_dot[0]))
+        body_velocities[0] = cs.mtimes(Si[0], q_dot[0])
 
         if gravity is not None:
             ag = np.array([0., 0., 0., gravity[0], gravity[1], gravity[2]])
-            accelerations.append(cs.mtimes(i_X_p[0], -ag) + cs.mtimes(Si[0], q_ddot[0]))
+            body_accelerations[0] = cs.mtimes(i_X_p[0], -ag) + cs.mtimes(Si[0], q_ddot[0])
         else:
-            accelerations.append(cs.mtimes(Si[0], q_ddot[0]))
+            body_accelerations[0] = cs.mtimes(Si[0], q_ddot[0])
 
-        body_inertial_forces.append(
-            cs.mtimes(Ic[0], accelerations[0])
+        body_inertial_forces[0] = (
+            cs.mtimes(Ic[0], body_accelerations[0])
             +
-            cs.mtimes(plucker.force_cross_product(velocities[0]), cs.mtimes(Ic[0], velocities[0])))
+            cs.mtimes(plucker.force_cross_product(body_velocities[0]), cs.mtimes(Ic[0], body_velocities[0])))
 
         # * Hier ist keine Plücker-Transformation notwendig:
         # // generalized_body_forces.append(cs.mtimes(i_X_p[0], f_root))
@@ -155,122 +161,54 @@ class Inverse_dynamics_rnea(object):
         # * Die Berechnung geht Zig-Zagweise von oben nach unten. Drehe die Richtung um.
         # * Du siehst jetzt, dass du als erstes tau_0 = S_0^T * f_0 berechnest.
         # * Danach: f_0 = f_0^B + 0^X_1 * f_1 => f_1 = inv(0^X_1)*(f_0 - f_0^B) und so weiter.
-        joint_spatial_forces.append(f_spatial_joint_0)
+
+        joint_spatial_forces[0] = f_spatial_body_0
+
+        # In Theorie fangen Bodies bei 0 und Gelenke bei 1 an.
+        # In Implementierung fangen Bodies und Gelenke bei 0 an.
+        # i_X_p[i] transformiert die Geschwindigkeiten und Beschleunigungen von Body i-1 auf Body i in Implementierung und Theorie. Dabei muss immer die Kraft von dem unteren Body genommen werden und die Inertia von dem unteren Body abgezogen.
+        # i_X_p[i].T transformiert die Kraft von Body i auf Body i-1.
+        # cs.inv_minor(i_X_p[i].T) transformiert die Kraft von von Body i-1 auf Body 1.
+        # In Theorie und Implementierung ist der Joint i der vor dem Body i.
+        # Body_i ist der Body nach Joint_i. Bodies vor Joint_0 werden ignoriert durch urdf2casadi. Daher zur Not unten einen Dummy Joint setzen. Weil man aber als root einen Body angeben muss, braucht man dann davor auch noch einen Dummy Body.
 
         for i in range(1, n_joints):
-            vJ = cs.mtimes(Si[i], q_dot[i])
-            velocities.append(cs.mtimes(i_X_p[i], velocities[i - 1]) + vJ)
-            accelerations.append(
-                cs.mtimes(i_X_p[i], accelerations[i-1])
+            joint_velocity_i = cs.mtimes(Si[i], q_dot[i])
+
+            body_velocities[i] = (cs.mtimes(i_X_p[i], body_velocities[i - 1]) + joint_velocity_i)
+
+            body_accelerations[i] = (
+                cs.mtimes(i_X_p[i], body_accelerations[i-1])
                 + cs.mtimes(Si[i], q_ddot[i])
-                + cs.mtimes(plucker.motion_cross_product(velocities[i]), vJ))
+                + cs.mtimes(plucker.motion_cross_product(body_velocities[i]), joint_velocity_i))
 
-            body_inertial_forces.append(
-                cs.mtimes(Ic[i], accelerations[i])
+            body_inertial_forces[i] = (
+                cs.mtimes(Ic[i], body_accelerations[i])
                 +
-                cs.mtimes(plucker.force_cross_product(velocities[i]), cs.mtimes(Ic[i], velocities[i])))
+                cs.mtimes(plucker.force_cross_product(body_velocities[i]), cs.mtimes(Ic[i], body_velocities[i])))
 
-            joint_spatial_forces.append(
+            joint_spatial_forces[i] = (
                 cs.mtimes(
                     cs.inv_minor(i_X_p[i].T),
                     joint_spatial_forces[i - 1] - body_inertial_forces[i - 1]))
 
         # Declare the symbolic function with input [q, q_dot, q_ddot] and the output joint_spatial_forces_func.
-        joint_spatial_forces_func = cs.Function("forces_bottom_up", [q, q_dot, q_ddot, f_spatial_joint_0], joint_spatial_forces, self.urdfparser.func_opts)
+        joint_spatial_forces_func = cs.Function("forces_bottom_up", [q, q_dot, q_ddot, f_spatial_body_0], joint_spatial_forces, self.urdfparser.func_opts)
         body_inertial_forces_func = cs.Function("body_intertial_forces", [q, q_dot, q_ddot], body_inertial_forces, self.urdfparser.func_opts)
+
+        #! Evtl. keine Casadi Matrizen aus dieser Funktion zurück geben lassen, sondern direkt umwandeln.
 
         return joint_spatial_forces_func, body_inertial_forces_func
 
     # Zeigt die Pluecker-Matrizen (Transformationen) an. Ich denke, die Methode brauche ich nicht.
     def get_model_calculation(self, root, tip):
         n_joints = self.urdfparser.get_n_joints(root, tip)
+
+        print(f"root: {root}")
+
         q = cs.SX.sym("q", n_joints)
         i_X_p, Si, Ic = self.urdfparser._model_calculation(root, tip, q)
 
         i_X_p = cs.Function("i_X_p", [q], [i_X_p[0], i_X_p[1], i_X_p[2], i_X_p[3], i_X_p[4], i_X_p[5]], self.urdfparser.func_opts)
-        return i_X_p
-
-    # Berechnet Hilfsvariablen für RNEA. Ich denke, die Methode bracuhe ich nicht, da ich für meinen RNEA die Standardvariante _model_calculation von der Dame benutzen kann und bis jetzt auch benutzt habe.
-    def _model_calculation_bottom_up(self, root, tip, q):
-        """Calculates and returns model information needed in the
-        dynamics algorithms caluculations, i.e transforms, joint space
-        and inertia."""
-        if self.urdfparser.robot_desc is None:
-            raise ValueError('Robot description not loaded from urdf')
-
-        chain = self.urdfparser.robot_desc.get_chain(root, tip)
-        spatial_inertias = []
-        _0_X_i = []
-        p_X_i = []
-        Sis = []
-        prev_joint = None
-        n_actuated = 0
-        i = 0
-
-        for item in chain:
-            if item in self.urdfparser.robot_desc.joint_map:
-                joint = self.urdfparser.robot_desc.joint_map[item]
-
-                if joint.type == "fixed":
-                    if prev_joint == "fixed":
-                        XT_prev = cs.mtimes(
-                            plucker.XT(joint.origin.xyz, joint.origin.rpy),
-                            XT_prev)
-                    else:
-                        XT_prev = plucker.XT(
-                            joint.origin.xyz,
-                            joint.origin.rpy)
-                    inertia_transform = XT_prev
-                    prev_inertia = spatial_inertia
-
-                elif joint.type in ["revolute", "continuous"]:
-                    if n_actuated != 0:
-                        spatial_inertias.append(spatial_inertia)
-                    n_actuated += 1
-
-                    XJT = plucker.XJT_revolute(
-                        joint.origin.xyz,
-                        joint.origin.rpy,
-                        joint.axis,
-                        q[i])
-                    if prev_joint == "fixed":
-                        XJT = cs.mtimes(XJT, XT_prev)
-                    Si = cs.SX([
-                        joint.axis[0],
-                        joint.axis[1],
-                        joint.axis[2],
-                        0,
-                        0,
-                        0])
-                    p_X_i.append(XJT)
-                    Sis.append(Si)
-                    i += 1
-
-                prev_joint = joint.type
-
-            if item in self.urdfparser.robot_desc.link_map:
-                link = self.urdfparser.robot_desc.link_map[item]
-
-                if link.inertial is None:
-                    spatial_inertia = np.zeros((6, 6))
-                else:
-                    I = link.inertial.inertia
-                    spatial_inertia = plucker.spatial_inertia_matrix_IO(
-                        I.ixx,
-                        I.ixy,
-                        I.ixz,
-                        I.iyy,
-                        I.iyz,
-                        I.izz,
-                        link.inertial.mass,
-                        link.inertial.origin.xyz)
-
-                if prev_joint == "fixed":
-                    spatial_inertia = prev_inertia + cs.mtimes(
-                        inertia_transform.T,
-                        cs.mtimes(spatial_inertia, inertia_transform))
-
-                if link.name == tip:
-                    spatial_inertias.append(spatial_inertia)
-
-        return p_X_i, Sis, spatial_inertias
+        Ic = cs.Function("Ic", [q], [Ic[i] for i in range(n_joints)], self.urdfparser.func_opts)
+        return i_X_p, Ic

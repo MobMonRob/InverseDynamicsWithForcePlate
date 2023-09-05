@@ -14,16 +14,17 @@ class Inverse_dynamics_top_down(object):
         ur5e.from_file(path_to_urdf)
         rnea: Inverse_dynamics_rnea = Inverse_dynamics_rnea(ur5e)
 
-        root = "base_link"
+        root = "base_link"  # "dummy_link"
         tip = "tool0"
 
         self.tau_sym, self.forces_sym = rnea.get_inverse_dynamics_rnea(root, tip, gravity=[0, 0, 9.81])
         return
 
     def calculate_torques(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple) -> SixTuple:
-        tau_num = self.tau_sym(q, q_dot, q_ddot)
-        return tuple(tau_num.T.full()[0])
+        tau_num = self.tau_sym([0.0] + list(q), [0.0] + list(q_dot), [0.0] + list(q_ddot))
+        return tuple(tau_num.T.full()[0])  # [1:]
 
     def calculate_spatial_forces(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple) -> SixTupleTuple:
-        forces_num = self.forces_sym(q, q_dot, q_ddot)
-        return tuple(tuple(force.T.full()[0]) for force in forces_num)
+        # forces_num = self.forces_sym([0.0] + list(q), [0.0] + list(q_dot), [0.0] + list(q_ddot))
+        forces_num = self.forces_sym(list(q), list(q_dot), list(q_ddot))
+        return tuple(tuple(force.T.full()[0]) for force in forces_num)  # [1:]
