@@ -21,7 +21,8 @@ class Inverse_dynamics_top_down(object):
         return
 
     def calculate_torques(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple) -> SixTuple:
-        tau_num = self.tau_sym([0.0] + list(q), [0.0] + list(q_dot), [0.0] + list(q_ddot))
+        # tau_num = self.tau_sym([0.0] + list(q), [0.0] + list(q_dot), [0.0] + list(q_ddot))
+        tau_num = self.tau_sym(list(q), list(q_dot), list(q_ddot))
         return tuple(tau_num.T.full()[0])  # [1:]
 
     def calculate_spatial_forces(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple) -> SixTupleTuple:
