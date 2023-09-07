@@ -15,6 +15,7 @@ from pandas import DataFrame
 import numpy as np
 from numpy.linalg import norm
 from rospy import Time
+from Common.one_euro_filter import OneEuroFilterOnObjects
 
 
 def execute():
@@ -139,6 +140,8 @@ def create_msgs_compound_sorted(indexedBagMsgs: IndexedBagMsgs, topic_fp: str, t
     # Start: msgs_compound_sorted
     sma: SimpleMovingAverageOnObjects[Force_plate_data] = SimpleMovingAverageOnObjects[Force_plate_data](window_size=window_size, sample=Force_plate_data())
 
+    # one_euro: OneEuroFilterOnObjects[Force_plate_data] = OneEuroFilterOnObjects[Force_plate_data](sample=Force_plate_data())
+
     bagMsgs_fp: BagMsgs = indexedBagMsgs.get_msgs(topic=topic_fp, bagPath=bagPath)
     bagMsgs_jp: BagMsgs = indexedBagMsgs.get_msgs(topic=topic_jp, bagPath=bagPath)
 
@@ -147,6 +150,7 @@ def create_msgs_compound_sorted(indexedBagMsgs: IndexedBagMsgs, topic_fp: str, t
 
     if calculate_sma == True:
         msgs_fp = [BagMessage(topic=topic, message=sma.process(message), timestamp=timestamp) for topic, message, timestamp in msgs_fp]
+        # msgs_fp = [BagMessage(topic=topic, message=one_euro.process(message), timestamp=timestamp) for topic, message, timestamp in msgs_fp]
         msgs_fp = msgs_fp[window_size:len(msgs_fp)]
         msgs_jp = msgs_jp[window_size:len(msgs_jp)]
 

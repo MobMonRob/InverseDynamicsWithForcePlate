@@ -31,6 +31,8 @@
 #
 
 import math
+from typing import TypeVar, Generic
+import copy
 
 # ----------------------------------------------------------------------------
 
@@ -102,6 +104,40 @@ class OneEuroFilter(object):
         cutoff = self.__mincutoff + self.__beta*math.fabs(edx)
         # ---- filter the given value
         return self.__x(x, timestamp, alpha=self.__alpha(cutoff))
+
+# ----------------------------------------------------------------------------
+
+
+T = TypeVar('T')
+
+# https://gery.casiez.net/1euro/
+# Next, the body part is moved quickly in different directions while beta is increased with a focus on minimizing lag.
+# First find the right order of magnitude to tune beta, which depends on the kind of data you manipulate and their units: do not hesitate to start with values like 0.001 or 0.0001. You can first multiply and divide beta by factor 10 until you notice an effect on latency when moving quickly.
+# Note that parameters mincutoff and beta have clear conceptual relationships: if high speed lag is a problem, increase beta; if slow speed jitter is a problem, decrease mincutoff.
+default_config: "dict[str, float]" = {
+    'freq': 1200.0,    # Data Update rate
+    'mincutoff': 0.05,  # Minimum cutoff frequency. Increasing mincutoff increases jitter and decreases lag.
+    'beta': 0.5,      # Cutoff slope
+    'dcutoff': 0.05     # Cutoff frequency for derivate
+}
+
+
+class OneEuroFilterOnObjects(Generic[T]):
+    def __init__(self, sample: T, config: "dict[str, float]" = default_config):
+        self.filters: "dict[T, OneEuroFilter]" = dict()
+        for fieldName in sample.__slots__:
+            if isinstance(getattr(sample, fieldName), float):
+                self.filters[fieldName] = OneEuroFilter(**config)
+
+    def process(self, new: T) -> T:
+        filtered: T = copy.copy(new)
+
+        for fieldName, filter in self.filters.items():
+            fieldValue = getattr(new, fieldName)
+            fieldFiltered: float = filter(fieldValue)
+            setattr(filtered, fieldName, fieldFiltered)
+
+        return filtered
 
 # ----------------------------------------------------------------------------
 

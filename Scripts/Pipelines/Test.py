@@ -8,17 +8,17 @@ from urdf2casadi.urdfparser import URDFparser
 
 def execute():
     ur5e: URDFparser = URDFparser()
-    path_to_urdf = os.path.dirname(os.path.abspath(__file__)) + "/../Common/ur5_mod.urdf"
+    path_to_urdf = os.path.dirname(os.path.abspath(__file__)) + "/../Common/ur5e.urdf"
     ur5e.from_file(path_to_urdf)
     rnea: Inverse_dynamics_rnea = Inverse_dynamics_rnea(ur5e)
 
-    root = "dummy_link"
+    root = "base_link"
     tip = "tool0"
 
-    dummy_tuple = tuple(float(i) for i in range(7))
+    dummy_tuple = tuple(float(i) for i in range(rnea.get_n_joints(root, tip)))
 
     i_X_p, Ic = rnea.get_model_calculation(root, tip)
-    ics = i_X_p(dummy_tuple)
+    ics = Ic(dummy_tuple)
     print(list(enumerate(ics)))
     return
 

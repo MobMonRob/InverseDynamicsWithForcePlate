@@ -13,14 +13,14 @@ SixTupleTuple = Tuple[SixTuple, SixTuple, SixTuple, SixTuple, SixTuple, SixTuple
 class Inverse_dynamics_force_plate_ur5e(object):
     def __init__(self):
         ur5e: URDFparser = URDFparser()
-        path_to_urdf = os.path.dirname(os.path.abspath(__file__)) + "/ur5_mod.urdf"
+        path_to_urdf = os.path.dirname(os.path.abspath(__file__)) + "/ur5e.urdf"
         ur5e.from_file(path_to_urdf)
         rnea: Inverse_dynamics_rnea = Inverse_dynamics_rnea(ur5e)
 
-        root = "dummy_link"
+        root = "base_link"
         tip = "tool0"
 
-        self.f_sym, self.f_body_inertial_sym = rnea.get_forces_bottom_up(root, tip, gravity=[0, 0, 9.81])
+        self.f_sym, self.f_body_inertial_sym = rnea.get_forces_bottom_up(root, tip, gravity=[0, 0, -9.81])
         self.tau_bottom_up_sym = rnea.get_inverse_dynamics_rnea_bottom_up_f(root, tip)
         return
 
@@ -34,11 +34,8 @@ class Inverse_dynamics_force_plate_ur5e(object):
         return tuple(tuple(force.T.full()[0]) for force in f_num)[1:]
 
     def __calculate_spatial_forces(self, q: SixTuple, q_dot: SixTuple, q_ddot: SixTuple, f_force_plate: ThreeTuple, m_force_plate: ThreeTuple):
-        f_ur5e_base = Inverse_dynamics_force_plate_ur5e.__forces_force_plate_to_forces_ur5e_base(f_force_plate)
-        m_ur5e_base = Inverse_dynamics_force_plate_ur5e.__moments_force_plate_to_moments_ur5e_base(f_ur5e_base, m_force_plate)
-
-        # ! Verified direction. AMTI force plate: moments rotate clockwise; urdf model: moments rotate counterclockwise.
-        m_ur5e_base = -1 * m_ur5e_base
+        f_ur5e_base = Inverse_dynamics_force_plate_ur5e.__forces_force_plate_to_forces_ur5e_base(-np.array(f_force_plate))
+        m_ur5e_base = Inverse_dynamics_force_plate_ur5e.__moments_force_plate_to_moments_ur5e_base(f_ur5e_base, -np.array(m_force_plate))
 
         # angle_joint_0_rad = q[0]
         # m_ur5e_joint_0 = Inverse_dynamics_force_plate_ur5e.__static_to_dynamic_joint_0(m_ur5e_base, angle_joint_0_rad)

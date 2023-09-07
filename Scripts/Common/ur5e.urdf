@@ -216,7 +216,7 @@
     </inertial>
   </link>
   <!-- joints: main serial chain -->
-  <joint name="base_link-base_link_inertia" type="fixed">
+  <joint name="base_link-base_link_inertia" type="revolute">
     <parent link="base_link"/>
     <child link="base_link_inertia"/>
     <!-- 'base_link' is REP-103 aligned (so X+ forward), while the internal
@@ -225,6 +225,7 @@
            link/frame) to introduce the necessary rotation over Z (of pi rad).
       -->
     <origin rpy="0 0 3.141592653589793" xyz="0 0 0"/>
+    <axis xyz="0 0 1"/>
   </joint>
   <joint name="shoulder_pan_joint" type="revolute">
     <parent link="base_link_inertia"/>
@@ -274,18 +275,6 @@
     <limit effort="28.0" lower="-6.283185307179586" upper="6.283185307179586" velocity="3.141592653589793"/>
     <dynamics damping="0" friction="0"/>
   </joint>
-  <!-- ROS-Industrial 'base' frame: base_link to UR 'Base' Coordinates transform -->
-  <link name="base"/>
-  <joint name="base_link-base_fixed_joint" type="fixed">
-    <!-- Note the rotation over Z of pi radians: as base_link is REP-103
-           aligned (ie: has X+ forward, Y+ left and Z+ up), this is needed
-           to correctly align 'base' with the 'Base' coordinate system of
-           the UR controller.
-      -->
-    <origin rpy="0 0 3.141592653589793" xyz="0 0 0"/>
-    <parent link="base_link"/>
-    <child link="base"/>
-  </joint>
   <!-- ROS-Industrial 'flange' frame: attachment point for EEF models -->
   <link name="flange"/>
   <joint name="wrist_3-flange" type="fixed">
@@ -294,7 +283,13 @@
     <origin rpy="0 -1.5707963267948966 -1.5707963267948966" xyz="0 0 0"/>
   </joint>
   <!-- ROS-Industrial 'tool0' frame: all-zeros tool frame -->
-  <link name="tool0"/>
+  <link name="tool0">
+      <inertial>
+      <mass value="0.6"/>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
   <joint name="flange-tool0" type="fixed">
     <!-- default toolframe: X+ left, Y+ up, Z+ front -->
     <origin rpy="1.5707963267948966 0 1.5707963267948966" xyz="0 0 0"/>

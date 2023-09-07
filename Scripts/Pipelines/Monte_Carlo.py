@@ -135,7 +135,10 @@ def plot_mc_time_series(plotSaveDir: str, description: str, ylabel: str, times: 
 
     y_min = np.min((min_component, component))
     y_max = np.max((component, max_component))
-    plt.ylim(bottom=y_min, top=y_max)
+    gap = (y_max - y_min) * 0.02
+    bottom = y_min - gap
+    top = y_max + gap
+    plt.ylim(bottom=bottom, top=top)
 
     plt.grid(visible=True, which="both", linestyle=':', color='k', alpha=0.5)
 

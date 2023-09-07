@@ -10,8 +10,10 @@ class Inverse_dynamics_rnea(object):
 
     #! TODO: root, tip übergeben in Konstruktor, n_joints als public variable.
 
-    # RNEA: Von der Dame, von mir modifiziert
+    def get_n_joints(self, root: str, tip: str) -> int:
+        return self.urdfparser.get_n_joints(root, tip)
 
+    # RNEA: Von der Dame, von mir modifiziert
     def get_inverse_dynamics_rnea(self, root, tip,
                                   gravity=None, f_ext=None):
         """Returns the inverse dynamics as a casadi function."""
@@ -209,6 +211,6 @@ class Inverse_dynamics_rnea(object):
         q = cs.SX.sym("q", n_joints)
         i_X_p, Si, Ic = self.urdfparser._model_calculation(root, tip, q)
 
-        i_X_p = cs.Function("i_X_p", [q], [i_X_p[0], i_X_p[1], i_X_p[2], i_X_p[3], i_X_p[4], i_X_p[5]], self.urdfparser.func_opts)
+        i_X_p = cs.Function("i_X_p", [q], [i_X_p[i] for i in range(n_joints)], self.urdfparser.func_opts)
         Ic = cs.Function("Ic", [q], [Ic[i] for i in range(n_joints)], self.urdfparser.func_opts)
         return i_X_p, Ic
