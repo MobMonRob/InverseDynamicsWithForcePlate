@@ -7,7 +7,7 @@ from Common.Inverse_dynamics_node import Inverse_dynamics_node
 from Common.Bland_Altman_Plot import BAP_config, BAP_set, BAP_legend, generate_bland_altman_plot
 from Common.Simple_moving_average import SimpleMovingAverageOnObjects
 from Common.Ros_msg_types.vicon_data_publisher.msg._Force_plate_data import Force_plate_data
-from itertools import cycle, product
+from itertools import product
 from Common.Ros_msg_types.data_transformation.msg import Joints_spatial_force, Spatial_force
 from typing import Tuple
 import pandas as pd
@@ -15,8 +15,6 @@ from pandas import DataFrame
 import numpy as np
 from numpy.linalg import norm
 from rospy import Time
-from Common.one_euro_filter import OneEuroFilterOnObjects
-import matplotlib
 
 
 def execute():
@@ -26,7 +24,7 @@ def execute():
     relativeBagPath: str = f"2023_08_04_ur5e_dynamic/start_position_to_dynamic_random_2023-08-04-19-08-59.bag"
     bagPath: str = f"{dataDir}{relativeBagPath}"
     # bagPath: str = f"{dataDir}2023_08_04_ur5e_static/static_south_2023-08-04-18-20-12.bag"
-    plotSaveDir: str = f"{rootDir}/Plots/Inverse_dynamics/{relativeBagPath}"
+    plotSaveDir: str = f"{rootDir}/Plots/BAP_Inverse_dynamics/{relativeBagPath}"
 
     topics_fp: list[str] = ["/Force_plate_data", "/Force_plate_data_sma"]
     topic_jp: str = "/Joint_parameters"

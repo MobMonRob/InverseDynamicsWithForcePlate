@@ -6,14 +6,13 @@ from Common.Rosbag_extractor import RosbagExtractor, IndexedBagMsgs, BagMsgs, Ba
 from Common.Ros_msg_types.data_transformation.msg import Joints_spatial_force
 from typing import Tuple
 import numpy as np
-from Pipelines import Inverse_dynamics
+from Pipelines import BAP__Inverse_dynamics
 from Common.Ros_msg_types.vicon_data_publisher.msg import Force_plate_data
 import random
 from math import sqrt
 from copy import deepcopy
 from multiprocessing import Pool
 from rospy import Time
-from reloading import reloading
 from time import sleep
 import matplotlib.pyplot as plt
 from pathlib import Path
@@ -56,12 +55,12 @@ def execute():
         permutation: list[int] = [i for i, msg in msgs_compound_enumerated_sorted]
         msgs_compound_sorted: list[BagMessage] = [msg for i, msg in msgs_compound_enumerated_sorted]
 
-        timed_jsps: list[Tuple[Time, Joints_spatial_force]] = Inverse_dynamics.create_timed_joints_spatial_force_list(topic_fp, topic_jp, msgs_compound_sorted)
+        timed_jsps: list[Tuple[Time, Joints_spatial_force]] = BAP__Inverse_dynamics.create_timed_joints_spatial_force_list(topic_fp, topic_jp, msgs_compound_sorted)
 
         #! For saving: at least 100.
         #! 1000 leads to out of memory issues in the current implementation.
         #! Fast and easy fix idea: do only in batches of 100. Then calculate min and max per batch before resuming.
-        monte_carlo_set_count: int = 100  # 300
+        monte_carlo_set_count: int = 200  # 300
         max_norm = 10
 
         for name, func in [("rand_f", randomize_fp_f), ("rand_m", randomize_fp_m)]:
@@ -117,7 +116,11 @@ def plot(mc_sets_to_timed_jsps: "list[list[Tuple[Time, Joints_spatial_force]]]",
 
 
 def plot_mc_time_series(plotSaveDir: str, description: str, ylabel: str, times: "list[float]", component, min_component: "list[float]", max_component: "list[float]"):
+
+    default_sizeFactor: float = 3
     sizeFactor: float = 3  # Größer <=> Kleinere Schrift
+    sizeFactor_ratio: float = sizeFactor / default_sizeFactor
+
     plt.gcf().set_size_inches(w=2 * sizeFactor, h=1 * sizeFactor)
     plt.gcf().set_dpi(300)
     plt.rcParams['figure.constrained_layout.use'] = True
@@ -126,8 +129,10 @@ def plot_mc_time_series(plotSaveDir: str, description: str, ylabel: str, times: 
     plt.xlabel("Zeit [s]", labelpad=0.0)
     plt.ylabel(ylabel, labelpad=0.0)
 
-    plt.plot(times, component, color="b")
-    plt.fill_between(times, min_component, max_component, color='r', alpha=0.5)
+    default_linewidth: float = 1.75
+    linewidth: float = default_linewidth / sizeFactor_ratio
+    plt.plot(times, component, color="b", linewidth=linewidth)
+    plt.fill_between(times, min_component, max_component, color='r', alpha=0.5, linewidth=linewidth)
 
     x_min = np.min(times)
     x_max = np.max(times)
@@ -159,7 +164,7 @@ def monte_carlo_set(topic_jp: str, topic_fp: str, msgs_fp: "list[BagMessage]", m
     randomized_msgs_compound.extend(msgs_jp)
     randomized_msgs_compound_sorted: list[BagMessage] = [randomized_msgs_compound[i] for i in permutation]
 
-    timed_joints_spatial_force_list: list[Tuple[Time, Joints_spatial_force]] = Inverse_dynamics.create_timed_joints_spatial_force_list(topic_fp, topic_jp, randomized_msgs_compound_sorted)
+    timed_joints_spatial_force_list: list[Tuple[Time, Joints_spatial_force]] = BAP__Inverse_dynamics.create_timed_joints_spatial_force_list(topic_fp, topic_jp, randomized_msgs_compound_sorted)
 
     print(f"run: {i}")
 

@@ -6,21 +6,11 @@ from Common.Rosbag_extractor import RosbagExtractor, IndexedBagMsgs, BagMsgs, Ba
 from Common.Ros_msg_types.data_transformation.msg import Joints_spatial_force
 from typing import Tuple
 import numpy as np
-from Pipelines import Inverse_dynamics
-from Common.Ros_msg_types.vicon_data_publisher.msg import Force_plate_data
-from Common.Ros_msg_types.ur_robot_data_acquisition.msg import Joint_parameters
-import random
-from math import sqrt
-from copy import deepcopy
-from multiprocessing import Pool
+from Pipelines import BAP__Inverse_dynamics
 from rospy import Time
-from reloading import reloading
-from time import sleep
 import matplotlib.pyplot as plt
 from pathlib import Path
-from typing import Callable
-import gc
-from Pipelines import Inverse_dynamics
+from Pipelines import BAP__Inverse_dynamics
 from itertools import product
 from math import pi
 
@@ -50,9 +40,9 @@ def execute():
         re: RosbagExtractor = RosbagExtractor.fromBag(bagPath=bagPath, topics=topics)
         indexedBagMsgs: IndexedBagMsgs = re.getIndexedBagMsgs()
 
-        msgs_compound_sorted: list[BagMessage] = Inverse_dynamics.create_msgs_compound_sorted(indexedBagMsgs, topic_fp, topic_jp, bagPath, calculate_sma=True)
+        msgs_compound_sorted: list[BagMessage] = BAP__Inverse_dynamics.create_msgs_compound_sorted(indexedBagMsgs, topic_fp, topic_jp, bagPath, calculate_sma=True)
 
-        timed_jsfs: list[Tuple[Time, Joints_spatial_force]] = Inverse_dynamics.create_timed_joints_spatial_force_list(topic_fp, topic_jp, msgs_compound_sorted)
+        timed_jsfs: list[Tuple[Time, Joints_spatial_force]] = BAP__Inverse_dynamics.create_timed_joints_spatial_force_list(topic_fp, topic_jp, msgs_compound_sorted)
 
         # Start inverse dynamics
 
@@ -129,9 +119,11 @@ def execute():
 
 def plot_time_series(plotSaveDir: str, description: str, ylabel: str, times: "list[float]", values_list: "list[list[float]]", colors: "list[str]", labels: "list[str]", y_max=None, y_min=None, sizeFactor: float = None):
 
-    default_sizeFactor: float = 3  # Größer <=> Kleinere Schrift
+    default_sizeFactor: float = 3
     if sizeFactor == None:
-        sizeFactor: float = default_sizeFactor
+        sizeFactor: float = 3  # Größer <=> Kleinere Schrift
+    sizeFactor_ratio: float = sizeFactor / default_sizeFactor
+
     plt.gcf().set_size_inches(w=2 * sizeFactor, h=1 * sizeFactor)
     plt.gcf().set_dpi(300)
     plt.rcParams['figure.constrained_layout.use'] = True
@@ -141,7 +133,7 @@ def plot_time_series(plotSaveDir: str, description: str, ylabel: str, times: "li
     plt.ylabel(ylabel, labelpad=0.0)
 
     default_linewidth: float = 1.75
-    linewidth: float = default_linewidth * default_sizeFactor / sizeFactor
+    linewidth: float = default_linewidth / sizeFactor_ratio
     for values, color, label in zip(values_list, colors, labels):
         plt.plot(times, values, color=color, label=label, alpha=0.5, linewidth=linewidth)
 
@@ -154,7 +146,7 @@ def plot_time_series(plotSaveDir: str, description: str, ylabel: str, times: "li
     if y_max == None:
         y_max = np.max(values_list)
 
-    gap = ((linewidth/default_linewidth) * (y_max - y_min) * 0.02)
+    gap = (1/sizeFactor_ratio * (y_max - y_min) * 0.02)
     bottom = y_min - gap
     top = y_max + gap
     plt.ylim(bottom=bottom, top=top)
