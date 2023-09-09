@@ -31,10 +31,11 @@ def execute():
 
     relativeBagPaths: str = ["2023_08_04_ur5e_dynamic/start_position_to_dynamic_random_2023-08-04-19-08-59.bag", "2023_08_04_ur5e_static/static_west_2023-08-04-18-21-52.bag"]
 
+    bigSizeFactor = 2.5
     for relativeBagPath in relativeBagPaths:
         sizeFactor = None
         if "static" in relativeBagPath:
-            sizeFactor = 2.5
+            sizeFactor = bigSizeFactor
 
         bagPath: str = f"{dataDir}{relativeBagPath}"
         # bagPath: str = f"{dataDir}2023_08_04_ur5e_static/static_south_2023-08-04-18-20-12.bag"
@@ -109,11 +110,11 @@ def execute():
         joints_to_positions: list[list[float]] = [[message.actual_joint_positions[i] for topic, message, timestamp in msgs_jp] for i in range(6)]
 
         colors: list[str] = ["b", "g", "r", "c", "m", "y"]
-        joint_labels: list[str] = [f"Joint {i}" for i in range(6)]
+        joint_labels: list[str] = [f"Gelenk {i}" for i in range(6)]
 
         for values, color, label in zip(joints_to_positions, colors, joint_labels):
             plot_time_series(plotSaveDir=f"{plotSaveDir}joint_positions/", description=label,
-                             ylabel="Position [rad]", times=jp_times, values_list=[values], colors=[color], labels=[label], y_max=pi, y_min=-pi, sizeFactor=sizeFactor)
+                             ylabel="Gelenkwinkel [rad]", times=jp_times, values_list=[values], colors=[color], labels=[label], y_max=pi, y_min=-pi, sizeFactor=bigSizeFactor)
 
         # End joint positions
 
