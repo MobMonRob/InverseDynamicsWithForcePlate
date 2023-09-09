@@ -129,8 +129,7 @@ def plot_mc_time_series(plotSaveDir: str, description: str, ylabel: str, times: 
     plt.xlabel("Zeit [s]", labelpad=0.0)
     plt.ylabel(ylabel, labelpad=0.0)
 
-    default_linewidth: float = 1.75
-    linewidth: float = default_linewidth / sizeFactor_ratio
+    linewidth: float = 1.75
     plt.plot(times, component, color="b", linewidth=linewidth)
     plt.fill_between(times, min_component, max_component, color='r', alpha=0.5, linewidth=linewidth)
 

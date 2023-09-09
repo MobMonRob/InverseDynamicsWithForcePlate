@@ -132,8 +132,7 @@ def plot_time_series(plotSaveDir: str, description: str, ylabel: str, times: "li
     plt.xlabel("Zeit [s]", labelpad=0.0)
     plt.ylabel(ylabel, labelpad=0.0)
 
-    default_linewidth: float = 1.75
-    linewidth: float = default_linewidth / sizeFactor_ratio
+    linewidth: float = 1.75
     for values, color, label in zip(values_list, colors, labels):
         plt.plot(times, values, color=color, label=label, alpha=0.5, linewidth=linewidth)
 
