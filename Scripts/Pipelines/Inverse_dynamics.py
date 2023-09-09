@@ -16,6 +16,7 @@ import numpy as np
 from numpy.linalg import norm
 from rospy import Time
 from Common.one_euro_filter import OneEuroFilterOnObjects
+import matplotlib
 
 
 def execute():
@@ -27,7 +28,6 @@ def execute():
     # bagPath: str = f"{dataDir}2023_08_04_ur5e_static/static_south_2023-08-04-18-20-12.bag"
     plotSaveDir: str = f"{rootDir}/Plots/Inverse_dynamics/{relativeBagPath}"
 
-    # TODO: sma austauschen durch 1euro
     topics_fp: list[str] = ["/Force_plate_data", "/Force_plate_data_sma"]
     topic_jp: str = "/Joint_parameters"
 
@@ -113,7 +113,7 @@ def norm_to_joint_plot(bu_df: DataFrame, td_df: DataFrame, plotSaveDir: str):
     sets_f: list[BAP_set] = [BAP_set(x1=bu_joint_to_normed_f_values[i], x2=td_joint_to_normed_f_values[i]) for i in range(6)]
 
     colors_joints = list()
-    colors_joints.extend(["b", "g", "r", "c", "m", "y"])
+    colors_joints.extend(["b", "r", "g", "m", "c", "darkorange"])
 
     dataName1 = f"BURNEA"
     dataName2 = f"RNEA"
@@ -124,7 +124,7 @@ def norm_to_joint_plot(bu_df: DataFrame, td_df: DataFrame, plotSaveDir: str):
     config_f: BAP_config = BAP_config(sets=sets_f, colors=iter(colors_joints), dataName1=dataName1, dataName2=dataName2,
                                       units="N", additionalComment=f"(F für alle Gelenke)", plotSaveDir=plotSaveDir)
 
-    color_to_label = {c: i for (i, c) in enumerate(colors_joints)}
+    color_to_label = {c: i+1 for (i, c) in enumerate(colors_joints)}
     legend: BAP_legend = BAP_legend(title="Gelenke", color_to_label=color_to_label)
 
     # Plotten
@@ -238,14 +238,14 @@ def force_to_joint_plot(joints_spatial_force_list: "list[Joints_spatial_force]",
         force_component__to__sets_joints_to_datapoints.append(sets_joint_to_datapoints)
 
     colors_joints = list()
-    colors_joints.extend(["b", "g", "r", "c", "m", "y"])
+    colors_joints.extend(["b", "r", "g", "m", "c", "darkorange"])
 
     forces_names: list[str] = ["Mx", "My", "Mz", "Fx", "Fy", "Fz"]
     forces_units: list[str] = ["Nm", "Nm", "Nm", "N", "N", "N"]
 
     plotSaveDir = f"{plotSaveDir}force_to_joint/"
 
-    color_to_label = {c: i for (i, c) in enumerate(colors_joints)}
+    color_to_label = {c: i+1 for (i, c) in enumerate(colors_joints)}
     legend: BAP_legend = BAP_legend(title="Gelenke", color_to_label=color_to_label)
 
     for force_component_index in range(6):

@@ -76,7 +76,7 @@ def execute():
         for joint_i, component_i in joints_x_components:
             component_ylabel: str = components_ylabel[component_i]
             component_name: str = components_name[component_i]
-            joint_name: str = f"Joint_{joint_i}"
+            joint_name: str = f"Gelenk_{joint_i+1}"
             values = [td_joint_component_to_values[(joint_i, component_i)], bu_joint_component_to_values[(joint_i, component_i)]]
             description: str = f"time_series-{staticOrDynamic}-inverse_dynamics-{joint_name}-{component_name}"
 
@@ -94,7 +94,7 @@ def execute():
         joint_to_butd_to_ms = list(zip(bu_joint_to_ms, td_joint_to_ms))
         joint_to_butd_to_fs = list(zip(bu_joint_to_fs, td_joint_to_fs))
 
-        joint_labels: list[str] = [f"Gelenk {i}" for i in range(6)]
+        joint_labels: list[str] = [f"Gelenk {i+1}" for i in range(6)]
 
         for joint_label, (bu, td) in zip(joint_labels, joint_to_butd_to_ms):
             description: str = f"time_series-{staticOrDynamic}-norm-{joint_label}-m"
@@ -114,8 +114,8 @@ def execute():
         jp_times: list[float] = [(timestamp-jp_first_time).to_sec() for topic, message, timestamp in msgs_jp]
         joints_to_positions: list[list[float]] = [[message.actual_joint_positions[i] for topic, message, timestamp in msgs_jp] for i in range(6)]
 
-        colors: list[str] = ["b", "g", "r", "c", "m", "y"]
-        joint_labels: list[str] = [f"Gelenk {i}" for i in range(6)]
+        colors: list[str] = ["black"] * 6
+        joint_labels: list[str] = [f"Gelenk {i+1}" for i in range(6)]
 
         for values, color, joint_label in zip(joints_to_positions, colors, joint_labels):
             description: str = f"time_series-{staticOrDynamic}-joint_positions-{joint_label}"
@@ -129,17 +129,19 @@ def execute():
 
 def plot_time_series(plotSaveDir: str, description: str, ylabel: str, times: "list[float]", values_list: "list[list[float]]", colors: "list[str]", labels: "list[str]", y_max=None, y_min=None, sizeFactor: float = None):
 
+    default_sizeFactor: float = 3  # Größer <=> Kleinere Schrift
     if sizeFactor == None:
-        sizeFactor: float = 5  # 8 | Größer <=> Kleinere Schrift
+        sizeFactor: float = default_sizeFactor
     plt.gcf().set_size_inches(w=2 * sizeFactor, h=1 * sizeFactor)
     plt.gcf().set_dpi(300)
-    # plt.rcParams['figure.constrained_layout.use'] = True
-    plt.tight_layout(pad=0.0, h_pad=0.0, w_pad=0.0)
+    plt.rcParams['figure.constrained_layout.use'] = True
+    # plt.tight_layout(pad=0.0, h_pad=0.0, w_pad=0.0)
 
     plt.xlabel("Zeit [s]", labelpad=0.0)
     plt.ylabel(ylabel, labelpad=0.0)
 
-    linewidth = 1.5 * 5.0 / sizeFactor
+    default_linewidth: float = 1.75
+    linewidth: float = default_linewidth * default_sizeFactor / sizeFactor
     for values, color, label in zip(values_list, colors, labels):
         plt.plot(times, values, color=color, label=label, alpha=0.5, linewidth=linewidth)
 
@@ -152,7 +154,7 @@ def plot_time_series(plotSaveDir: str, description: str, ylabel: str, times: "li
     if y_max == None:
         y_max = np.max(values_list)
 
-    gap = ((linewidth/1.5) * (y_max - y_min) * 0.02)
+    gap = ((linewidth/default_linewidth) * (y_max - y_min) * 0.02)
     bottom = y_min - gap
     top = y_max + gap
     plt.ylim(bottom=bottom, top=top)

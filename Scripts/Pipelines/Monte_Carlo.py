@@ -61,7 +61,7 @@ def execute():
         #! For saving: at least 100.
         #! 1000 leads to out of memory issues in the current implementation.
         #! Fast and easy fix idea: do only in batches of 100. Then calculate min and max per batch before resuming.
-        monte_carlo_set_count: int = 10  # 300
+        monte_carlo_set_count: int = 100  # 300
         max_norm = 10
 
         for name, func in [("rand_f", randomize_fp_f), ("rand_m", randomize_fp_m)]:
@@ -106,7 +106,7 @@ def plot(mc_sets_to_timed_jsps: "list[list[Tuple[Time, Joints_spatial_force]]]",
         adjusted_plotSaveDir: str = f"{plotSaveDir}{component_name}/"
 
         for joint in joint_range:
-            description: str = f"monte_carlo-{randomized}-{component_name}-joint_{joint}"
+            description: str = f"monte_carlo-{randomized}-{component_name}-joint_{joint+1}"
             mzs = joints_to_component[joint]
             min_mzs = joints_to_min_component[joint]
             max_mzs = joints_to_max_component[joint]
@@ -117,11 +117,11 @@ def plot(mc_sets_to_timed_jsps: "list[list[Tuple[Time, Joints_spatial_force]]]",
 
 
 def plot_mc_time_series(plotSaveDir: str, description: str, ylabel: str, times: "list[float]", component, min_component: "list[float]", max_component: "list[float]"):
-    sizeFactor: float = 5  # 8 | Größer <=> Kleinere Schrift
+    sizeFactor: float = 3  # Größer <=> Kleinere Schrift
     plt.gcf().set_size_inches(w=2 * sizeFactor, h=1 * sizeFactor)
     plt.gcf().set_dpi(300)
-    # plt.rcParams['figure.constrained_layout.use'] = True
-    plt.tight_layout(pad=0.0, h_pad=0.0, w_pad=0.0)
+    plt.rcParams['figure.constrained_layout.use'] = True
+    # plt.tight_layout(pad=0.0, h_pad=0.0, w_pad=0.0)
 
     plt.xlabel("Zeit [s]", labelpad=0.0)
     plt.ylabel(ylabel, labelpad=0.0)
