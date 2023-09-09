@@ -80,11 +80,12 @@ def __scale(data: 'list[float]', factor: int) -> "list[float]":
 def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_outliers: bool = False, legend: BAP_legend = None):
 
     # Those need to be set before invocation of __plot_sets().
-    sizeFactor: float = 5  # 8 | Größer <=> Kleinere Schrift
-    plt.gcf().set_size_inches(w=sqrt(2) * sizeFactor, h=1 * sizeFactor)
+    sizeFactor: float = 3  # Größer <=> Kleinere Schrift
+    d_to_m_ratio: float = 2  # sqrt(2)
+    plt.gcf().set_size_inches(w=d_to_m_ratio * sizeFactor, h=1 * sizeFactor)
     plt.gcf().set_dpi(300)
-    # plt.rcParams['figure.constrained_layout.use'] = True
-    plt.tight_layout(pad=0.0, h_pad=0.0, w_pad=0.0)
+    plt.rcParams['figure.constrained_layout.use'] = True
+    # plt.tight_layout(pad=0.0, h_pad=0.0, w_pad=0.0)
 
     meanString = "Mittelwert"
     standardDeviationString = "$\sigma$"
@@ -99,7 +100,7 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_
     plt.xlabel(xLabelString, labelpad=0.0)
     plt.ylabel(yLabelString, labelpad=0.0)
 
-    md, sd, xOutPlot, diffs_lower_limit, diffs_upper_limit, observations = __plot_sets(sets=config.sets, colors=config.colors, plot_outliers=plot_outliers)
+    md, sd, xOutPlot, diffs_lower_limit, diffs_upper_limit, observations = __plot_sets(d_to_m_ratio=d_to_m_ratio, sets=config.sets, colors=config.colors, plot_outliers=plot_outliers)
 
     if not plot_outliers:
         plt.ylim(diffs_lower_limit, diffs_upper_limit)
@@ -199,7 +200,7 @@ def __calculate_limits(data: "list[float]") -> Tuple[float, float]:
 
 
 # @reloading
-def __plot_sets(sets: "list[BAP_set]", colors: Iterator, plot_outliers: bool):
+def __plot_sets(d_to_m_ratio: float, sets: "list[BAP_set]", colors: Iterator, plot_outliers: bool):
     for set in sets:
         if len(set.x1) != len(set.x2):
             raise RuntimeError("len(set.x1) != len(set.x2)")
@@ -232,9 +233,7 @@ def __plot_sets(sets: "list[BAP_set]", colors: Iterator, plot_outliers: bool):
 
     limited_means_all_flat = np.concatenate(limited_means_all)
     limited_diffs_all_flat = np.concatenate(limited_diffs_all)
-    resolution: float = 100
-    # Equal to aspect ratio of: plt.gcf().set_size_inches(w=sqrt(2) * sizeFactor, h=1 * sizeFactor)
-    d_to_m_ratio = sqrt(2)
+    resolution: float = 50
     bin_size_m = (np.max(limited_means_all_flat) - np.min(limited_means_all_flat)) / (resolution * d_to_m_ratio)
     bin_size_d = (np.max(limited_diffs_all_flat) - np.min(limited_diffs_all_flat)) / resolution
     # print(f"binSizes: {bin_size_m}, {bin_size_d}")
@@ -242,7 +241,7 @@ def __plot_sets(sets: "list[BAP_set]", colors: Iterator, plot_outliers: bool):
     limited_seg_diffs_all: list[list[float]] = list()
     alphas_all: list[list[float]] = list()
     for means, diffs in zip(limited_means_all, limited_diffs_all):
-        seg_means, seg_diffs, alphas = __segment(means=means, diffs=diffs, bin_size_m=bin_size_m, bin_size_d=bin_size_d, max_alpha=0.8, min_alpha=0.3)
+        seg_means, seg_diffs, alphas = __segment(means=means, diffs=diffs, bin_size_m=bin_size_m, bin_size_d=bin_size_d, max_alpha=0.8, min_alpha=0.4)
 
         limited_seg_means_all.append(seg_means)
         limited_seg_diffs_all.append(seg_diffs)
@@ -283,9 +282,9 @@ def __plot_sets(sets: "list[BAP_set]", colors: Iterator, plot_outliers: bool):
         color_values.append(color)
         plt.scatter(x=means, y=diffs, marker="o", edgecolors="none", color=color, alpha=alphas, s=marker_size)
 
-    plt.scatter(x=means_of_means, y=means_of_diffs, marker="o", edgecolors="black", color=color_values, alpha=0.7, s=marker_size*3**2)
+    plt.scatter(x=means_of_means, y=means_of_diffs, marker="o", edgecolors="black", color=color_values, alpha=0.7, s=marker_size*2.5**2)
 
-    xOutPlot = limited_seg_means_all_flat_min + (limited_seg_means_all_flat_max - limited_seg_means_all_flat_min) * 1.065  # 1.15
+    xOutPlot = limited_seg_means_all_flat_min + (limited_seg_means_all_flat_max - limited_seg_means_all_flat_min) * 1.065
 
     return md_data, sd_data, xOutPlot, diffs_lower_limit, diffs_upper_limit, len(diffs_all_flat)
 
