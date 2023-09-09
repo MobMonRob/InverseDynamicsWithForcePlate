@@ -33,9 +33,11 @@ def execute():
 
     bigSizeFactor = 2.5
     for relativeBagPath in relativeBagPaths:
+        staticOrDynamic: str = "dynamic"
         sizeFactor = None
         if "static" in relativeBagPath:
             sizeFactor = bigSizeFactor
+            staticOrDynamic = "static"
 
         bagPath: str = f"{dataDir}{relativeBagPath}"
         # bagPath: str = f"{dataDir}2023_08_04_ur5e_static/static_south_2023-08-04-18-20-12.bag"
@@ -76,8 +78,9 @@ def execute():
             component_name: str = components_name[component_i]
             joint_name: str = f"Joint_{joint_i}"
             values = [td_joint_component_to_values[(joint_i, component_i)], bu_joint_component_to_values[(joint_i, component_i)]]
+            description: str = f"time_series-{staticOrDynamic}-inverse_dynamics-{joint_name}-{component_name}"
 
-            plot_time_series(plotSaveDir=f"{plotSaveDir}inverse_dynamics/{joint_name}/", description=component_name,
+            plot_time_series(plotSaveDir=f"{plotSaveDir}inverse_dynamics/{joint_name}/", description=description,
                              ylabel=component_ylabel, times=times, values_list=values, colors=colors, labels=labels, sizeFactor=sizeFactor)
 
         # End inverse dynamics
@@ -91,13 +94,15 @@ def execute():
         joint_to_butd_to_ms = list(zip(bu_joint_to_ms, td_joint_to_ms))
         joint_to_butd_to_fs = list(zip(bu_joint_to_fs, td_joint_to_fs))
 
-        joint_labels: list[str] = [f"Joint {i}" for i in range(6)]
+        joint_labels: list[str] = [f"Gelenk {i}" for i in range(6)]
 
-        for label, (bu, td) in zip(joint_labels, joint_to_butd_to_ms):
-            plot_time_series(plotSaveDir=f"{plotSaveDir}norm/{label}/", description="m", ylabel="2-Norm M [Nm]",
+        for joint_label, (bu, td) in zip(joint_labels, joint_to_butd_to_ms):
+            description: str = f"time_series-{staticOrDynamic}-norm-{joint_label}-m"
+            plot_time_series(plotSaveDir=f"{plotSaveDir}norm/{joint_label}/", description=description, ylabel="2-Norm M [Nm]",
                              times=times, values_list=[td, bu], colors=["b", "r"], labels=["RNEA", "BURNEA"], sizeFactor=sizeFactor)
-        for label, (bu, td) in zip(joint_labels, joint_to_butd_to_fs):
-            plot_time_series(plotSaveDir=f"{plotSaveDir}norm/{label}/", description="f", ylabel="2-Norm F [N]",
+        for joint_label, (bu, td) in zip(joint_labels, joint_to_butd_to_fs):
+            description: str = f"time_series-{staticOrDynamic}-norm-{joint_label}-f"
+            plot_time_series(plotSaveDir=f"{plotSaveDir}norm/{joint_label}/", description=description, ylabel="2-Norm F [N]",
                              times=times, values_list=[td, bu], colors=["b", "r"], labels=["RNEA", "BURNEA"], sizeFactor=sizeFactor)
 
         # End norm
@@ -112,9 +117,10 @@ def execute():
         colors: list[str] = ["b", "g", "r", "c", "m", "y"]
         joint_labels: list[str] = [f"Gelenk {i}" for i in range(6)]
 
-        for values, color, label in zip(joints_to_positions, colors, joint_labels):
-            plot_time_series(plotSaveDir=f"{plotSaveDir}joint_positions/", description=label,
-                             ylabel="Gelenkwinkel [rad]", times=jp_times, values_list=[values], colors=[color], labels=[label], y_max=pi, y_min=-pi, sizeFactor=bigSizeFactor)
+        for values, color, joint_label in zip(joints_to_positions, colors, joint_labels):
+            description: str = f"time_series-{staticOrDynamic}-joint_positions-{joint_label}"
+            plot_time_series(plotSaveDir=f"{plotSaveDir}joint_positions/", description=description,
+                             ylabel="Gelenkwinkel [rad]", times=jp_times, values_list=[values], colors=[color], labels=[joint_label], y_max=pi, y_min=-pi, sizeFactor=bigSizeFactor)
 
         # End joint positions
 

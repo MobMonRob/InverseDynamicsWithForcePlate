@@ -61,7 +61,7 @@ def execute():
         #! For saving: at least 100.
         #! 1000 leads to out of memory issues in the current implementation.
         #! Fast and easy fix idea: do only in batches of 100. Then calculate min and max per batch before resuming.
-        monte_carlo_set_count: int = 300
+        monte_carlo_set_count: int = 10  # 300
         max_norm = 10
 
         for name, func in [("rand_f", randomize_fp_f), ("rand_m", randomize_fp_m)]:
@@ -72,7 +72,7 @@ def execute():
                 mc_sets_to_timed_jsps = pool.starmap(monte_carlo_set, params)
 
             plotSaveDir2 = f"{plotSaveDir_with_topic}/{name}/runs_{monte_carlo_set_count}/"
-            plot(mc_sets_to_timed_jsps, timed_jsps, plotSaveDir=plotSaveDir2)
+            plot(mc_sets_to_timed_jsps, timed_jsps, plotSaveDir=plotSaveDir2, randomized=name)
 
             print("finished plotting")
             del mc_sets_to_timed_jsps
@@ -86,7 +86,7 @@ def execute():
     return
 
 
-def plot(mc_sets_to_timed_jsps: "list[list[Tuple[Time, Joints_spatial_force]]]", timed_jsps: "list[Tuple[Time, Joints_spatial_force]]", plotSaveDir: str):
+def plot(mc_sets_to_timed_jsps: "list[list[Tuple[Time, Joints_spatial_force]]]", timed_jsps: "list[Tuple[Time, Joints_spatial_force]]", plotSaveDir: str, randomized: str):
     joint_range = range(6)
 
     ylabels = (["Drehmoment [Nm]"] * 3) + (["Kraft [N]"] * 3)
@@ -106,7 +106,7 @@ def plot(mc_sets_to_timed_jsps: "list[list[Tuple[Time, Joints_spatial_force]]]",
         adjusted_plotSaveDir: str = f"{plotSaveDir}{component_name}/"
 
         for joint in joint_range:
-            description: str = f"joint_{joint}"
+            description: str = f"monte_carlo-{randomized}-{component_name}-joint_{joint}"
             mzs = joints_to_component[joint]
             min_mzs = joints_to_min_component[joint]
             max_mzs = joints_to_max_component[joint]
