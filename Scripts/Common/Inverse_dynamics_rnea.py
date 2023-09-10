@@ -104,7 +104,7 @@ class Inverse_dynamics_rnea(object):
         Parameters:
             - root (string): Name of the base link.
             - tip (string): Name of the endeffector.
-            - gravity (None or [0, 0, 9.81]): Gravity constant.
+            - gravity (None or [0, 0, -9.81]): Gravity constant.
 
         Returns:
             joint_spatial_forces_func: A CasADi function which calculates the spatial forces of each joint at a point in time.
