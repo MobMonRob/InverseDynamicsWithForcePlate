@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import Callable
 import gc
+from Common import Plot_sizes
 
 
 def execute():
@@ -27,7 +28,7 @@ def execute():
     relativeBagPath: str = f"2023_08_04_ur5e_dynamic/start_position_to_dynamic_random_2023-08-04-19-08-59.bag"
     bagPath: str = f"{dataDir}{relativeBagPath}"
     # bagPath: str = f"{dataDir}2023_08_04_ur5e_static/static_south_2023-08-04-18-20-12.bag"
-    plotSaveDir: str = f"{rootDir}/Plots/Monte_Carlo/{relativeBagPath}"
+    plotSaveDir: str = f"{rootDir}/Plots/Monte_Carlo/{relativeBagPath}/"
 
     # "/Force_plate_data",
     topics_fp: list[str] = ["/Force_plate_data_sma"]
@@ -38,8 +39,6 @@ def execute():
     indexedBagMsgs: IndexedBagMsgs = re.getIndexedBagMsgs()
 
     for topic_fp in topics_fp:
-        plotSaveDir_with_topic: str = f"{plotSaveDir}{topic_fp}/"
-
         bagMsgs_fp: BagMsgs = indexedBagMsgs.get_msgs(topic=topic_fp, bagPath=bagPath)
         msgs_fp: list[BagMessage] = bagMsgs_fp.msgs
 
@@ -60,18 +59,18 @@ def execute():
         #! For saving: at least 100.
         #! 1000 leads to out of memory issues in the current implementation.
         #! Fast and easy fix idea: do only in batches of 100. Then calculate min and max per batch before resuming.
-        monte_carlo_set_count: int = 200  # 300
+        monte_carlo_set_count: int = 100  # 300
         max_norm = 10
 
-        for name, func in [("rand_f", randomize_fp_f), ("rand_m", randomize_fp_m)]:
+        for randomized, func in [("rand_f", randomize_fp_f), ("rand_m", randomize_fp_m)]:
             params = [(topic_jp, topic_fp, msgs_fp, msgs_jp, permutation, func, max_norm, i) for i in range(monte_carlo_set_count)]
 
             mc_sets_to_timed_jsps: list[list[Tuple[Time, Joints_spatial_force]]]
             with Pool() as pool:
                 mc_sets_to_timed_jsps = pool.starmap(monte_carlo_set, params)
 
-            plotSaveDir2 = f"{plotSaveDir_with_topic}/{name}/runs_{monte_carlo_set_count}/"
-            plot(mc_sets_to_timed_jsps, timed_jsps, plotSaveDir=plotSaveDir2, randomized=name)
+            fullPlotSaveDir = f"{plotSaveDir}runs_{monte_carlo_set_count}/{topic_fp}/{randomized}/"
+            plot(mc_sets_to_timed_jsps, timed_jsps, plotSaveDir=fullPlotSaveDir, randomized=randomized)
 
             print("finished plotting")
             del mc_sets_to_timed_jsps
@@ -102,10 +101,9 @@ def plot(mc_sets_to_timed_jsps: "list[list[Tuple[Time, Joints_spatial_force]]]",
 
         joints_to_min_component: list[list[float]] = [np.min(mc_set_to_mzs, axis=0) for mc_set_to_mzs in joints_to_mc_set_to_component]
 
-        adjusted_plotSaveDir: str = f"{plotSaveDir}{component_name}/"
-
         for joint in joint_range:
-            description: str = f"monte_carlo-{randomized}-{component_name}-joint_{joint+1}"
+            adjusted_plotSaveDir: str = f"{plotSaveDir}Gelenk_{joint+1}/"
+            description: str = f"monte_carlo-{randomized}-Gelenk_{joint+1}-{component_name}"
             mzs = joints_to_component[joint]
             min_mzs = joints_to_min_component[joint]
             max_mzs = joints_to_max_component[joint]
@@ -117,13 +115,13 @@ def plot(mc_sets_to_timed_jsps: "list[list[Tuple[Time, Joints_spatial_force]]]",
 
 def plot_mc_time_series(plotSaveDir: str, description: str, ylabel: str, times: "list[float]", component, min_component: "list[float]", max_component: "list[float]"):
 
-    default_sizeFactor: float = 3
-    sizeFactor: float = 3  # Größer <=> Kleinere Schrift
-    sizeFactor_ratio: float = sizeFactor / default_sizeFactor
+    size_factor: float = Plot_sizes.size_factor_screen_small()
+    width_to_height: float = 2.0
 
-    plt.gcf().set_size_inches(w=2 * sizeFactor, h=1 * sizeFactor)
-    plt.gcf().set_dpi(300)
-    plt.rcParams['figure.constrained_layout.use'] = True
+    plt.gcf().set_size_inches(w=size_factor * Plot_sizes.default_plot_width_inches(), h=size_factor * Plot_sizes.default_plot_width_inches() / width_to_height)
+    plt.gcf().set_dpi(300.0 / size_factor)
+    plt.rcParams.update({"font.size": 12.0})
+    plt.rcParams.update({"figure.constrained_layout.use": True})
     # plt.tight_layout(pad=0.0, h_pad=0.0, w_pad=0.0)
 
     plt.xlabel("Zeit [s]", labelpad=0.0)
@@ -131,7 +129,7 @@ def plot_mc_time_series(plotSaveDir: str, description: str, ylabel: str, times: 
 
     linewidth: float = 1.75
     plt.plot(times, component, color="b", linewidth=linewidth)
-    plt.fill_between(times, min_component, max_component, color='r', alpha=0.5, linewidth=linewidth)
+    plt.fill_between(times, min_component, max_component, color='r', alpha=0.6, linewidth=linewidth)
 
     x_min = np.min(times)
     x_max = np.max(times)
@@ -139,7 +137,7 @@ def plot_mc_time_series(plotSaveDir: str, description: str, ylabel: str, times: 
 
     y_min = np.min((min_component, component))
     y_max = np.max((component, max_component))
-    gap = (y_max - y_min) * 0.02
+    gap = (1.0/size_factor * (y_max - y_min) * 0.05)
     bottom = y_min - gap
     top = y_max + gap
     plt.ylim(bottom=bottom, top=top)

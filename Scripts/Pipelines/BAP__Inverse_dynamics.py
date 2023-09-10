@@ -36,6 +36,9 @@ def execute():
     for topic_fp in topics_fp:
         plotSaveDir_with_topic: str = f"{plotSaveDir}{topic_fp}/"
 
+        if topic_fp == "/Force_plate_data":
+            continue
+
         # Workaround to calculate sma with window size 100 afterwards.
         calculate_sma: bool = False
         if topic_fp == "/Force_plate_data_sma":
@@ -110,8 +113,7 @@ def norm_to_joint_plot(bu_df: DataFrame, td_df: DataFrame, plotSaveDir: str):
     sets_m: list[BAP_set] = [BAP_set(x1=bu_joint_to_normed_m_values[i], x2=td_joint_to_normed_m_values[i]) for i in range(6)]
     sets_f: list[BAP_set] = [BAP_set(x1=bu_joint_to_normed_f_values[i], x2=td_joint_to_normed_f_values[i]) for i in range(6)]
 
-    colors_joints = list()
-    colors_joints.extend(["b", "r", "g", "m", "c", "darkorange"])
+    colors_joints = get_color_joints()
 
     dataName1 = f"BURNEA"
     dataName2 = f"RNEA"
@@ -235,8 +237,7 @@ def force_to_joint_plot(joints_spatial_force_list: "list[Joints_spatial_force]",
             sets_joint_to_datapoints.append(BAP_set(x1=bottom_up__joint__to__datapoints, x2=top_down__joint__to__datapoints))
         force_component__to__sets_joints_to_datapoints.append(sets_joint_to_datapoints)
 
-    colors_joints = list()
-    colors_joints.extend(["b", "r", "g", "m", "c", "darkorange"])
+    colors_joints = get_color_joints()
 
     forces_names: list[str] = ["Mx", "My", "Mz", "Fx", "Fy", "Fz"]
     forces_units: list[str] = ["Nm", "Nm", "Nm", "N", "N", "N"]
@@ -261,6 +262,15 @@ def force_to_joint_plot(joints_spatial_force_list: "list[Joints_spatial_force]",
         generate_bland_altman_plot(config=config, showplot=False, plot_outliers=False, legend=legend)
 
     return
+
+
+def get_color_joints() -> "list":
+    colors_joints: list = list()
+    # colors_joints.extend(["b", "r", "g", "m", "c", "darkorange"])
+    # colors_joints.extend(["r", "g", "darkorange", "b", "m", "c"])
+    colors_joints.extend(["b", "g", "r", "c", "m", "darkorange"])
+    # colors_joints.extend(["k", "b", "r", "g", "m", "c",])
+    return colors_joints
 
 
 if __name__ == "__main__":

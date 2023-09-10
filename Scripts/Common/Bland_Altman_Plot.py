@@ -4,19 +4,16 @@
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-import matplotlib.cm as cm
 import numpy as np
 import pandas as pd
-from math import sqrt
 from Common.geometry_classes import Point2D, Point3D
 from dataclasses import dataclass
 from typing import Iterator, Tuple
 import math
 import statistics
-from reloading import reloading
 from pathlib import Path
 from scipy import stats
-import sys
+from Common import Plot_sizes
 
 
 @dataclass
@@ -79,12 +76,14 @@ def __scale(data: 'list[float]', factor: int) -> "list[float]":
 
 def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_outliers: bool = False, legend: BAP_legend = None):
 
+    size_factor: float = Plot_sizes.size_factor_screen_big()
+    width_to_height: float = 2.0
+
     # Those need to be set before invocation of __plot_sets().
-    sizeFactor: float = 3  # Größer <=> Kleinere Schrift
-    d_to_m_ratio: float = 2  # sqrt(2)
-    plt.gcf().set_size_inches(w=d_to_m_ratio * sizeFactor, h=1 * sizeFactor)
-    plt.gcf().set_dpi(300)
-    plt.rcParams['figure.constrained_layout.use'] = True
+    plt.gcf().set_size_inches(w=size_factor * Plot_sizes.default_plot_width_inches(), h=size_factor * Plot_sizes.default_plot_width_inches() / width_to_height)
+    plt.gcf().set_dpi(300.0 / size_factor)
+    plt.rcParams.update({"font.size": 12.0})
+    plt.rcParams.update({"figure.constrained_layout.use": True})
     # plt.tight_layout(pad=0.0, h_pad=0.0, w_pad=0.0)
 
     meanString = "Mittelwert"
@@ -100,7 +99,8 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_
     plt.xlabel(xLabelString, labelpad=0.0)
     plt.ylabel(yLabelString, labelpad=0.0)
 
-    md, sd, xOutPlot, diffs_lower_limit, diffs_upper_limit, observations = __plot_sets(d_to_m_ratio=d_to_m_ratio, sets=config.sets, colors=config.colors, plot_outliers=plot_outliers)
+    md, sd, xOutPlot, diffs_lower_limit, diffs_upper_limit, observations = __plot_sets(
+        size_factor=size_factor, d_to_m_ratio=width_to_height, sets=config.sets, colors=config.colors, plot_outliers=plot_outliers)
 
     if not plot_outliers:
         plt.ylim(diffs_lower_limit, diffs_upper_limit)
@@ -147,7 +147,7 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_
     plt.grid(visible=True, which="both", linestyle=':', color='k', alpha=0.5)
 
     if legend != None:
-        patches = [mpatches.Patch(color=c, label=l) for c, l in legend.color_to_label.items()]
+        patches = [mpatches.Patch(color=c, label=l, alpha=0.8) for c, l in legend.color_to_label.items()]
         plt.legend(handles=patches, loc="best", title=legend.title)
 
     # create plotSaveDir if not exists
@@ -200,7 +200,7 @@ def __calculate_limits(data: "list[float]") -> Tuple[float, float]:
 
 
 # @reloading
-def __plot_sets(d_to_m_ratio: float, sets: "list[BAP_set]", colors: Iterator, plot_outliers: bool):
+def __plot_sets(size_factor: float, d_to_m_ratio: float, sets: "list[BAP_set]", colors: Iterator, plot_outliers: bool):
     for set in sets:
         if len(set.x1) != len(set.x2):
             raise RuntimeError("len(set.x1) != len(set.x2)")
@@ -233,7 +233,7 @@ def __plot_sets(d_to_m_ratio: float, sets: "list[BAP_set]", colors: Iterator, pl
 
     limited_means_all_flat = np.concatenate(limited_means_all)
     limited_diffs_all_flat = np.concatenate(limited_diffs_all)
-    resolution: float = 50
+    resolution: float = 50 * size_factor
     bin_size_m = (np.max(limited_means_all_flat) - np.min(limited_means_all_flat)) / (resolution * d_to_m_ratio)
     bin_size_d = (np.max(limited_diffs_all_flat) - np.min(limited_diffs_all_flat)) / resolution
     # print(f"binSizes: {bin_size_m}, {bin_size_d}")
