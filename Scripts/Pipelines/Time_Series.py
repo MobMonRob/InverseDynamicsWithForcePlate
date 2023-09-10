@@ -26,9 +26,11 @@ def execute():
     for relativeBagPath in relativeBagPaths:
         staticOrDynamic: str = "dynamic"
         sizeFactor = Plot_sizes.size_factor_screen_big()
+        legend_loc = "upper left"
         if "static" in relativeBagPath:
             sizeFactor = smallPlot_sizeFactor
             staticOrDynamic = "static"
+            legend_loc = None
 
         bagPath: str = f"{dataDir}{relativeBagPath}"
         # bagPath: str = f"{dataDir}2023_08_04_ur5e_static/static_south_2023-08-04-18-20-12.bag"
@@ -90,11 +92,11 @@ def execute():
         for joint_label, (bu, td) in zip(joint_labels, joint_to_butd_to_ms):
             description: str = f"time_series-{staticOrDynamic}-norm-{joint_label}-m"
             plot_time_series(plotSaveDir=f"{plotSaveDir}norm/{joint_label}/", description=description, ylabel="2-Norm M [Nm]",
-                             times=times, values_list=[td, bu], colors=["b", "r"], labels=["RNEA", "BURNEA"], size_factor=sizeFactor)
+                             times=times, values_list=[td, bu], colors=["b", "r"], labels=["RNEA", "BURNEA"], size_factor=smallPlot_sizeFactor, legend_loc=legend_loc)
         for joint_label, (bu, td) in zip(joint_labels, joint_to_butd_to_fs):
             description: str = f"time_series-{staticOrDynamic}-norm-{joint_label}-f"
             plot_time_series(plotSaveDir=f"{plotSaveDir}norm/{joint_label}/", description=description, ylabel="2-Norm F [N]",
-                             times=times, values_list=[td, bu], colors=["b", "r"], labels=["RNEA", "BURNEA"], size_factor=sizeFactor)
+                             times=times, values_list=[td, bu], colors=["b", "r"], labels=["RNEA", "BURNEA"], size_factor=smallPlot_sizeFactor, legend_loc=legend_loc)
 
         # End norm
         # Start joint positions
@@ -118,7 +120,7 @@ def execute():
     return
 
 
-def plot_time_series(plotSaveDir: str, description: str, ylabel: str, times: "list[float]", values_list: "list[list[float]]", colors: "list[str]", labels: "list[str]", y_max=None, y_min=None, size_factor: float = None):
+def plot_time_series(plotSaveDir: str, description: str, ylabel: str, times: "list[float]", values_list: "list[list[float]]", colors: "list[str]", labels: "list[str]", y_max=None, y_min=None, size_factor: float = None, legend_loc: str = None):
 
     if size_factor == None:
         size_factor: float = 1.0
@@ -127,8 +129,9 @@ def plot_time_series(plotSaveDir: str, description: str, ylabel: str, times: "li
     plt.gcf().set_size_inches(w=size_factor * Plot_sizes.default_plot_width_inches(), h=size_factor * Plot_sizes.default_plot_width_inches() / width_to_height)
     plt.gcf().set_dpi(300.0 / size_factor)
     plt.rcParams.update({"font.size": 12.0})
-    plt.rcParams.update({"figure.constrained_layout.use": True})
-    # plt.tight_layout(pad=0.0, h_pad=0.0, w_pad=0.0)
+    # If used, in some cases, the text will be partly missing even if there is enough space. Even when tight_layout is set afterwards.
+    # plt.rcParams.update({"figure.constrained_layout.use": True})
+    plt.tight_layout(pad=0.05, h_pad=0.0, w_pad=0.0)
 
     plt.xlabel("Zeit [s]", labelpad=0.0)
     plt.ylabel(ylabel, labelpad=0.0)
@@ -165,8 +168,15 @@ def plot_time_series(plotSaveDir: str, description: str, ylabel: str, times: "li
     top = y_max + gap
     plt.ylim(bottom=bottom, top=top)
 
-    plt.legend(loc="best")
+    if legend_loc == None:
+        plt.legend(loc="best")
+    else:
+        plt.legend(loc=legend_loc)
     plt.grid(visible=True, which="both", linestyle=':', color='k', alpha=0.5)
+
+    # Needs to be directly before saving. At the beginning is not sufficient.
+    # If not, in some cases, the text will be partly missing even if there is enough space.
+    plt.tight_layout(pad=0.05, h_pad=0.0, w_pad=0.0)
 
     # create plotSaveDir if not exists
     Path(plotSaveDir).mkdir(parents=True, exist_ok=True)

@@ -83,8 +83,9 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_
     plt.gcf().set_size_inches(w=size_factor * Plot_sizes.default_plot_width_inches(), h=size_factor * Plot_sizes.default_plot_width_inches() / width_to_height)
     plt.gcf().set_dpi(300.0 / size_factor)
     plt.rcParams.update({"font.size": 12.0})
-    plt.rcParams.update({"figure.constrained_layout.use": True})
-    # plt.tight_layout(pad=0.0, h_pad=0.0, w_pad=0.0)
+    # If used, in some cases, the text will be partly missing even if there is enough space. Even when tight_layout is set afterwards.
+    # plt.rcParams.update({"figure.constrained_layout.use": True})
+    plt.tight_layout(pad=0.05, h_pad=0.0, w_pad=0.0)
 
     meanString = "Mittelwert"
     standardDeviationString = "$\sigma$"
@@ -150,10 +151,14 @@ def generate_bland_altman_plot(config: BAP_config, showplot: bool = False, plot_
         patches = [mpatches.Patch(color=c, label=l, alpha=0.8) for c, l in legend.color_to_label.items()]
         plt.legend(handles=patches, loc="best", title=legend.title)
 
+    # Needs to be directly before saving. At the beginning is not sufficient.
+    # If not, in some cases, the text will be partly missing even if there is enough space.
+    plt.tight_layout(pad=0.05, h_pad=0.0, w_pad=0.0)
+
     # create plotSaveDir if not exists
     Path(config.plotSaveDir).mkdir(parents=True, exist_ok=True)
-    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.svg", format="svg", transparent=True, pad_inches=0.01, bbox_inches="tight")
-    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.png", format="png", transparent=True, pad_inches=0.01, bbox_inches="tight")
+    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.svg", format="svg", transparent=True)  # , pad_inches=0.01, bbox_inches="tight")
+    plt.savefig(f"{config.plotSaveDir}BAP_{plotDescription}.png", format="png", transparent=True)  # , pad_inches=0.01, bbox_inches="tight")
 
     # Needed for saving
     if showplot:

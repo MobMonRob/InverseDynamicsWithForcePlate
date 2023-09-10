@@ -121,8 +121,9 @@ def plot_mc_time_series(plotSaveDir: str, description: str, ylabel: str, times: 
     plt.gcf().set_size_inches(w=size_factor * Plot_sizes.default_plot_width_inches(), h=size_factor * Plot_sizes.default_plot_width_inches() / width_to_height)
     plt.gcf().set_dpi(300.0 / size_factor)
     plt.rcParams.update({"font.size": 12.0})
-    plt.rcParams.update({"figure.constrained_layout.use": True})
-    # plt.tight_layout(pad=0.0, h_pad=0.0, w_pad=0.0)
+    # If used, in some cases, the text will be partly missing even if there is enough space. Even when tight_layout is set afterwards.
+    # plt.rcParams.update({"figure.constrained_layout.use": True})
+    plt.tight_layout(pad=0.05, h_pad=0.0, w_pad=0.0)
 
     plt.xlabel("Zeit [s]", labelpad=0.0)
     plt.ylabel(ylabel, labelpad=0.0)
@@ -143,6 +144,10 @@ def plot_mc_time_series(plotSaveDir: str, description: str, ylabel: str, times: 
     plt.ylim(bottom=bottom, top=top)
 
     plt.grid(visible=True, which="both", linestyle=':', color='k', alpha=0.5)
+
+    # Needs to be directly before saving. At the beginning is not sufficient.
+    # If not, in some cases, the text will be partly missing even if there is enough space.
+    plt.tight_layout(pad=0.05, h_pad=0.0, w_pad=0.0)
 
     # create plotSaveDir if not exists
     Path(plotSaveDir).mkdir(parents=True, exist_ok=True)
