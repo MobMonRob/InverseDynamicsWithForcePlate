@@ -21,8 +21,6 @@ The experiments were carried out with the kind support of the employees at the [
 
 
 ### Ubuntu packages
-- [g++](https://gcc.gnu.org/) 9.4.0
-- [cmake](https://cmake.org/) 3.26.4
 - [ros-noetic-desktop-full](http://wiki.ros.org/noetic/Installation/Ubuntu) 1.5.0
 	- [ros-noetic-catkin](http://wiki.ros.org/catkin) 0.8.10
 	- [ros-noetic-rosbag](http://wiki.ros.org/rosbag) 1.16.0
@@ -30,6 +28,8 @@ The experiments were carried out with the kind support of the employees at the [
 - [PlotJuggler](https://plotjuggler.io/) with ros integration [ros-noetic-plotjuggler 3.7.1](https://github.com/facontidavide/PlotJuggler/tree/3.7.1#debian-packages-for-ros-user)
 - [Python](https://www.python.org/) 3.8.10
 - [pip3](https://pip.pypa.io/en/stable/) 20.0.2
+- [g++](https://gcc.gnu.org/) 9.4.0
+- [cmake](https://cmake.org/) 3.26.4
 
 
 ### Python packages
