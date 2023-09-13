@@ -17,7 +17,7 @@ The experiments were carried out with the kind support of the employees at the [
 
 
 ## Dependencies
-- [Kubuntu](https://cdimage.ubuntu.com/kubuntu/releases/20.04/release/) 20.04 LTS (Focal Fossa). Ubuntu version matters for Ros. See http://wiki.ros.org/noetic/Installation.
+- [Kubuntu 20.04 LTS (Focal Fossa)](https://cdimage.ubuntu.com/kubuntu/releases/20.04/release/). Ubuntu version matters for Ros. See http://wiki.ros.org/noetic/Installation.
 
 
 ### Ubuntu packages
