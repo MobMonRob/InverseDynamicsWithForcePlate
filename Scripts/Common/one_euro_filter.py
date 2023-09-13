@@ -107,6 +107,7 @@ class OneEuroFilter(object):
 
 # ----------------------------------------------------------------------------
 
+# This part contains own code.
 
 T = TypeVar('T')
 
