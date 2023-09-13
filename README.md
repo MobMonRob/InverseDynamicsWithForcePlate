@@ -8,7 +8,7 @@ The experiments were carried out with the kind support of the employees at the [
 - Vicon motion capture system
 	- [Vicon Vero cameras](https://www.vicon.com/hardware/cameras/vero/)
 	- [Vicon Lock Lab](https://www.vicon.com/hardware/devices/lock/) serving as input device from the AMTI amplifier
-	- [Vicon Tracker 3.10 Software](https://www.vicon.com/software/tracker/)
+	- [Vicon Tracker](https://www.vicon.com/software/tracker/)  3.10
 	- [Vicon Datastream SDK](https://www.vicon.com/software/datastream-sdk/) (already [included in](ViconDataAcquisition/ViconLib1.12) the repository)
 - [Universal Robots UR5e](https://www.universal-robots.com/products/ur5-robot/) robot
 - AMTI hardware
@@ -17,7 +17,7 @@ The experiments were carried out with the kind support of the employees at the [
 
 
 ## Dependencies
-- [Kubuntu](https://cdimage.ubuntu.com/kubuntu/releases/20.04/release/) 20.04 LTS (Focal Fossa). Ubuntu version matters for ros. See http://wiki.ros.org/noetic/Installation.
+- [Kubuntu](https://cdimage.ubuntu.com/kubuntu/releases/20.04/release/) 20.04 LTS (Focal Fossa). Ubuntu version matters for Ros. See http://wiki.ros.org/noetic/Installation.
 
 
 ### Ubuntu packages
@@ -45,8 +45,8 @@ Update lib: `pip3 install -U <libname>`
 - [numpy](https://numpy.org/install/) 1.24.3
 - [scipy](https://scipy.org/install/) 1.10.1
 - [varname](https://github.com/pwwang/python-varname) 0.11.2
-- rosbag 1.16.0 (via Ubuntu package)
-- rospy 1.16.0 (via Ubuntu package)
+- rosbag 1.16.0 (via [Ubuntu package](#ubuntu-packages))
+- rospy 1.16.0 (via [Ubuntu package](#ubuntu-packages))
 - ([sympy](https://www.sympy.org/en/index.html) 1.12)
 - ([reloading](https://github.com/julvo/reloading) 1.1.2)
 
