@@ -9,7 +9,7 @@ The experiments were carried out with the kind support of the employees at the [
 	- [Vicon Vero cameras](https://www.vicon.com/hardware/cameras/vero/)
 	- [Vicon Lock Lab](https://www.vicon.com/hardware/devices/lock/) serving as input device from the AMTI amplifier
 	- [Vicon Tracker](https://www.vicon.com/software/tracker/)  3.10
-	- [Vicon Datastream SDK](https://www.vicon.com/software/datastream-sdk/) (already [included in](ViconDataAcquisition/ViconLib1.12) the repository)
+	- [Vicon Datastream SDK](https://www.vicon.com/software/datastream-sdk/) 1.12 (already [included in](ViconDataAcquisition/ViconLib1.12) the repository)
 - [Universal Robots UR5e](https://www.universal-robots.com/products/ur5-robot/) robot
 - AMTI hardware
 	- [AMTI Optima BMS400600-2K](https://www.amti.biz/product/bms400600/) force plate
