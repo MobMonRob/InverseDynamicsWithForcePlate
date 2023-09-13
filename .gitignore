@@ -1,3 +1,5 @@
+.vscode/
+
 # Casadi generated
 jit_tmp*.c
 
